@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.mall.mapper.OrderMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.Order">
+        <id property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="orderPayMethod" column="order_pay_method" jdbcType="TINYINT"/>
+        <result property="orderStatus" column="order_status" jdbcType="INTEGER"/>
+        <result property="orderPrice" column="order_price" jdbcType="INTEGER"/>
+        <result property="orderIsDeal" column="order_is_deal" jdbcType="TINYINT"/>
+        <result property="thirdPaymentId" column="third_payment_id" jdbcType="VARCHAR"/>
+        <result property="thirdPaymentMethod" column="third_payment_method" jdbcType="INTEGER"/>
+        <result property="refundId" column="refund_id" jdbcType="BIGINT"/>
+        <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
+        <result property="refundPrice" column="refund_price" jdbcType="INTEGER"/>
+        <result property="refundIsDeal" column="refund_is_deal" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="gmtCreated" column="gmt_created" jdbcType="VARCHAR"/>
+        <result property="gmtModified" column="gmt_modified" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        order_id,refund_id,refund_is_deal
+        ,user_id,product_id,
+        order_pay_method,order_status,order_price,
+        order_is_deal,third_payment_id,third_payment_method,refund_status,refund_price,
+        remark,gmt_created,gmt_modified
+    </sql>
+    <update id="updateTimeoutWaitingOrder">
+        update
+            `Order` o
+        set o.order_status = 8
+        where o.gmt_created + #{timeout} * 1000 &lt; REPLACE(unix_timestamp(current_timestamp(3)), '.', '')
+          AND o.order_status = 0
+    </update>
+</mapper>
