@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.mall.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.Product">
+            <id property="productId" column="product_id" jdbcType="BIGINT"/>
+            <result property="productCode" column="product_code" jdbcType="VARCHAR"/>
+            <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+            <result property="productDescription" column="product_description" jdbcType="VARCHAR"/>
+            <result property="productState" column="product_state" jdbcType="TINYINT"/>
+            <result property="productSort" column="product_sort" jdbcType="INTEGER"/>
+            <result property="productType1" column="product_type_1" jdbcType="VARCHAR"/>
+            <result property="productType2" column="product_type_2" jdbcType="VARCHAR"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        product_id,product_code,product_name,
+        product_description,product_state,product_sort,
+        product_type_1,product_type_2,gmt_created,
+        gmt_modified
+    </sql>
+</mapper>
