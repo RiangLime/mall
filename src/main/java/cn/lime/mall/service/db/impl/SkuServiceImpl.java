@@ -4,12 +4,16 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.mall.model.bean.SkuInfo;
+import cn.lime.mall.model.vo.SkuInfoVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Sku;
 import cn.lime.mall.service.db.SkuService;
 import cn.lime.mall.mapper.SkuMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -30,6 +34,16 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
         sku.setStock(sku.getStock());
         ThrowUtils.throwIf(!save(sku), ErrorCode.INSERT_ERROR);
         return sku;
+    }
+
+    @Override
+    @Transactional
+    public List<SkuInfoVo> getProductSkuInfos(Long productId) {
+        List<SkuInfoVo> skuInfos = baseMapper.getBaseSkuInfo(productId);
+        for (SkuInfoVo skuInfo : skuInfos) {
+            skuInfo.setAttributes(baseMapper.getAttributesBySkuId(skuInfo.getSkuId()));
+        }
+        return skuInfos;
     }
 }
 

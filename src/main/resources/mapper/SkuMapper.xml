@@ -21,4 +21,15 @@
         sku_description,price,stock,
         remark,gmt_created,gmt_modified
     </sql>
+    <select id="getBaseSkuInfo" resultType="cn.lime.mall.model.vo.SkuInfoVo">
+        select s.sku_id as skuId,
+               s.sku_code as skuCode,
+               s.sku_description as skuDescription,
+               s.price as price,
+               s.stock as stock,
+               s.remark as remark,
+               unix_timestamp(s.gmt_created) as createTime
+        from Sku s
+        where s.product_id = #{product_id}
+    </select>
 </mapper>

@@ -2,6 +2,7 @@ package cn.lime.mall.service.db;
 
 import cn.lime.mall.model.bean.SkuInfo;
 import cn.lime.mall.model.entity.Sku;
+import cn.lime.mall.model.vo.SkuInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -13,4 +14,6 @@ import java.util.List;
  */
 public interface SkuService extends IService<Sku> {
     Sku addSku(SkuInfo skuInfo, Long productId);
+
+    List<SkuInfoVo> getProductSkuInfos(Long productId);
 }

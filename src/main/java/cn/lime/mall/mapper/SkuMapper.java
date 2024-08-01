@@ -1,7 +1,12 @@
 package cn.lime.mall.mapper;
 
 import cn.lime.mall.model.entity.Sku;
+import cn.lime.mall.model.vo.SkuInfoVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author riang
@@ -10,7 +15,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity cn.lime.mall.model.entity.Sku
 */
 public interface SkuMapper extends BaseMapper<Sku> {
-
+    List<SkuInfoVo> getBaseSkuInfo(Long productId);
+    @Select("SELECT attribute_name, attribute_value FROM SkuAttribute WHERE sku_id = #{skuId}")
+    Map<String, String> getAttributesBySkuId(Long skuId);
 }
 
 

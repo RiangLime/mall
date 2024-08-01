@@ -95,3 +95,12 @@ create table Cart
     gmt_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 );
+
+create table Product_View_Log
+(
+    id          bigint not null primary key comment 'ID',
+    product_id  bigint not null comment '商品ID',
+    user_id     bigint null comment '浏览用户ID',
+    gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+);
+
