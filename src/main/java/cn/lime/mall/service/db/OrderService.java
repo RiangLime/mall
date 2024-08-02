@@ -1,8 +1,8 @@
 package cn.lime.mall.service.db;
 
-import cn.lime.core.module.dto.OrderPayDto;
-import cn.lime.core.module.entity.Order;
-import cn.lime.core.module.vo.OrderPayVo;
+import cn.lime.mall.model.dto.OrderPayDto;
+import cn.lime.mall.model.entity.Order;
+import cn.lime.mall.model.vo.OrderPayVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;

@@ -5,30 +5,101 @@
 <mapper namespace="cn.lime.mall.mapper.OrderMapper">
 
     <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.Order">
+            <id property="orderId" column="order_id" jdbcType="BIGINT"/>
+            <result property="orderSource" column="order_source" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="addressId" column="address_id" jdbcType="BIGINT"/>
+            <result property="orderPayMethod" column="order_pay_method" jdbcType="TINYINT"/>
+            <result property="orderStatus" column="order_status" jdbcType="INTEGER"/>
+            <result property="originOrderPrice" column="origin_order_price" jdbcType="INTEGER"/>
+            <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
+            <result property="orderPayTime" column="order_pay_time" jdbcType="TIMESTAMP"/>
+            <result property="orderIsDeal" column="order_is_deal" jdbcType="TINYINT"/>
+            <result property="thirdPaymentId" column="third_payment_id" jdbcType="VARCHAR"/>
+            <result property="thirdPaymentMethod" column="third_payment_method" jdbcType="INTEGER"/>
+            <result property="refundId" column="refund_id" jdbcType="BIGINT"/>
+            <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
+            <result property="refundPrice" column="refund_price" jdbcType="INTEGER"/>
+            <result property="refundIsDeal" column="refund_is_deal" jdbcType="INTEGER"/>
+            <result property="remark1" column="remark1" jdbcType="VARCHAR"/>
+            <result property="remark2" column="remark2" jdbcType="VARCHAR"/>
+            <result property="comment" column="comment" jdbcType="VARCHAR"/>
+            <result property="orderFinishTime" column="order_finish_time" jdbcType="TIMESTAMP"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="pageVo" type="cn.lime.mall.model.vo.OrderPageVo">
         <id property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="productNumber" column="number" jdbcType="INTEGER"/>
+        <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="NVARCHAR"/>
+        <result property="addressId" column="address_id" jdbcType="BIGINT"/>
+        <result property="receiverName" column="receiver_name" jdbcType="NVARCHAR"/>
+        <result property="receiverAddress" column="receiver_address" jdbcType="NVARCHAR"/>
+        <result property="receiverPhone" column="receiver_phone" jdbcType="NVARCHAR"/>
         <result property="productId" column="product_id" jdbcType="BIGINT"/>
-        <result property="orderPayMethod" column="order_pay_method" jdbcType="TINYINT"/>
-        <result property="orderStatus" column="order_status" jdbcType="INTEGER"/>
-        <result property="orderPrice" column="order_price" jdbcType="INTEGER"/>
-        <result property="orderIsDeal" column="order_is_deal" jdbcType="TINYINT"/>
-        <result property="thirdPaymentId" column="third_payment_id" jdbcType="VARCHAR"/>
-        <result property="thirdPaymentMethod" column="third_payment_method" jdbcType="INTEGER"/>
-        <result property="refundId" column="refund_id" jdbcType="BIGINT"/>
-        <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
-        <result property="refundPrice" column="refund_price" jdbcType="INTEGER"/>
-        <result property="refundIsDeal" column="refund_is_deal" jdbcType="INTEGER"/>
-        <result property="remark" column="remark" jdbcType="VARCHAR"/>
-        <result property="gmtCreated" column="gmt_created" jdbcType="VARCHAR"/>
-        <result property="gmtModified" column="gmt_modified" jdbcType="VARCHAR"/>
+        <result property="productName" column="product_name" jdbcType="NVARCHAR"/>
+        <result property="productCode" column="product_code" jdbcType="NVARCHAR"/>
+        <result property="productMainUrl" column="main_url" jdbcType="NVARCHAR"/>
+        <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+        <result property="skuCode" column="sku_code" jdbcType="NVARCHAR"/>
+        <association property="skuAttributes" resultMap="skuAttributeVo"/>
+    </resultMap>
+    <resultMap id="detailVo" type="cn.lime.mall.model.vo.OrderDetailVo">
+        <id property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="orderCode" column="orderCode" jdbcType="NVARCHAR"/>
+        <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
+        <result property="orderState" column="order_status" jdbcType="INTEGER"/>
+        <result property="orderCreateTime" column="order_create_time" jdbcType="BIGINT"/>
+        <result property="orderPayMethod" column="order_pay_method" jdbcType="INTEGER"/>
+        <result property="orderPayTime" column="order_pay_method" jdbcType="BIGINT"/>
+        <result property="orderFinishTime" column="order_finish_time" jdbcType="BIGINT"/>
+        <result property="userRemark" column="remark_user" jdbcType="NVARCHAR"/>
+        <result property="merchantRemark" column="remark_merchant" jdbcType="NVARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="NVARCHAR"/>
+        <result property="userAvatar" column="user_avatar" jdbcType="NVARCHAR"/>
+        <result property="addressId" column="address_id" jdbcType="BIGINT"/>
+        <result property="receiverName" column="receiver_name" jdbcType="NVARCHAR"/>
+        <result property="receiverAddress" column="receiver_address" jdbcType="NVARCHAR"/>
+        <result property="receiverPhone" column="receiver_phone" jdbcType="NVARCHAR"/>
+        <association property="orderSkuList" resultMap="orderProductSkuVo"/>
+        <association property="logs" resultMap="orderOperationLogVo"/>
+    </resultMap>
+    <resultMap id="orderProductSkuVo" type="cn.lime.mall.model.vo.OrderProductSkuVo">
+        <id property="skuId" column="sku_id" jdbcType="BIGINT"/>
+        <result property="skuCode" column="sku_code" jdbcType="NVARCHAR"/>
+        <result property="skuPrice" column="price" jdbcType="NVARCHAR"/>
+        <result property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="productCode" column="product_code" jdbcType="NVARCHAR"/>
+        <result property="productName" column="product_name" jdbcType="NVARCHAR"/>
+        <result property="productDescription" column="product_description" jdbcType="NVARCHAR"/>
+        <result property="productType1" column="product_type_1" jdbcType="INTEGER"/>
+        <result property="productType2" column="product_type_2" jdbcType="INTEGER"/>
+        <result property="productMainUrl" column="product_main_url" jdbcType="NVARCHAR"/>
+        <association property="skuAttributes" resultMap="skuAttributeVo"/>
+    </resultMap>
+    <resultMap id="skuAttributeVo" type="cn.lime.mall.model.vo.SkuAttributeVo">
+        <id property="id" column="attribute_id" jdbcType="BIGINT"/>
+        <result property="attributeName" column="attribute_name" jdbcType="VARCHAR"/>
+        <result property="attributeValue" column="attribute_value" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="orderOperationLogVo" type="cn.lime.mall.model.vo.OrderOperateLogVo">
+        <id property="id" column="operation_id" jdbcType="BIGINT"/>
+        <result property="userId" column="operate_user_id" jdbcType="BIGINT"/>
+        <result property="operation" column="operation" jdbcType="NVARCHAR"/>
+        <result property="operateTime" column="operation_time" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        order_id,refund_id,refund_is_deal
-        ,user_id,product_id,
-        order_pay_method,order_status,order_price,
-        order_is_deal,third_payment_id,third_payment_method,refund_status,refund_price,
-        remark,gmt_created,gmt_modified
+        order_id,order_source,user_id,
+        address_id,order_pay_method,order_status,origin_order_price,
+        real_order_price,order_pay_time,order_is_deal,
+        third_payment_id,third_payment_method,refund_id,
+        refund_status,refund_price,refund_is_deal,
+        remark1,remark2,comment,
+        gmt_created,gmt_modified
     </sql>
     <update id="updateTimeoutWaitingOrder">
         update
@@ -37,4 +108,156 @@
         where o.gmt_created + #{timeout} * 1000 &lt; REPLACE(unix_timestamp(current_timestamp(3)), '.', '')
           AND o.order_status = 0
     </update>
+    <select id="pageOrder" resultMap="pageVo">
+        SELECT
+            order_base.*,
+            p.product_id ,
+            p.product_code ,
+            p.product_name ,
+            p.product_description ,
+            p.product_state ,
+            p.product_type_1 ,
+            p.product_type_2 ,
+            url_t.url ,
+            s.sku_id ,
+            s.sku_code ,
+            s.price,
+            sa.attribute_name ,
+            sa.attribute_value ,
+            oi.`number` itemNumber
+        FROM
+            (
+                SELECT
+                    o.order_id ,
+                    o.order_code,
+                    o.real_order_price ,
+                    o.order_status,
+                    UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
+                    u.user_id ,
+                    u.name as user_name,
+                    a.address_id ,
+                    a.receiver_name ,
+                    a.receiver_address ,
+                    a.receiver_phone
+                FROM
+                    `Order` o
+                        left join `User` u on
+                        o.user_id = u.user_id
+                        left join Address a on
+                        o.address_id = a.address_id) order_base
+                LEFT JOIN Order_Item oi on
+                order_base.order_id = oi.order_id
+                LEFT JOIN Product p on
+                oi.product_id = p.product_id
+                left join Sku s on
+                s.product_id = p.product_id
+                left join SkuAttribute sa on
+                sa.sku_id = s.sku_id
+                LEFT JOIN (
+                select
+                    pu.url,
+                    pu.product_id
+                FROM
+                    Product_Url pu
+                WHERE
+                    pu.url_type = 1) url_t on
+                url_t.product_id = p.product_id
+        where 1=1
+        <if test="orderCode != null">
+            and order_base.order_code like CONCAT('%',${orderCode},'%')
+        </if>
+        <if test="userName != null">
+            and order_base.user_name like CONCAT('%',${userName},'%')
+        </if>
+        <if test="productName != null">
+            and p.product_name like CONCAT('%',${productName},'%')
+        </if>
+        <if test="receiverName != null">
+            and order_base.receiver_name like CONCAT('%',${receiverName},'%')
+        </if>
+        <if test="orderState != null">
+            and order_base.order_status = ${orderState}
+        </if>
+        <if test="orderUserId != null">
+            and order_base.user_id = ${orderUserId}
+        </if>
+        <if test="orderStartTime != null">
+            and order_base.order_create_time >= #{orderStartTime}
+        </if>
+        <if test="orderEndTime != null">
+            and order_base.order_create_time &lt;= #{orderEndTime}
+        </if>
+        order by order_base.order_create_time DESC
+    </select>
+    <select id="getOrderDetail" resultType="cn.lime.mall.model.vo.OrderDetailVo">
+        SELECT
+            order_base.*,
+            p.product_id ,
+            p.product_code ,
+            p.product_name ,
+            p.product_description ,
+            p.product_state ,
+            p.product_type_1 ,
+            p.product_type_2 ,
+            url_t.url as product_main_url,
+            s.sku_id ,
+            s.sku_code ,
+            s.price,
+            sa.id as attribute_id,
+            sa.attribute_name ,
+            sa.attribute_value ,
+            oi.`number` itemNumber,
+            ool.id as operate_id,
+            ool.user_id as operate_user_id,
+            ool.operate as operation,
+            UNIX_TIMESTAMP(ool.gmt_created) as operation_time
+        FROM
+            (
+                SELECT
+                    o.order_id ,
+                    o.order_code,
+                    o.real_order_price ,
+                    o.order_status,
+                    UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
+                    o.order_pay_method,
+                    UNIX_TIMESTAMP(o.order_pay_time) as order_pay_time,
+                    UNIX_TIMESTAMP(o.order_finish_time) as order_finish_time,
+                    o.remark1 as remark_user,
+                    o.remark2 as remark_merchant,
+                    u.user_id ,
+                    u.name as user_name,
+                    u.avatar as user_avatar,
+                    a.address_id ,
+                    a.receiver_name ,
+                    a.receiver_address ,
+                    a.receiver_phone
+                FROM
+                    `Order` o
+                        left join `User` u on
+                        o.user_id = u.user_id
+                        left join Address a on
+                        o.address_id = a.address_id) order_base
+                LEFT JOIN Order_Item oi on
+                order_base.order_id = oi.order_id
+                LEFT JOIN Product p on
+                oi.product_id = p.product_id
+                left join Sku s on
+                s.product_id = p.product_id
+                left join SkuAttribute sa on
+                sa.sku_id = s.sku_id
+                LEFT JOIN (
+                select
+                    pu.url,
+                    pu.product_id
+                FROM
+                    Product_Url pu
+                WHERE
+                    pu.url_type = 1) url_t on
+                url_t.product_id = p.product_id
+                LEFT JOIN Order_Operate_Log ool on
+                ool.order_id = order_base.order_id
+        WHERE order_base.order_id = 1
+    </select>
+
+
 </mapper>

@@ -1,20 +1,22 @@
 package cn.lime.mall.model.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 /**
  * 订单表
  * @TableName Order
  */
-@TableName(value ="`Order`")
+@TableName(value ="Order")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,16 +29,29 @@ public class Order implements Serializable {
     private Long orderId;
 
     /**
+     * 订单来源
+     */
+    @TableField(value = "order_source")
+    private Integer orderSource;
+
+    /**
+     *
+     */
+    @TableField(value = "order_code")
+    private String orderCode;
+
+
+    /**
      * 用户ID
      */
     @TableField(value = "user_id")
     private Long userId;
 
     /**
-     * 商品ID
+     * 用户收货地址ID
      */
-    @TableField(value = "product_id")
-    private Long productId;
+    @TableField(value = "address_id")
+    private Long addressId;
 
     /**
      * 付款方式
@@ -53,8 +68,23 @@ public class Order implements Serializable {
     /**
      * 订单价格
      */
-    @TableField(value = "order_price")
-    private Integer orderPrice;
+    @TableField(value = "origin_order_price")
+    private Integer originOrderPrice;
+
+    /**
+     * 实际订单价格
+     */
+    @TableField(value = "real_order_price")
+    private Integer realOrderPrice;
+
+    /**
+     * 订单支付时间
+     */
+    @TableField(value = "order_pay_time")
+    private Date orderPayTime;
+
+    @TableField(value = "order_finish_time")
+    private Date orderFinishTime;
 
     /**
      * 微信回调函数是否被处理过 0没有 1处理过
@@ -63,45 +93,70 @@ public class Order implements Serializable {
     private Integer orderIsDeal;
 
     /**
-     * stripe付款ID
+     * 第三方付款ID
      */
     @TableField(value = "third_payment_id")
     private String thirdPaymentId;
 
     /**
-     * stripe支付方式
+     * 第三方支付方式
      */
     @TableField(value = "third_payment_method")
     private Integer thirdPaymentMethod;
 
+    /**
+     * 退款ID
+     */
     @TableField(value = "refund_id")
     private Long refundId;
 
+    /**
+     * 退款状态 0未退款 1退款中 2退款成功 3退款关闭 4退款异常
+     */
     @TableField(value = "refund_status")
     private Integer refundStatus;
 
+    /**
+     * 退款金额
+     */
     @TableField(value = "refund_price")
     private Integer refundPrice;
 
+    /**
+     * 微信回调函数是否被处理过 0没有 1处理过
+     */
     @TableField(value = "refund_is_deal")
     private Integer refundIsDeal;
+
     /**
      * 备注信息
      */
-    @TableField(value = "remark")
-    private String remark;
+    @TableField(value = "remark1")
+    private String remark1;
+
+    /**
+     * 备注信息
+     */
+    @TableField(value = "remark2")
+    private String remark2;
+
+    /**
+     * 评论
+     */
+    @TableField(value = "comment")
+    private String comment;
 
     /**
      * 创建时间
      */
     @TableField(value = "gmt_created")
-    private String gmtCreated;
+    private Date gmtCreated;
 
     /**
      * 更新时间
      */
     @TableField(value = "gmt_modified")
-    private String gmtModified;
+    private Date gmtModified;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

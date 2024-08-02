@@ -20,6 +20,7 @@ public class SkuInfo implements Serializable {
 
     private Integer skuPrice;
     private Integer skuStock;
+    private String skuUrl;
     private Map<String,String> attributes;
 
 }

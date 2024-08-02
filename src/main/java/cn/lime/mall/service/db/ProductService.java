@@ -10,19 +10,27 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 
 /**
-* @author riang
-* @description 针对表【Product】的数据库操作Service
-* @createDate 2024-07-31 15:03:53
-*/
+ * @author riang
+ * @description 针对表【Product】的数据库操作Service
+ * @createDate 2024-07-31 15:03:53
+ */
 public interface ProductService extends IService<Product> {
     boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
                        String detectNormalType, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
                        List<Long> productTagIds);
+    boolean deleteSkus(Long productId);
+
+    boolean reformatSkus(Long productId, List<SkuInfo> skuInfos);
+
     boolean deleteProduct(Long productId);
-    boolean updateProductState(Long productId,Integer state);
+    boolean deleteProducts(List<Long> productIds);
 
-    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType,Integer productState,
-                                             Integer current,Integer pageSize, String sortField,String sortOrder);
-
+    boolean updateProductState(Long productId, Integer state);
+    boolean stateUpProducts(List<Long> productIds);
+    boolean stateDownProducts(List<Long> productIds);
+    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,
+                                             Integer current, Integer pageSize, String sortField, String sortOrder);
     ProductDetailVo getProductDetail(Long productId);
+    boolean addProductTag(Long productId,Long tagId);
+    boolean removeProductTag(Long productId,Long tagId);
 }

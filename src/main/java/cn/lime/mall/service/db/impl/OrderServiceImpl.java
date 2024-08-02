@@ -3,13 +3,17 @@ package cn.lime.mall.service.db.impl;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.*;
-import cn.lime.core.module.dto.OrderPayDto;
-import cn.lime.core.module.entity.Order;
 import cn.lime.core.module.entity.User;
 import cn.lime.core.module.entity.Userthirdauthorization;
-import cn.lime.core.module.vo.OrderPayVo;
+import cn.lime.mall.config.MallParams;
 import cn.lime.mall.constant.OrderStatus;
+import cn.lime.mall.constant.PayCallBackUrl;
 import cn.lime.mall.constant.PaymentTypeEnum;
+import cn.lime.mall.constant.RefundStatus;
+import cn.lime.mall.mapper.OrderMapper;
+import cn.lime.mall.model.dto.OrderPayDto;
+import cn.lime.mall.model.entity.Order;
+import cn.lime.mall.model.vo.OrderPayVo;
 import cn.lime.mall.service.db.OrderService;
 import cn.lime.core.service.db.UserService;
 import cn.lime.core.service.db.UserthirdauthorizationService;
@@ -25,6 +29,7 @@ import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.Refund;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -43,6 +48,7 @@ import static cn.lime.core.constant.RedisDb.PAYMENT_EXPIRE_DB;
 * @createDate 2024-03-15 14:29:53
 */
 @Service
+@Slf4j
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     implements OrderService {
 
@@ -54,16 +60,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     private StripePayService stripeService;
     @Resource
     private Map<Integer, StringRedisTemplate> redisTemplateMap;
-    /**
-     * 单位毫秒
-     */
-    @Value("${payment.wx.timeout: 30000}")
-    private Long paymentTimeout;
-    /**
-     * 单位秒 3小时
-     */
-    @Value("${payment.order.timeout: 10800}")
-    private Integer orderTimeout;
+    @Resource
+    private MallParams params;
 
     @Override
     public Order getOrder(Long orderId) {
@@ -74,7 +72,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Order createOrder(Long orderId, Long userId, Long productId, Integer orderPrice, String remark) {
-        Order order = Order.builder().orderId(orderId).userId(userId).productId(productId).orderPrice(orderPrice).remark(remark).build();
+        Order order = Order.builder().orderId(orderId).userId(userId).productId(productId)
+                .originOrderPrice(orderPrice).remark1(remark).build();
         ThrowUtils.throwIf(!save(order),ErrorCode.INSERT_ERROR);
         return order;
     }
@@ -117,7 +116,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             ThrowUtils.throwIf(ObjectUtils.isEmpty(userthirdauthorization), ErrorCode.CANNOT_FIND_BY_ID, "查询用户小程序关联OPENID异常");
             openId = userthirdauthorization.getThirdSecondTag();
         }
-        return wxPayService.prepay(order.getOrderId(), order.getOrderPrice(), PayCallBackUrl.ORDER_CALLBACK_URL_WX, openId);
+        return wxPayService.prepay(order.getOrderId(), order.getRealOrderPrice(), PayCallBackUrl.ORDER_CALLBACK_URL_WX, openId);
     }
 
     @Override
@@ -310,7 +309,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         cache.forEach((k, v) -> {
             Long timestamp = Long.valueOf(v.toString());
             // 超时付款
-            if (timestamp + paymentTimeout < System.currentTimeMillis()) {
+            if (timestamp + params.getPaymentTimeout()< System.currentTimeMillis()) {
                 Long orderId = Long.valueOf(k.toString());
                 Order order = getById(orderId);
                 // 如果没被处理 就更新为代付款
@@ -330,7 +329,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Scheduled(cron = "${payment.wx.schedule-scan: 30 * * * * ?}")
     @Transactional
     public void scheduleClearUnPayedTimeoutPayment() {
-        int expireNum = updateTimeoutWaitingPayOrder(orderTimeout);
+        int expireNum = updateTimeoutWaitingPayOrder(params.getOrderTimeout());
         if (expireNum != 0) {
             log.warn("[EXPIRE_ORDER] FIND ORDER EXPIRE");
         }
