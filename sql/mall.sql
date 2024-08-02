@@ -109,6 +109,7 @@ create table `Order`
 (
     order_id             bigint              not null comment '订单ID' primary key,
     order_source         int                 not null comment '订单来源',
+    order_code           nvarchar(64)        not null comment '订单编号',
     user_id              bigint              not null comment '用户ID',
     address_id           bigint              not null comment '用户收货地址ID',
     order_pay_method     tinyint             null comment '付款方式',
@@ -116,6 +117,7 @@ create table `Order`
     origin_order_price   int       default 0 not null comment '订单价格',
     real_order_price     int       default 0 not null comment '实际订单价格',
     order_pay_time       timestamp           null comment '订单支付时间',
+    order_finish_time    timestamp           null comment '订单完成时间',
     order_is_deal        tinyint   default 0 not null comment '微信回调函数是否被处理过 0没有 1处理过',
     third_payment_id     nvarchar(255)       null comment '第三方付款ID',
     third_payment_method int                 null comment '第三方支付方式',
@@ -130,13 +132,14 @@ create table `Order`
     gmt_modified         TIMESTAMP DEFAULT null ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 ) comment '订单表' collate = utf8mb4_unicode_ci;
 
-create table Order_Item(
-    id bigint not null comment 'id' primary key ,
-    order_id bigint not null comment '订单ID' ,
-    product_id bigint not null comment '商品ID',
-    sku_id bigint not null comment 'SKU ID',
-    number int not null default 1 comment '购买数量',
-    gmt_created          TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+create table Order_Item
+(
+    id          bigint not null comment 'id' primary key,
+    order_id    bigint not null comment '订单ID',
+    product_id  bigint not null comment '商品ID',
+    sku_id      bigint not null comment 'SKU ID',
+    number      int    not null default 1 comment '购买数量',
+    gmt_created TIMESTAMP       DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单物品表' collate = utf8mb4_unicode_ci;
 
 create table Order_Operate_Log
