@@ -17,7 +17,7 @@ import com.wechat.pay.java.service.refund.model.RefundNotification;
 */
 public interface OrderService extends IService<Order> {
     Order getOrder(Long orderId);
-    Order createOrder(Long orderId,Long userId,Long productId,Integer orderPrice,String remark);
+    Order createOrder(Long orderId,Long userId,Long productId,Long skuId,Integer number,String userRemark);
     Boolean cancelOrder(Long orderId);
     OrderPayVo payOrder(OrderPayDto dto);
     // 待支付 -> 支付中

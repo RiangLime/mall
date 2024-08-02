@@ -109,6 +109,11 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>${maria-db.version}</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version> <!-- 使用最新版本或适合你的版本 -->
+        </dependency>
         <!-- mybatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>

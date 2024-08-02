@@ -6,7 +6,7 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.RedisDb;
 import cn.lime.core.constant.RedisKeyName;
-import cn.lime.core.module.entity.Order;
+import cn.lime.mall.model.entity.Order;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.utils.HttpUtils;
 import cn.lime.mall.config.MallParams;
@@ -158,7 +158,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         request.setNotifyUrl(notifyUrl);
         AmountReq amountReq = new AmountReq();
         amountReq.setRefund(Long.valueOf(refundPrice));
-        amountReq.setTotal(Long.valueOf(order.getOrderPrice()));
+        amountReq.setTotal(Long.valueOf(order.getRealOrderPrice()));
         amountReq.setCurrency("CNY");
         FundsFromItem fundsFromItem = new FundsFromItem();
         fundsFromItem.setAmount(Long.valueOf(refundPrice));

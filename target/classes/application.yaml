@@ -1,0 +1,49 @@
+server:
+  port: 8093
+  servlet:
+    context-path: /anxin/v2
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  application:
+    #    服务名
+    name: anxin
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${FUNCTION_ED_TECH_DB_DOMAIN:10.1.1.113:13306}/anxin?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: root
+    password: Riang0806
+  data:
+    redis:
+      host: ${FUNCTION_ED_TECH_REDIS_DOMAIN:10.1.1.113}
+      port: 6379
+      dbs: 0,1,2,3,4,5,6,7,8,9
+      password: 123456
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: cn.lime
+  default-flat-param-object: true
+
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表
+  production: ${PRODUCTION:false}
