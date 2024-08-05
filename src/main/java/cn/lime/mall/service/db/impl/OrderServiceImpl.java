@@ -125,7 +125,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     public Boolean cancelOrder(Long orderId) {
         Order order = getById(orderId);
         ThrowUtils.throwIf(!ObjectUtils.isEmpty(order), ErrorCode.NOT_FOUND_ERROR);
-        orderOwnerCheck(order,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal()),
                 ErrorCode.PARAMS_ERROR, "仅待付款订单可取消,已付款订单请走退款流程");
         // 库存
@@ -146,14 +146,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public OrderDetailVo getOrderDetail(Long orderId) {
-        orderOwnerCheck(orderId,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(orderId, ReqThreadLocal.getInfo().getUserId());
         return baseMapper.getOrderDetail(orderId);
     }
 
     @Override
     public Boolean applyRefund(Long orderId) {
         Order order = getById(orderId);
-        orderOwnerCheck(order,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         return lambdaUpdate().eq(Order::getOrderId, orderId).set(Order::getOrderStatus, OrderStatus.REFUNDING.getVal())
                 .set(Order::getRefundId, orderId)
                 .set(Order::getRefundStatus, RefundStatus.APPLY.getVal())
@@ -164,7 +164,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     public Boolean refund(Long orderId) {
         Order order = getById(orderId);
-        orderOwnerCheck(order,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         WxPayFactory.get(PaymentTypeEnum.WX_PAY_BASE.getVal()).refund(orderId, order.getRefundPrice(),
                 params.getWxPayNotifyUrlPrefix() + OrderController.REFUND_NOTICE_URL);
         return true;
@@ -172,7 +172,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public void receive(Long orderId) {
-        orderOwnerCheck(orderId,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(orderId, ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingReceiveToWaitingComment(orderId),
                 ErrorCode.UPDATE_ERROR, "更新用户订单状态异常");
     }
@@ -180,7 +180,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     public void comment(Long orderId, String comment) {
         Order order = getById(orderId);
-        orderOwnerCheck(order,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(StringUtils.isNotEmpty(order.getComment()), ErrorCode.PARAMS_ERROR, "您已经评论过该订单");
         boolean commentRes = lambdaUpdate().eq(Order::getOrderId, orderId).set(Order::getComment, comment).update();
         ThrowUtils.throwIf(!commentRes, ErrorCode.UPDATE_ERROR, "评论失败");
@@ -199,32 +199,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
-    public void addRemark(Long orderId, String userRemark, String merchantRemark) {
-        ThrowUtils.throwIf(lambdaUpdate().eq(Order::getOrderId,orderId)
-                .set(Order::getRemark1,userRemark)
-                .set(Order::getRemark2,merchantRemark)
-                .update(),ErrorCode.UPDATE_ERROR,"添加订单备注异常");
+    public void orderUpdateByAdmin(Long orderId, String merchantRemark, Integer changedPrice) {
+        ThrowUtils.throwIf(lambdaUpdate().eq(Order::getOrderId, orderId)
+                .set(Order::getRemark2, merchantRemark)
+                .set(Order::getRealOrderPrice, changedPrice)
+                .update(), ErrorCode.UPDATE_ERROR, "添加订单备注异常");
     }
 
     @Override
     @Transactional
     public void orderSend(Long orderId, String deliverCompany, String deliverId) {
-        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId,orderId)
-                .set(Order::getDeliverCompany,deliverCompany)
-                .set(Order::getDeliverCompany,deliverCompany)
-                .set(Order::getSendDeliverTime,new Date()).update(),ErrorCode.UPDATE_ERROR);
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
+                .set(Order::getDeliverCompany, deliverCompany)
+                .set(Order::getDeliverCompany, deliverCompany)
+                .set(Order::getSendDeliverTime, new Date()).update(), ErrorCode.UPDATE_ERROR);
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingSendToWaitingReceive(orderId),
-                ErrorCode.UPDATE_ERROR,"更新订单状态异常");
+                ErrorCode.UPDATE_ERROR, "更新订单状态异常");
     }
 
     @Override
     @Transactional
     public OrderPayVo payOrder(OrderPayDto dto) {
         Order order = getById(dto.getOrderId());
-        orderOwnerCheck(order,ReqThreadLocal.getInfo().getUserId());
+        orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         User user = userService.getById(ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getUserId().equals(user.getUserId()), ErrorCode.AUTH_FAIL);
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()), ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        // 成功
+        if (order.getRealOrderPrice() == 0) {
+            ThrowUtils.throwIf(!updateOrderStatusFromPayingToPayed(order.getOrderId()), ErrorCode.UPDATE_ERROR);
+            return null;
+        }
         //
         if (dto.getPayMethod().equals(PaymentTypeEnum.STRIPE.getVal())) {
             return doStripePay(order, dto.getSuccessUrl(), dto.getCancelUrl());

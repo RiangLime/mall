@@ -33,7 +33,7 @@ public interface OrderService extends IService<Order> {
     Boolean refund(Long orderId);
     void receive(Long orderId);
     void comment(Long orderId,String comment);
-    void addRemark(Long orderId,String userRemark,String merchantRemark);
+    void orderUpdateByAdmin(Long orderId, String merchantRemark, Integer changedPrice);
     void orderSend(Long orderId,String deliverCompany,String deliverId);
 
 

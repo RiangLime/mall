@@ -15,7 +15,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRemarkAdminDto implements Serializable {
+public class OrderUpdateAdminDto implements Serializable {
     private Long orderId;
     private String merchantRemark;
+    private Integer changedPrice;
 }

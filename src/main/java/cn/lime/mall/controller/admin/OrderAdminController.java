@@ -8,7 +8,7 @@ import cn.lime.core.constant.AuthLevel;
 import cn.lime.mall.model.dto.OrderIdDto;
 import cn.lime.mall.model.dto.OrderPageUserDto;
 import cn.lime.mall.model.dto.OrderSendDto;
-import cn.lime.mall.model.dto.OrderRemarkAdminDto;
+import cn.lime.mall.model.dto.OrderUpdateAdminDto;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
 import cn.lime.mall.service.db.OrderService;
@@ -53,11 +53,11 @@ public class OrderAdminController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "管理员添加订单备注")
+    @Operation(summary = "管理员添加订单备注/改价")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> addRemark(@RequestBody@Valid OrderRemarkAdminDto dto, BindingResult result){
-        orderService.addRemark(dto.getOrderId(),null,dto.getMerchantRemark());
+    public BaseResponse<Void> addRemark(@RequestBody@Valid OrderUpdateAdminDto dto, BindingResult result){
+        orderService.orderUpdateByAdmin(dto.getOrderId(),dto.getMerchantRemark(),dto.getChangedPrice());
         return ResultUtils.success(null);
     }
 
