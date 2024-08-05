@@ -128,6 +128,9 @@ create table `Order`
     remark1              nvarchar(2048)      null comment '备注信息',
     remark2              nvarchar(2048)      null comment '备注信息',
     comment              nvarchar(2048)      null comment '评论',
+    deliver_company      nvarchar(128)       null comment '物流公司',
+    deliver_id           nvarchar(64)        null comment '物流单号',
+    send_deliver_time    timestamp           null comment '发货时间',
     gmt_created          TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified         TIMESTAMP DEFAULT null ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 ) comment '订单表' collate = utf8mb4_unicode_ci;

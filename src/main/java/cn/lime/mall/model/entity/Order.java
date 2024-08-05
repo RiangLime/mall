@@ -146,6 +146,15 @@ public class Order implements Serializable {
     @TableField(value = "comment")
     private String comment;
 
+    @TableField(value = "deliver_company")
+    private String deliverCompany;
+
+    @TableField(value = "deliver_id")
+    private String deliverId;
+
+    @TableField(value = "send_deliver_time")
+    private Date sendDeliverTime;
+
     /**
      * 创建时间
      */

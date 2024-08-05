@@ -64,6 +64,9 @@
         <result property="receiverName" column="receiver_name" jdbcType="NVARCHAR"/>
         <result property="receiverAddress" column="receiver_address" jdbcType="NVARCHAR"/>
         <result property="receiverPhone" column="receiver_phone" jdbcType="NVARCHAR"/>
+        <result property="deliverCompany" column="deliver_company" jdbcType="VARCHAR"/>
+        <result property="deliverId" column="deliver_id" jdbcType="NVARCHAR"/>
+        <result property="deliverTime" column="deliver_time" jdbcType="BIGINT"/>
         <association property="orderSkuList" resultMap="orderProductSkuVo"/>
         <association property="logs" resultMap="orderOperationLogVo"/>
     </resultMap>
@@ -224,6 +227,9 @@
                     UNIX_TIMESTAMP(o.order_finish_time) as order_finish_time,
                     o.remark1 as remark_user,
                     o.remark2 as remark_merchant,
+                    o.deliver_company as deliver_company,
+                    o.deliver_id as deliver_id,
+                    UNIX_TIMESTAMP(o.send_deliver_time) as deliver_time,
                     u.user_id ,
                     u.name as user_name,
                     u.avatar as user_avatar,

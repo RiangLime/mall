@@ -7,16 +7,16 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @ClassName: OrderRemarkDto
+ * @ClassName: OrderSendDto
  * @Description: TODO
  * @Author: Lime
- * @Date: 2024/8/5 16:57
+ * @Date: 2024/8/5 17:38
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRemarkDto implements Serializable {
+public class OrderSendDto implements Serializable {
     private Long orderId;
-    private String userRemark;
-    private String merchantRemark;
+    private String deliverCompany;
+    private String deliverId;
 }

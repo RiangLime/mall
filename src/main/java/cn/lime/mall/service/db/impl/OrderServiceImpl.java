@@ -52,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -203,6 +204,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
                 .set(Order::getRemark1,userRemark)
                 .set(Order::getRemark2,merchantRemark)
                 .update(),ErrorCode.UPDATE_ERROR,"添加订单备注异常");
+    }
+
+    @Override
+    @Transactional
+    public void orderSend(Long orderId, String deliverCompany, String deliverId) {
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId,orderId)
+                .set(Order::getDeliverCompany,deliverCompany)
+                .set(Order::getDeliverCompany,deliverCompany)
+                .set(Order::getSendDeliverTime,new Date()).update(),ErrorCode.UPDATE_ERROR);
+        ThrowUtils.throwIf(!updateOrderStatusFromWaitingSendToWaitingReceive(orderId),
+                ErrorCode.UPDATE_ERROR,"更新订单状态异常");
     }
 
     @Override

@@ -34,6 +34,7 @@ public interface OrderService extends IService<Order> {
     void receive(Long orderId);
     void comment(Long orderId,String comment);
     void addRemark(Long orderId,String userRemark,String merchantRemark);
+    void orderSend(Long orderId,String deliverCompany,String deliverId);
 
 
     /* 订单状态转换 */

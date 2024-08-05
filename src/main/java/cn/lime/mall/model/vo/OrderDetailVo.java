@@ -38,6 +38,9 @@ public class OrderDetailVo implements Serializable {
     private String receiverName;
     private String receiverAddress;
     private String receiverPhone;
+    private String deliverCompany;
+    private String deliverId;
+    private Long deliverTime;
 
     private List<OrderProductSkuVo> orderSkuList;
     private List<OrderOperateLogVo> logs;

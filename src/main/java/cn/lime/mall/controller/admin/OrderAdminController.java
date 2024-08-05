@@ -7,7 +7,8 @@ import cn.lime.core.common.*;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.mall.model.dto.OrderIdDto;
 import cn.lime.mall.model.dto.OrderPageUserDto;
-import cn.lime.mall.model.dto.OrderRemarkDto;
+import cn.lime.mall.model.dto.OrderSendDto;
+import cn.lime.mall.model.dto.OrderRemarkAdminDto;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
 import cn.lime.mall.service.db.OrderService;
@@ -51,12 +52,12 @@ public class OrderAdminController {
         return ResultUtils.success(orderService.getOrderDetail(dto.getOrderId()));
     }
 
-    @PostMapping("/addremark")
+    @PostMapping("/update")
     @Operation(summary = "管理员添加订单备注")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> addRemark(@RequestBody@Valid OrderRemarkDto dto,BindingResult result){
-        orderService.addRemark(dto.getOrderId(),dto.getUserRemark(),dto.getMerchantRemark());
+    public BaseResponse<Void> addRemark(@RequestBody@Valid OrderRemarkAdminDto dto, BindingResult result){
+        orderService.addRemark(dto.getOrderId(),null,dto.getMerchantRemark());
         return ResultUtils.success(null);
     }
 
@@ -64,9 +65,8 @@ public class OrderAdminController {
     @Operation(summary = "管理员发货")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> orderSendStaff(@RequestBody@Valid OrderIdDto dto,BindingResult result){
-        ThrowUtils.throwIf(!orderService.updateOrderStatusFromWaitingSendToWaitingReceive(dto.getOrderId()),
-                ErrorCode.UPDATE_ERROR,"更新订单状态异常");
+    public BaseResponse<Void> orderSendStaff(@RequestBody@Valid OrderSendDto dto, BindingResult result){
+        orderService.orderSend(dto.getOrderId(),dto.getDeliverCompany(),dto.getDeliverId());
         return ResultUtils.success(null);
     }
 
