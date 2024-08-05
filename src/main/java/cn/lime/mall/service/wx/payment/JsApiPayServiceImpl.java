@@ -20,9 +20,9 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
         amount.setTotal(price);
         PrepayRequest request = new PrepayRequest();
         request.setAmount(amount);
-        request.setAppid(coreParams.getWxPayApId());
-        request.setMchid(coreParams.getWxPayMerchantId());
-        request.setNotifyUrl(coreParams.getWxPayNotifyUrlPrefix() + notifyUrl);
+        request.setAppid(mallParams.getWxPayAppId());
+        request.setMchid(mallParams.getWxPayMerchantId());
+        request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
         request.setOutTradeNo(String.valueOf(orderId));
         request.setDescription("ApplyEasy Order " + orderId);
         Payer payer = new Payer();
@@ -42,7 +42,7 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
     public Transaction queryOrderById(Long orderId) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
         request.setOutTradeNo(String.valueOf(orderId));
-        request.setMchid(String.valueOf(coreParams.getWxPayMerchantId()));
+        request.setMchid(String.valueOf(mallParams.getWxPayMerchantId()));
         return jsapiService.queryOrderByOutTradeNo(request);
     }
 

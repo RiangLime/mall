@@ -1,7 +1,11 @@
 package cn.lime.mall.service.db;
 
+import cn.lime.core.common.PageResult;
+import cn.lime.mall.model.dto.OrderItemDto;
 import cn.lime.mall.model.dto.OrderPayDto;
 import cn.lime.mall.model.entity.Order;
+import cn.lime.mall.model.vo.OrderDetailVo;
+import cn.lime.mall.model.vo.OrderPageVo;
 import cn.lime.mall.model.vo.OrderPayVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.stripe.model.PaymentIntent;
@@ -10,22 +14,39 @@ import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.Refund;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 
+import java.util.List;
+
 /**
 * @author riang
 * @description 针对表【Order(订单表)】的数据库操作Service
 * @createDate 2024-03-15 14:29:53
 */
 public interface OrderService extends IService<Order> {
-    Order getOrder(Long orderId);
-    Order createOrder(Long orderId,Long userId,Long productId,Long skuId,Integer number,String userRemark);
+    Order createOrder(Long userId, Long addressId, List<OrderItemDto> orderItems, String remark);
     Boolean cancelOrder(Long orderId);
     OrderPayVo payOrder(OrderPayDto dto);
+    OrderDetailVo getOrderDetail(Long orderId);
+    PageResult<OrderPageVo> getOrderPage(String orderCode, String userName, String productName,String receiverName,
+                                         Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime,
+                                         Integer current, Integer pageSize, String sortField, String sortOrder);
+    Boolean applyRefund(Long orderId);
+    Boolean refund(Long orderId);
+    void receive(Long orderId);
+    void comment(Long orderId,String comment);
+    void addRemark(Long orderId,String userRemark,String merchantRemark);
+
+
+    /* 订单状态转换 */
+
     // 待支付 -> 支付中
     Boolean updateOrderStatusFromWaitingPayToPaying(Long orderId);
     // 待支付 -> 关闭
     Boolean updateOrderStatusFromWaitingPayToClose(Long orderId);
     Boolean updateOrderStatusFromPayingToPayed(Long orderId);
-
+    Boolean updateOrderStatusFromPayedToWaitingSend(Long orderId);
+    Boolean updateOrderStatusFromWaitingSendToWaitingReceive(Long orderId);
+    Boolean updateOrderStatusFromWaitingReceiveToWaitingComment(Long orderId);
+    Boolean updateOrderStatusFromWaitingCommentToFinish(Long orderId);
     Boolean updateOrderStatusFromPayedToFinish(Long orderId);
     // 支付中 -> 待支付
     Boolean updateOrderStatusFromPayingToWaitingPay(Long orderId);
@@ -33,7 +54,6 @@ public interface OrderService extends IService<Order> {
     Boolean updateOrderStatusFromPayingToClose(Long orderId);
     // 支付中 -> 订单成功
     Boolean updateOrderStatusFromPayingToFinish(Long orderId);
-
     Integer updateTimeoutWaitingPayOrder(Integer timeout);
     void doOrderCallback(Transaction transaction);
     void doRefundCallback(Refund refund);

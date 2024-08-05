@@ -1,6 +1,7 @@
 package cn.lime.mall.service.db.impl;
 
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
+import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.mall.constant.ProductUrlTypeEnum;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.ProductUrl;
@@ -22,11 +23,11 @@ import java.util.List;
 public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, ProductUrl>
     implements ProductUrlService{
     @Resource
-    private SnowflakeGenerator ids;
+    private SnowFlakeGenerator ids;
     @Override
     public boolean addMainPicUrl(Long productUrl, String url) {
         ProductUrl bean = new ProductUrl();
-        bean.setUrlId(ids.next());
+        bean.setUrlId(ids.nextId());
         bean.setUrl(url);
         bean.setProductId(productUrl);
         bean.setUrlType(ProductUrlTypeEnum.MAIN.getVal());
@@ -39,7 +40,7 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
         List<ProductUrl> beans = new LinkedList<>();
         for (String url : urls) {
             ProductUrl bean = new ProductUrl();
-            bean.setUrlId(ids.next());
+            bean.setUrlId(ids.nextId());
             bean.setUrl(url);
             bean.setProductId(productUrl);
             bean.setUrlType(ProductUrlTypeEnum.MAIN.getVal());

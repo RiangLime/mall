@@ -105,7 +105,7 @@
         update
             `Order` o
         set o.order_status = 8
-        where o.gmt_created + #{timeout} * 1000 &lt; REPLACE(unix_timestamp(current_timestamp(3)), '.', '')
+        where TIMESTAMPDIFF(HOUR, o.gmt_created, NOW()) >= #{orderTimeoutHour}
           AND o.order_status = 0
     </update>
     <select id="pageOrder" resultMap="pageVo">

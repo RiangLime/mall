@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface WxPayService {
 
-
+    boolean isInitSuccess();
     /**
      * 预支付
      * @param orderId 订单ID

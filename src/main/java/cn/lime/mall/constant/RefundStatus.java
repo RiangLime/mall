@@ -8,7 +8,7 @@ package cn.lime.mall.constant;
  */
 public enum RefundStatus {
 
-    NO(0),
+    APPLY(0),
     PROCESSING(1),
     SUCCESS(2),
     CLOSED(3),

@@ -48,7 +48,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
 
     private boolean initSuccess;
     @Resource
-    protected MallParams coreParams;
+    protected MallParams mallParams;
     @Resource
     protected Map<Integer, StringRedisTemplate> redisTemplateMap;
     @Resource
@@ -73,16 +73,21 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         // 一个商户号只能初始化一个配置，否则会因为重复的下载任务报错
         RSAAutoCertificateConfig rsaAutoCertificateConfig =
                 new RSAAutoCertificateConfig.Builder()
-                        .merchantId(coreParams.getWxPayMerchantId())
-                        .privateKeyFromPath(coreParams.getWxPayPrivateKeyPath())
-                        .merchantSerialNumber(coreParams.getWxPayMerchantSerialNumber())
-                        .apiV3Key(coreParams.getWxPayApiV3Key())
+                        .merchantId(mallParams.getWxPayMerchantId())
+                        .privateKeyFromPath(mallParams.getWxPayPrivateKeyPath())
+                        .merchantSerialNumber(mallParams.getWxPayMerchantSerialNumber())
+                        .apiV3Key(mallParams.getWxPayApiV3Key())
                         .build();
         nativeService = new NativePayService.Builder().config(rsaAutoCertificateConfig).build();
         jsapiService = new JsapiServiceExtension.Builder().config(rsaAutoCertificateConfig).build();
         h5Service = new H5Service.Builder().config(rsaAutoCertificateConfig).build();
         refundService = new RefundService.Builder().config(rsaAutoCertificateConfig).build();
         notificationConfig = rsaAutoCertificateConfig;
+    }
+
+    @Override
+    public boolean isInitSuccess() {
+        return initSuccess;
     }
 
     /**
@@ -143,7 +148,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
     @Override
     @Transactional
     public void refund(Long orderId, Integer refundPrice, String notifyUrl) {
-        Order order = orderService.getOrder(orderId);
+        Order order = orderService.getById(orderId);
         order.setRefundId(ids.nextId());
         order.setRefundStatus(1);
         order.setRefundPrice(refundPrice);
@@ -172,7 +177,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
 
     @Override
     public Refund queryRefundById(Long orderId) {
-        Order order = orderService.getOrder(orderId);
+        Order order = orderService.getById(orderId);
         QueryByOutRefundNoRequest request = new QueryByOutRefundNoRequest();
         request.setOutRefundNo(String.valueOf(order.getRefundId()));
         return refundService.queryByOutRefundNo(request);
@@ -192,13 +197,13 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
     }
 
     public boolean initSuccess(){
-        return StringUtils.isNotBlank(coreParams.getWxPayApId())
-                && StringUtils.isNotEmpty(coreParams.getWxPayMerchantId())
-                && StringUtils.isNotEmpty(coreParams.getWxPayPrivateKeyPath())
-                && StringUtils.isNotEmpty(coreParams.getWxPayCertificatePath())
-                && StringUtils.isNotEmpty(coreParams.getWxPayApiV3Key())
-                && StringUtils.isNotEmpty(coreParams.getWxPayMerchantSerialNumber())
-                && StringUtils.isNotEmpty(coreParams.getWxPayNotifyUrlPrefix());
+        return StringUtils.isNotBlank(mallParams.getWxPayAppId())
+                && StringUtils.isNotEmpty(mallParams.getWxPayMerchantId())
+                && StringUtils.isNotEmpty(mallParams.getWxPayPrivateKeyPath())
+                && StringUtils.isNotEmpty(mallParams.getWxPayCertificatePath())
+                && StringUtils.isNotEmpty(mallParams.getWxPayApiV3Key())
+                && StringUtils.isNotEmpty(mallParams.getWxPayMerchantSerialNumber())
+                && StringUtils.isNotEmpty(mallParams.getWxPayNotifyUrlPrefix());
     }
 
 }

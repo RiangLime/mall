@@ -13,10 +13,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 * @Entity cn.lime.mall.model.entity.Order
 */
 public interface OrderMapper extends BaseMapper<Order> {
-    Integer updateTimeoutWaitingOrder(Integer timeout);
+    Integer updateTimeoutWaitingOrder(Integer orderTimeoutHour);
 
     Page<OrderPageVo> pageOrder(String orderCode, String userName, String productName,String receiverName,
-                                Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime);
+                                Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime,Page<?> page);
 
     OrderDetailVo getOrderDetail(Long orderId);
 }

@@ -23,9 +23,9 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
         amount.setTotal(price);
         PrepayRequest request = new PrepayRequest();
         request.setAmount(amount);
-        request.setMchid(coreParams.getWxPayMerchantId());
-        request.setAppid(coreParams.getWxPayApId());
-        request.setNotifyUrl(coreParams.getWxPayNotifyUrlPrefix() + notifyUrl);
+        request.setMchid(mallParams.getWxPayMerchantId());
+        request.setAppid(mallParams.getWxPayAppId());
+        request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
         request.setOutTradeNo(String.valueOf(orderId));
         request.setDescription("PeerReview Order " + orderId);
         // 预下单
@@ -40,7 +40,7 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
     public Transaction queryOrderById(Long orderId) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
         request.setOutTradeNo(String.valueOf(orderId));
-        request.setMchid(String.valueOf(coreParams.getWxPayMerchantId()));
+        request.setMchid(String.valueOf(mallParams.getWxPayMerchantId()));
         return nativeService.queryOrderByOutTradeNo(request);
     }
 

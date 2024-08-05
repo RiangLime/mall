@@ -5,6 +5,7 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.RedisDb;
 import cn.lime.core.constant.RedisKeyName;
+import cn.lime.mall.config.MallParams;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.model.vo.OrderPayVo;
 import cn.lime.mall.service.db.OrderService;
@@ -22,6 +23,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -41,22 +44,30 @@ import java.util.Objects;
  */
 @Service
 @Slf4j
-public class StripePayService {
+public class StripePayService implements InitializingBean {
 
-    @Value("${apply-easy.payment.stripe.key}")
-    private String stripeApiKey;
-
-    @Value("${apply-easy.payment.stripe.secret}")
-    private String stripeSecret;
-
+    @Resource
+    private MallParams params;
+    public boolean initSuccess;
     @Resource
     private OrderService orderService;
 
     @Resource
     protected Map<Integer, StringRedisTemplate> redisTemplateMap;
 
-    @Value("${apply-easy.payment.stripe.complete-endpoint-url}")
-    private String successEndpointSecret;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        initSuccess = initSuccess();
+        if (!initSuccess){
+            log.warn("[Init Stripe Pay] 未检测到正确的Stripe支付相关配置");
+        }
+    }
+
+    public boolean initSuccess(){
+        return StringUtils.isNotEmpty(params.getStripeSecret())
+                && StringUtils.isNotEmpty(params.getStripeApiKey())
+                && StringUtils.isNotEmpty(params.getSuccessEndpointSecret());
+    }
 
     public OrderPayVo doStripePay(Order payorder, String successUrl, String cancelUrl) {
 //        try {
@@ -102,7 +113,7 @@ public class StripePayService {
     @Transactional
     public void dealNotice(HttpServletRequest request) throws StripeException {
         String body = "";
-        Stripe.apiKey = stripeSecret;
+        Stripe.apiKey = params.getStripeSecret();
         try (InputStream is = request.getInputStream()) {
             body = IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (IOException ex) {
@@ -114,7 +125,7 @@ public class StripePayService {
         Event event = null;
 
         try {
-            event = Webhook.constructEvent(body, sigHeader, successEndpointSecret);
+            event = Webhook.constructEvent(body, sigHeader, params.getSuccessEndpointSecret());
             dealEvent(event);
         } catch (JsonSyntaxException | SignatureVerificationException e) {
             throw new BusinessException(ErrorCode.STRIPE_INTERFACE_ERROR,e.getMessage());
