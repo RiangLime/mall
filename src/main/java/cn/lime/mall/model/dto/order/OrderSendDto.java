@@ -1,4 +1,4 @@
-package cn.lime.mall.model.dto;
+package cn.lime.mall.model.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,16 +7,16 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @ClassName: OrderRemarkDto
+ * @ClassName: OrderSendDto
  * @Description: TODO
  * @Author: Lime
- * @Date: 2024/8/5 16:57
+ * @Date: 2024/8/5 17:38
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderUpdateAdminDto implements Serializable {
+public class OrderSendDto implements Serializable {
     private Long orderId;
-    private String merchantRemark;
-    private Integer changedPrice;
+    private String deliverCompany;
+    private String deliverId;
 }

@@ -1,4 +1,4 @@
-package cn.lime.mall.model.dto;
+package cn.lime.mall.model.dto.order;
 
 import cn.lime.core.common.PageRequest;
 import lombok.AllArgsConstructor;
@@ -9,22 +9,22 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @ClassName: OrderPageUserDto
+ * @ClassName: OrderPageAdminDto
  * @Description: TODO
  * @Author: Lime
- * @Date: 2024/8/5 15:46
+ * @Date: 2024/8/5 15:48
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OrderPageUserDto extends PageRequest implements Serializable {
+public class OrderPageAdminDto extends PageRequest implements Serializable {
     private String orderCode;
     private String userName;
     private String productName;
     private Integer orderState;
     private Long orderStartTime;
     private Long orderEndTime;
-
-
+    private Long orderUserId;
+    private String receiverName;
 }

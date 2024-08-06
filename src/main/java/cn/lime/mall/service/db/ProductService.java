@@ -19,12 +19,9 @@ public interface ProductService extends IService<Product> {
                        String detectNormalType, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
                        List<Long> productTagIds);
     boolean deleteSkus(Long productId);
-
     boolean reformatSkus(Long productId, List<SkuInfo> skuInfos);
-
     boolean deleteProduct(Long productId);
     boolean deleteProducts(List<Long> productIds);
-
     boolean updateProductState(Long productId, Integer state);
     boolean stateUpProducts(List<Long> productIds);
     boolean stateDownProducts(List<Long> productIds);

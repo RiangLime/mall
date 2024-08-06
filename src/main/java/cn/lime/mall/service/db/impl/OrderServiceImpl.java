@@ -15,8 +15,8 @@ import cn.lime.mall.constant.PaymentTypeEnum;
 import cn.lime.mall.constant.RefundStatus;
 import cn.lime.mall.controller.OrderController;
 import cn.lime.mall.mapper.OrderMapper;
-import cn.lime.mall.model.dto.OrderItemDto;
-import cn.lime.mall.model.dto.OrderPayDto;
+import cn.lime.mall.model.dto.order.OrderItemDto;
+import cn.lime.mall.model.dto.order.OrderPayDto;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.model.entity.OrderItem;
 import cn.lime.mall.model.entity.Sku;
@@ -24,6 +24,7 @@ import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
 import cn.lime.mall.model.vo.OrderPayVo;
 import cn.lime.mall.service.db.OrderItemService;
+import cn.lime.mall.service.db.OrderOperateLogService;
 import cn.lime.mall.service.db.OrderService;
 import cn.lime.core.service.db.UserService;
 import cn.lime.core.service.db.UserthirdauthorizationService;
@@ -45,7 +46,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -85,6 +85,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     private OrderItemService orderItemService;
     @Resource
     private SnowFlakeGenerator ids;
+    @Resource
+    private OrderOperateLogService logService;
 
     @Override
     public Order getById(Serializable orderId) {
@@ -117,6 +119,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             bean.setNumber(orderItem.getNumber());
             ThrowUtils.throwIf(!orderItemService.save(bean), ErrorCode.INSERT_ERROR, "生成购买物品失败");
         }
+        logService.log(order.getOrderId(), userId, "用户创建订单");
         return order;
     }
 
@@ -138,6 +141,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
                     .set(Sku::getStock, sku.getStock() + orderItem.getNumber()).update();
             ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "恢复库存失败");
         }
+        logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户取消订单");
         return lambdaUpdate()
                 .eq(Order::getOrderId, orderId)
                 .set(Order::getOrderStatus, OrderStatus.CLOSE.getVal())
@@ -154,6 +158,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     public Boolean applyRefund(Long orderId) {
         Order order = getById(orderId);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
+        logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户申请订单退款");
         return lambdaUpdate().eq(Order::getOrderId, orderId).set(Order::getOrderStatus, OrderStatus.REFUNDING.getVal())
                 .set(Order::getRefundId, orderId)
                 .set(Order::getRefundStatus, RefundStatus.APPLY.getVal())
@@ -165,6 +170,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     public Boolean refund(Long orderId) {
         Order order = getById(orderId);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
+        logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "管理员同意订单退款");
         WxPayFactory.get(PaymentTypeEnum.WX_PAY_BASE.getVal()).refund(orderId, order.getRefundPrice(),
                 params.getWxPayNotifyUrlPrefix() + OrderController.REFUND_NOTICE_URL);
         return true;
@@ -173,11 +179,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     public void receive(Long orderId) {
         orderOwnerCheck(orderId, ReqThreadLocal.getInfo().getUserId());
+        logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "用户确认收货");
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingReceiveToWaitingComment(orderId),
                 ErrorCode.UPDATE_ERROR, "更新用户订单状态异常");
     }
 
     @Override
+    @Transactional
     public void comment(Long orderId, String comment) {
         Order order = getById(orderId);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
@@ -186,6 +194,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         ThrowUtils.throwIf(!commentRes, ErrorCode.UPDATE_ERROR, "评论失败");
         commentRes = updateOrderStatusFromWaitingCommentToFinish(orderId);
         ThrowUtils.throwIf(!commentRes, ErrorCode.UPDATE_ERROR, "评论失败");
+        logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户评论订单");
     }
 
     @Override
@@ -200,6 +209,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public void orderUpdateByAdmin(Long orderId, String merchantRemark, Integer changedPrice) {
+        Order order = getById(orderId);
+        logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员修改订单信息" + order.getRealOrderPrice()
+                + "->" + changedPrice + ",REMARK[" + merchantRemark + "]");
         ThrowUtils.throwIf(lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getRemark2, merchantRemark)
                 .set(Order::getRealOrderPrice, changedPrice)
@@ -209,6 +221,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void orderSend(Long orderId, String deliverCompany, String deliverId) {
+        logService.log(orderId,ReqThreadLocal.getInfo().getUserId(), "管理员确认订单发货");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getDeliverCompany, deliverCompany)
                 .set(Order::getDeliverCompany, deliverCompany)
@@ -225,6 +238,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         User user = userService.getById(ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getUserId().equals(user.getUserId()), ErrorCode.AUTH_FAIL);
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()), ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        logService.log(order.getOrderId(),ReqThreadLocal.getInfo().getUserId(), "用户付款");
         // 成功
         if (order.getRealOrderPrice() == 0) {
             ThrowUtils.throwIf(!updateOrderStatusFromPayingToPayed(order.getOrderId()), ErrorCode.UPDATE_ERROR);
@@ -357,6 +371,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         if (order.getOrderIsDeal().equals(YesNoEnum.YES.getVal())) {
             return;
         }
+        logService.log(order.getOrderId(),null, "收到微信支付回调信息");
         if (ObjectUtils.isEmpty(order.getThirdPaymentId())) {
             // 处理微信回调字段
             ThrowUtils.throwIf(!lambdaUpdate()
@@ -383,6 +398,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public void doRefundCallback(Refund refund) {
+        logService.log(Long.valueOf(refund.getOutTradeNo()),null, "收到微信退款回调信息");
+
         RefundStatus refundStatus = null;
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Order::getOrderId, Long.valueOf(refund.getOutTradeNo()));
@@ -408,6 +425,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public void doRefundCallback(RefundNotification refundNotification) {
+        logService.log(Long.valueOf(refundNotification.getOutTradeNo()),null, "收到微信退款回调信息");
         RefundStatus refundStatus = null;
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Order::getOrderId, Long.valueOf(refundNotification.getOutTradeNo()));
@@ -434,6 +452,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void doOrderCallback(PaymentIntent paymentIntent) {
+        logService.log(Long.valueOf(paymentIntent.getId()),null, "收到Stripe退款回调信息");
         Order order = getById(Long.valueOf(paymentIntent.getId()));
         doOrderCallbackStripe(order, paymentIntent);
     }
@@ -441,6 +460,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void doOrderCallback(Session stripeSession) {
+        logService.log(Long.valueOf(stripeSession.getClientReferenceId()),null, "收到Stripe退款回调信息");
         Order order = getById(Long.parseLong(stripeSession.getClientReferenceId()));
         doOrderCallbackStripe(order, stripeSession);
 

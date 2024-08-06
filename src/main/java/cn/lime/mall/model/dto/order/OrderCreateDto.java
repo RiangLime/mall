@@ -1,4 +1,4 @@
-package cn.lime.mall.model.dto;
+package cn.lime.mall.model.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package cn.lime.mall.service.db;
 
 import cn.lime.core.common.PageResult;
-import cn.lime.mall.model.dto.OrderItemDto;
-import cn.lime.mall.model.dto.OrderPayDto;
+import cn.lime.mall.model.dto.order.OrderItemDto;
+import cn.lime.mall.model.dto.order.OrderPayDto;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
