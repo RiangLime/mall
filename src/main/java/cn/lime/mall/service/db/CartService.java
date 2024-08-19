@@ -2,6 +2,7 @@ package cn.lime.mall.service.db;
 
 import cn.lime.core.common.PageResult;
 import cn.lime.mall.model.entity.Cart;
+import cn.lime.mall.model.vo.CartVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -14,5 +15,5 @@ import java.util.List;
 public interface CartService extends IService<Cart> {
     boolean addCart(Long userId,Long proId,Long skuId,Integer number);
     boolean deleteCart(Long userId,Long proId,Long skuId,Integer number);
-    List<Cart> listUserCart(Long userId);
+    List<CartVo> listUserCart(Long userId);
 }

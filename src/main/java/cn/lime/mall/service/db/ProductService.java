@@ -16,8 +16,8 @@ import java.util.List;
  */
 public interface ProductService extends IService<Product> {
     boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                       String detectNormalType, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
-                       List<Long> productTagIds);
+                       String detectNormalType, Integer isVisible,String mainPicUrl, List<String> roundUrls,
+                       List<SkuInfo> skuInfos, List<Long> productTagIds);
     boolean deleteSkus(Long productId);
     boolean reformatSkus(Long productId, List<SkuInfo> skuInfos);
     boolean deleteProduct(Long productId);

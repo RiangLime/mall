@@ -17,7 +17,7 @@ import java.util.Map;
 public interface SkuMapper extends BaseMapper<Sku> {
     List<SkuInfoVo> getBaseSkuInfo(Long productId);
     @Select("SELECT attribute_name, attribute_value FROM SkuAttribute WHERE sku_id = #{skuId}")
-    Map<String, String> getAttributesBySkuId(Long skuId);
+    List<Map<String, String>> getAttributesBySkuId(Long skuId);
 }
 
 

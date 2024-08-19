@@ -30,6 +30,8 @@ public class ProductAddDto implements Serializable {
     @Schema(description = "")
     private String detectNormalType;
     @Schema(description = "")
+    private Integer visible;
+    @Schema(description = "")
     private String mainPicUrl;
     @Schema(description = "")
     private List<String> roundUrls;

@@ -19,6 +19,7 @@ create table Product
     product_name        NVARCHAR(256) NOT NULL comment '商品名称',
     product_description text          NULL comment '商品详情',
     product_state       tinyINT       NOT NULL DEFAULT 1 comment '商品状态 1上架 0下架',
+    visible             tinyint       NOT NULL default 1 comment '商品是否可见',
     product_sort        INT           NOT NULL DEFAULT 1 comment '排序字段',
     product_type_1      NVARCHAR(64)  NULL comment '商品类型1',
     product_type_2      NVARCHAR(64)  NULL comment '商品类型2',
@@ -29,12 +30,13 @@ create table Product
 -- 商品URL
 create table Product_Url
 (
-    url_id       BIGINT  NOT NULL primary key comment 'url id',
-    product_id   BIGINT  NOT NULL comment '商品ID',
-    url_type     tinyINT NOT NULL comment 'URL类型 1主图 2轮播图',
-    url_sort     INT     NOT NULL DEFAULT 1 comment '轮播图序号',
-    gmt_created  TIMESTAMP        DEFAULT CURRENT_TIMESTAMP comment '创建时间',
-    gmt_modified TIMESTAMP        DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
+    url_id       BIGINT         NOT NULL primary key comment 'url id',
+    product_id   BIGINT         NOT NULL comment '商品ID',
+    url          nvarchar(1024) not null comment 'URL',
+    url_type     tinyINT        NOT NULL comment 'URL类型 1主图 2轮播图',
+    url_sort     INT            NOT NULL DEFAULT 1 comment '轮播图序号',
+    gmt_created  TIMESTAMP               DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+    gmt_modified TIMESTAMP               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 );
 
 

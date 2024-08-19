@@ -45,6 +45,9 @@ public class Product implements Serializable {
     @TableField(value = "product_state")
     private Integer productState;
 
+    @TableField(value = "visible")
+    private Integer visible;
+
     /**
      * 排序字段
      */

@@ -13,10 +13,51 @@
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
     </resultMap>
+    <resultMap id="skuAttributeVo" type="cn.lime.mall.model.vo.SkuAttributeVo">
+        <id property="id" column="attribute_id" jdbcType="BIGINT"/>
+        <result property="attributeName" column="attribute_name" jdbcType="VARCHAR"/>
+        <result property="attributeValue" column="attribute_value" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="cartVo" type="cn.lime.mall.model.vo.CartVo">
+        <id property="cartId" column="cart_id" jdbcType="BIGINT"/>
+        <result property="productCode" column="product_code" jdbcType="VARCHAR"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productMainUrl" column="url" jdbcType="VARCHAR"/>
+        <result property="skuCode" column="sku_code" jdbcType="VARCHAR"/>
+        <result property="skuDescription" column="sku_description" jdbcType="VARCHAR"/>
+        <result property="skuPrice" column="price" jdbcType="INTEGER"/>
+        <result property="number" column="number" jdbcType="INTEGER"/>
+        <association property="attributeVos" resultMap="skuAttributeVo"/>
+    </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,product_id,
         sku_id,number,gmt_created,
         gmt_modified
     </sql>
+    <select id="listUserCart" resultMap="cartVo">
+        with main_pics as (SELECT * FROM Product_Url pu where pu.url_type = 1)
+        SELECT
+            c.id as cart_id,
+            p.product_code ,
+            p.product_name ,
+            main_pics.url,
+            s.sku_code ,
+            s.sku_description ,
+            s.price ,
+            c.number,
+            sa.attribute_name ,
+            sa.attribute_value
+        FROM
+            Cart c
+                left join Product p on
+                c.product_id = p.product_id
+                LEFT JOIN Sku s on
+                s.sku_id = c.sku_id
+                LEFT JOIN main_pics on
+                p.product_id = main_pics.product_id
+                left join SkuAttribute sa on
+                s.sku_id = sa.sku_id
+        WHERE c.user_id = #{userId}
+    </select>
 </mapper>

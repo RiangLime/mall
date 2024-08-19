@@ -57,7 +57,7 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> addNewProduct(@RequestBody @Valid ProductAddDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.addProduct(dto.getProductCode(),dto.getProductName(),dto.getProductDescription(),
-                dto.getRealVirtualType(), dto.getDetectNormalType(),dto.getMainPicUrl(),
+                dto.getRealVirtualType(), dto.getDetectNormalType(),dto.getVisible(),dto.getMainPicUrl(),
                 dto.getRoundUrls(),dto.getSkuInfos(),dto.getProductTagIds()), ErrorCode.INSERT_ERROR);
         return ResultUtils.success(null);
     }

@@ -8,6 +8,7 @@ import cn.lime.mall.mapper.ProductHaveTagMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,9 @@ public class ProductHaveTagServiceImpl extends ServiceImpl<ProductHaveTagMapper,
     @Override
     @Transactional
     public boolean addRelation(Long productId, List<Long> tagIds) {
+        if (CollectionUtils.isEmpty(tagIds)){
+            return true;
+        }
         List<ProductHaveTag> relations = new ArrayList<>();
         for (Long tagId : tagIds) {
             ProductHaveTag bean = new ProductHaveTag();

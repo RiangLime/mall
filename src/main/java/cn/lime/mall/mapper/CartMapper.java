@@ -1,7 +1,10 @@
 package cn.lime.mall.mapper;
 
 import cn.lime.mall.model.entity.Cart;
+import cn.lime.mall.model.vo.CartVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -10,7 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity cn.lime.mall.model.entity.Cart
 */
 public interface CartMapper extends BaseMapper<Cart> {
-
+    List<CartVo> listUserCart(Long userId);
 }
 
 

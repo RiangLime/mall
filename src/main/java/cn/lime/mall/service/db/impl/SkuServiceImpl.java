@@ -15,7 +15,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author riang
@@ -33,8 +35,9 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
         Sku sku = new Sku();
         sku.setSkuId(ids.nextId());
         sku.setSkuCode(String.valueOf(skuInfo.getAttributes().hashCode()));
-        sku.setPrice(sku.getPrice());
-        sku.setStock(sku.getStock());
+        sku.setProductId(productId);
+        sku.setPrice(skuInfo.getSkuPrice());
+        sku.setStock(skuInfo.getSkuStock());
         ThrowUtils.throwIf(!save(sku), ErrorCode.INSERT_ERROR);
         return sku;
     }
@@ -44,7 +47,13 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
     public List<SkuInfoVo> getProductSkuInfos(Long productId) {
         List<SkuInfoVo> skuInfos = baseMapper.getBaseSkuInfo(productId);
         for (SkuInfoVo skuInfo : skuInfos) {
-            skuInfo.setAttributes(baseMapper.getAttributesBySkuId(skuInfo.getSkuId()));
+            List<Map<String,String>> listMap = baseMapper.getAttributesBySkuId(skuInfo.getSkuId());
+            Map<String,String> attrMap = new HashMap<>();
+            for (Map<String, String> stringStringMap : listMap) {
+                attrMap.put(stringStringMap.get("attribute_name"),stringStringMap.get("attribute_value"));
+            }
+            skuInfo.setAttributes(attrMap);
+
         }
         return skuInfos;
     }

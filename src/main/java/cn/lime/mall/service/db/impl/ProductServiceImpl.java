@@ -51,13 +51,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     @Override
     @Transactional
     public boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                              String detectNormalType, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
-                              List<Long> productTagIds) {
+                              String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls,
+                              List<SkuInfo> skuInfos, List<Long> productTagIds) {
         // 新增商品
         Product product = new Product();
         product.setProductId(ids.nextId());
         product.setProductCode(productCode);
         product.setProductName(productName);
+        product.setVisible(isVisible);
         product.setProductDescription(productDescription);
         product.setProductType1(realVirtualType);
         product.setProductType2(detectNormalType);
@@ -123,7 +124,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         // 规格信息
         vo.setSpecificationInfos(baseMapper.getProductSpecification(productId));
         // URL信息
-        List<ProductUrl> urls = baseMapper.getProductUrls(productId);
+        List<ProductUrl> urls = productUrlService.lambdaQuery().eq(ProductUrl::getProductId,productId).list();
         Map<Integer,List<ProductUrl>> urlMap = urls.stream().collect(Collectors.groupingBy(ProductUrl::getUrlType));
         if (urlMap.containsKey(ProductUrlType.MAIN.getVal())){
             vo.setMainUrl(urlMap.get(1).get(0).getUrl());

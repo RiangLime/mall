@@ -3,6 +3,7 @@ package cn.lime.mall.service.db.impl;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
+import cn.lime.mall.model.vo.CartVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Cart;
 import cn.lime.mall.service.db.CartService;
@@ -47,8 +48,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart>
     }
 
     @Override
-    public List<Cart> listUserCart(Long userId) {
-        return lambdaQuery().eq(Cart::getUserId,userId).list();
+    public List<CartVo> listUserCart(Long userId) {
+        return baseMapper.listUserCart(userId);
     }
 }
 

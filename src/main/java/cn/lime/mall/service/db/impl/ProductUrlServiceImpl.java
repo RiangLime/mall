@@ -43,7 +43,7 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
             bean.setUrlId(ids.nextId());
             bean.setUrl(url);
             bean.setProductId(productUrl);
-            bean.setUrlType(ProductUrlTypeEnum.MAIN.getVal());
+            bean.setUrlType(ProductUrlTypeEnum.ROUND.getVal());
             beans.add(bean);
         }
         return saveBatch(beans);
