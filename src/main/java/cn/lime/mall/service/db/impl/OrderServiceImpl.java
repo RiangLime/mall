@@ -97,19 +97,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     @Transactional
-    public Order createOrder(Long userId, Long addressId, List<OrderItemDto> orderItems, String remark) {
+    public Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark) {
         int price = 0;
         for (OrderItemDto orderItem : orderItems) {
             Sku sku = skuService.getById(orderItem.getSkuId());
-            ThrowUtils.throwIf(!ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
+            ThrowUtils.throwIf(ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
             ThrowUtils.throwIf(sku.getStock() < orderItem.getNumber(), ErrorCode.PARAMS_ERROR, "库存不足");
             price += sku.getPrice() * orderItem.getNumber();
         }
         int realPrice = price;
         // 默认原价生成订单,后续有优惠政策在业务模块修改订单价格
-        Order order = Order.builder().orderId(ids.nextId()).orderCode(OrderCodeGenerator.get()).userId(userId).addressId(addressId)
-                .originOrderPrice(price).realOrderPrice(realPrice).remark1(remark).build();
+        Order order = new Order();
+        order.setOrderId(ids.nextId());
+        order.setOrderCode(OrderCodeGenerator.get());
+        order.setUserId(userId);
+        order.setAddressId(addressId);
+        order.setOriginOrderPrice(price);
+        order.setRealOrderPrice(realPrice);
+        order.setRemark1(remark);
+        order.setOrderStatus(OrderStatus.WAITING_PAY.getVal());
         ThrowUtils.throwIf(!save(order), ErrorCode.INSERT_ERROR);
+//        ThrowUtils.throwIf(!baseMapper.insertOrder(order.getOrderId(),order.getOrderCode(),order.getUserId(),order.getAddressId(),
+//                order.getOriginOrderPrice(),order.getRealOrderPrice(),order.getRemark1()), ErrorCode.INSERT_ERROR);
         for (OrderItemDto orderItem : orderItems) {
             OrderItem bean = new OrderItem();
             bean.setOrderId(order.getOrderId());
@@ -212,7 +221,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         Order order = getById(orderId);
         logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员修改订单信息" + order.getRealOrderPrice()
                 + "->" + changedPrice + ",REMARK[" + merchantRemark + "]");
-        ThrowUtils.throwIf(lambdaUpdate().eq(Order::getOrderId, orderId)
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getRemark2, merchantRemark)
                 .set(Order::getRealOrderPrice, changedPrice)
                 .update(), ErrorCode.UPDATE_ERROR, "添加订单备注异常");

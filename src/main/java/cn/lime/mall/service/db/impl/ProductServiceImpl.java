@@ -51,7 +51,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     @Override
     @Transactional
     public boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                              String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls,
+                              String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls,String productBrand,
                               List<SkuInfo> skuInfos, List<Long> productTagIds) {
         // 新增商品
         Product product = new Product();
@@ -59,6 +59,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         product.setProductCode(productCode);
         product.setProductName(productName);
         product.setVisible(isVisible);
+        product.setReserveStrA(productBrand);
         product.setProductDescription(productDescription);
         product.setProductType1(realVirtualType);
         product.setProductType2(detectNormalType);

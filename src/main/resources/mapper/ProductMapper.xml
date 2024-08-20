@@ -23,6 +23,7 @@
             <result property="productDescription" column="productDescription" jdbcType="VARCHAR"/>
             <result property="productSort" column="productSort" jdbcType="INTEGER"/>
             <result property="productState" column="productState" jdbcType="INTEGER"/>
+        <result property="productBrand" column="productBrand" jdbcType="NVARCHAR"/>
             <result property="createTime" column="createTime" jdbcType="BIGINT"/>
             <result property="modifiedTime" column="modifiedTime" jdbcType="BIGINT"/>
             <collection property="productTags" ofType="string" column="productTag">
@@ -64,6 +65,7 @@
         p.product_name as productName,
         p.product_state as productState,
         p.product_type_1 as productType,
+        p.reserve_str_a as productBrand,
         UNIX_TIMESTAMP(p.gmt_created) as createTime,
         p.product_sort as productSort,
         MAX(s.price) as priceRangeStart,
@@ -122,6 +124,7 @@
             p.product_state as productState,
             p.product_type_1 as productTypeVirtual ,
             p.product_type_2 as productTypeDetect,
+            p.reserve_str_a as productBrand,
             UNIX_TIMESTAMP(p.gmt_created) as createTime,
             UNIX_TIMESTAMP(p.gmt_modified) as modifiedTime,
             pt.tag_name as productTag

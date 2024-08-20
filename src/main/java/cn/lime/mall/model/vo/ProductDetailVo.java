@@ -24,6 +24,7 @@ public class ProductDetailVo {
     private Integer productSort;
     private String productType1;
     private String productType2;
+    private String productBrand;
     private Long createTime;
     private Long modifiedTime;
 

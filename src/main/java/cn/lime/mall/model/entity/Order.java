@@ -6,21 +6,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 订单表
  * @TableName Order
  */
-@TableName(value ="Order")
+@TableName(value ="`Order`")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Order implements Serializable {
     /**
      * 订单ID
@@ -35,11 +28,10 @@ public class Order implements Serializable {
     private Integer orderSource;
 
     /**
-     *
+     * 订单编号
      */
     @TableField(value = "order_code")
     private String orderCode;
-
 
     /**
      * 用户ID
@@ -51,7 +43,7 @@ public class Order implements Serializable {
      * 用户收货地址ID
      */
     @TableField(value = "address_id")
-    private Long addressId;
+    private Integer addressId;
 
     /**
      * 付款方式
@@ -83,6 +75,9 @@ public class Order implements Serializable {
     @TableField(value = "order_pay_time")
     private Date orderPayTime;
 
+    /**
+     * 订单完成时间
+     */
     @TableField(value = "order_finish_time")
     private Date orderFinishTime;
 
@@ -146,12 +141,21 @@ public class Order implements Serializable {
     @TableField(value = "comment")
     private String comment;
 
+    /**
+     * 物流公司
+     */
     @TableField(value = "deliver_company")
     private String deliverCompany;
 
+    /**
+     * 物流单号
+     */
     @TableField(value = "deliver_id")
     private String deliverId;
 
+    /**
+     * 发货时间
+     */
     @TableField(value = "send_deliver_time")
     private Date sendDeliverTime;
 

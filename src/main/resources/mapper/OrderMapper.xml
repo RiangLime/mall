@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.Order">
             <id property="orderId" column="order_id" jdbcType="BIGINT"/>
             <result property="orderSource" column="order_source" jdbcType="INTEGER"/>
+            <result property="orderCode" column="order_code" jdbcType="VARCHAR"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="addressId" column="address_id" jdbcType="BIGINT"/>
             <result property="orderPayMethod" column="order_pay_method" jdbcType="TINYINT"/>
@@ -14,6 +15,7 @@
             <result property="originOrderPrice" column="origin_order_price" jdbcType="INTEGER"/>
             <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
             <result property="orderPayTime" column="order_pay_time" jdbcType="TIMESTAMP"/>
+            <result property="orderFinishTime" column="order_finish_time" jdbcType="TIMESTAMP"/>
             <result property="orderIsDeal" column="order_is_deal" jdbcType="TINYINT"/>
             <result property="thirdPaymentId" column="third_payment_id" jdbcType="VARCHAR"/>
             <result property="thirdPaymentMethod" column="third_payment_method" jdbcType="INTEGER"/>
@@ -24,7 +26,9 @@
             <result property="remark1" column="remark1" jdbcType="VARCHAR"/>
             <result property="remark2" column="remark2" jdbcType="VARCHAR"/>
             <result property="comment" column="comment" jdbcType="VARCHAR"/>
-            <result property="orderFinishTime" column="order_finish_time" jdbcType="TIMESTAMP"/>
+            <result property="deliverCompany" column="deliver_company" jdbcType="VARCHAR"/>
+            <result property="deliverId" column="deliver_id" jdbcType="VARCHAR"/>
+            <result property="sendDeliverTime" column="send_deliver_time" jdbcType="TIMESTAMP"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -60,7 +64,7 @@
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="userName" column="user_name" jdbcType="NVARCHAR"/>
         <result property="userAvatar" column="user_avatar" jdbcType="NVARCHAR"/>
-        <result property="addressId" column="address_id" jdbcType="BIGINT"/>
+        <result property="addressId" column="address_id" jdbcType="INTEGER"/>
         <result property="receiverName" column="receiver_name" jdbcType="NVARCHAR"/>
         <result property="receiverAddress" column="receiver_address" jdbcType="NVARCHAR"/>
         <result property="receiverPhone" column="receiver_phone" jdbcType="NVARCHAR"/>
@@ -94,16 +98,21 @@
         <result property="operation" column="operation" jdbcType="NVARCHAR"/>
         <result property="operateTime" column="operation_time" jdbcType="BIGINT"/>
     </resultMap>
-
     <sql id="Base_Column_List">
-        order_id,order_source,user_id,
-        address_id,order_pay_method,order_status,origin_order_price,
-        real_order_price,order_pay_time,order_is_deal,
+        order_id,order_source,order_code,
+        user_id,address_id,order_pay_method,
+        order_status,origin_order_price,real_order_price,
+        order_pay_time,order_finish_time,order_is_deal,
         third_payment_id,third_payment_method,refund_id,
         refund_status,refund_price,refund_is_deal,
         remark1,remark2,comment,
+        deliver_company,deliver_id,send_deliver_time,
         gmt_created,gmt_modified
     </sql>
+    <insert id="insertOrder">
+        insert into `Order` (order_id,order_code,user_id,address_id,origin_order_price,real_order_price,remark1,order_status)
+        values (#{orderId},#{orderCode},#{userId},#{addressId},#{originPrice},#{realPrice},#{remark},1)
+    </insert>
     <update id="updateTimeoutWaitingOrder">
         update
             `Order` o
@@ -113,58 +122,58 @@
     </update>
     <select id="pageOrder" resultMap="pageVo">
         SELECT
-            order_base.*,
-            p.product_id ,
-            p.product_code ,
-            p.product_name ,
-            p.product_description ,
-            p.product_state ,
-            p.product_type_1 ,
-            p.product_type_2 ,
-            url_t.url ,
-            s.sku_id ,
-            s.sku_code ,
-            s.price,
-            sa.attribute_name ,
-            sa.attribute_value ,
-            oi.`number` itemNumber
+        order_base.*,
+        p.product_id ,
+        p.product_code ,
+        p.product_name ,
+        p.product_description ,
+        p.product_state ,
+        p.product_type_1 ,
+        p.product_type_2 ,
+        url_t.url ,
+        s.sku_id ,
+        s.sku_code ,
+        s.price,
+        sa.attribute_name ,
+        sa.attribute_value ,
+        oi.`number` itemNumber
         FROM
-            (
-                SELECT
-                    o.order_id ,
-                    o.order_code,
-                    o.real_order_price ,
-                    o.order_status,
-                    UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
-                    u.user_id ,
-                    u.name as user_name,
-                    a.address_id ,
-                    a.receiver_name ,
-                    a.receiver_address ,
-                    a.receiver_phone
-                FROM
-                    `Order` o
-                        left join `User` u on
-                        o.user_id = u.user_id
-                        left join Address a on
-                        o.address_id = a.address_id) order_base
-                LEFT JOIN Order_Item oi on
-                order_base.order_id = oi.order_id
-                LEFT JOIN Product p on
-                oi.product_id = p.product_id
-                left join Sku s on
-                s.product_id = p.product_id
-                left join SkuAttribute sa on
-                sa.sku_id = s.sku_id
-                LEFT JOIN (
-                select
-                    pu.url,
-                    pu.product_id
-                FROM
-                    Product_Url pu
-                WHERE
-                    pu.url_type = 1) url_t on
-                url_t.product_id = p.product_id
+        (
+        SELECT
+        o.order_id ,
+        o.order_code,
+        o.real_order_price ,
+        o.order_status,
+        UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
+        u.user_id ,
+        u.name as user_name,
+        a.address_id ,
+        a.receiver_name ,
+        a.receiver_address ,
+        a.receiver_phone
+        FROM
+        `Order` o
+        left join `User` u on
+        o.user_id = u.user_id
+        left join Address a on
+        o.address_id = a.address_id) order_base
+        LEFT JOIN Order_Item oi on
+        order_base.order_id = oi.order_id
+        LEFT JOIN Product p on
+        oi.product_id = p.product_id
+        left join Sku s on
+        s.product_id = p.product_id
+        left join SkuAttribute sa on
+        sa.sku_id = s.sku_id
+        LEFT JOIN (
+        select
+        pu.url,
+        pu.product_id
+        FROM
+        Product_Url pu
+        WHERE
+        pu.url_type = 1) url_t on
+        url_t.product_id = p.product_id
         where 1=1
         <if test="orderCode != null">
             and order_base.order_code like CONCAT('%',${orderCode},'%')
@@ -264,6 +273,4 @@
                 ool.order_id = order_base.order_id
         WHERE order_base.order_id = 1
     </select>
-
-
 </mapper>

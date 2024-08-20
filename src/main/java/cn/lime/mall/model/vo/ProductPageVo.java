@@ -13,6 +13,7 @@ public class ProductPageVo {
     private Long productId;
     private String productCode;
     private String productName;
+    private String productBrand;
     private Integer priceRangeStart;
     private Integer priceRangeEnd;
     private Integer productTotalStock;

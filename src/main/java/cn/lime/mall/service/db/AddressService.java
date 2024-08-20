@@ -1,6 +1,7 @@
 package cn.lime.mall.service.db;
 
 import cn.lime.mall.model.entity.Address;
+import cn.lime.mall.model.vo.AddressVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -11,8 +12,8 @@ import java.util.List;
 * @createDate 2024-07-31 15:03:53
 */
 public interface AddressService extends IService<Address> {
-    boolean addAddress(Long userId,String receiverName,String receiverAddress,String receiverPhone,Integer isDefault);
-    boolean deleteAddress(Integer addressId);
+    void addAddress(Long userId,String receiverName,String receiverAddress,String receiverPhone,Integer isDefault);
+    void deleteAddress(Integer addressId);
     boolean updateAddress(Integer addressId,String receiverName,String receiverAddress,String receiverPhone,Integer isDefault);
-    List<Address> listUserAddress(Long userId);
+    List<AddressVo> listUserAddress(Long userId);
 }

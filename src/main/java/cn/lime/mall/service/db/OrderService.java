@@ -22,7 +22,7 @@ import java.util.List;
 * @createDate 2024-03-15 14:29:53
 */
 public interface OrderService extends IService<Order> {
-    Order createOrder(Long userId, Long addressId, List<OrderItemDto> orderItems, String remark);
+    Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark);
     Boolean cancelOrder(Long orderId);
     OrderPayVo payOrder(OrderPayDto dto);
     OrderDetailVo getOrderDetail(Long orderId);

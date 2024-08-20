@@ -66,6 +66,14 @@ public class Product implements Serializable {
     @TableField(value = "product_type_2")
     private String productType2;
 
+    @TableField(value = "reserve_str_a")
+    private String reserveStrA;
+    @TableField(value = "reserve_str_b")
+    private String reserveStrB;
+    @TableField(value = "reserve_int_a")
+    private Integer reserveIntA;
+    @TableField(value = "reserve_int_b")
+    private Integer reserveIntB;
     /**
      * 创建时间
      */

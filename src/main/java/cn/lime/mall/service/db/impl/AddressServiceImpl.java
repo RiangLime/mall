@@ -4,6 +4,7 @@ import cn.lime.core.common.BusinessException;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.YesNoEnum;
+import cn.lime.mall.model.vo.AddressVo;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Address;
@@ -12,6 +13,7 @@ import cn.lime.mall.mapper.AddressMapper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,21 +27,23 @@ import java.util.Optional;
 public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
         implements AddressService {
     @Override
-    public boolean addAddress(Long userId, String receiverName, String receiverAddress, String receiverPhone, Integer isDefault) {
+    @Transactional
+    public void addAddress(Long userId, String receiverName, String receiverAddress, String receiverPhone, Integer isDefault) {
         Address add = new Address();
         add.setUserId(userId);
         add.setReceiverName(receiverName);
         add.setReceiverAddress(receiverAddress);
         add.setReceiverPhone(receiverPhone);
+        add.setIsDefault(isDefault);
         if (ObjectUtils.isNotEmpty(isDefault) && isDefault == 1) {
             ThrowUtils.throwIf(!clearDefaultAddress(add.getUserId()),ErrorCode.UPDATE_ERROR);
         }
-        return save(add);
+        ThrowUtils.throwIf(!save(add),ErrorCode.UPDATE_ERROR);
     }
 
     @Override
-    public boolean deleteAddress(Integer addressId) {
-        return lambdaUpdate().eq(Address::getAddressId, addressId).remove();
+    public void deleteAddress(Integer addressId) {
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Address::getAddressId, addressId).remove(),ErrorCode.DELETE_ERROR);
     }
 
     @Override
@@ -69,8 +73,8 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
     }
 
     @Override
-    public List<Address> listUserAddress(Long userId) {
-        return lambdaQuery().eq(Address::getUserId,userId).list();
+    public List<AddressVo> listUserAddress(Long userId) {
+        return lambdaQuery().eq(Address::getUserId,userId).list().stream().map(AddressVo::fromBean).toList();
     }
 
     public boolean clearDefaultAddress(Long userId){

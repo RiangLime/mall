@@ -24,6 +24,8 @@ public class ProductAddDto implements Serializable {
     @Schema(description = "")
     private String productName;
     @Schema(description = "")
+    private String productBrand;
+    @Schema(description = "")
     private String productDescription;
     @Schema(description = "")
     private String realVirtualType;

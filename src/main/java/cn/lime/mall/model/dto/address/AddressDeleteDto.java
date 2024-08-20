@@ -1,23 +1,20 @@
-package cn.lime.mall.model.dto.order;
+package cn.lime.mall.model.dto.address;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * @ClassName: OrderCreateDto
+ * @ClassName: AddressDeleteDto
  * @Description: TODO
  * @Author: Lime
- * @Date: 2024/8/5 14:40
+ * @Date: 2024/8/20 11:00
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreateDto implements Serializable {
+public class AddressDeleteDto implements Serializable {
     private Integer addressId;
-    private List<OrderItemDto> orderItems;
-    private String remark;
 }
