@@ -37,7 +37,7 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/list")
-    @Operation(summary = "查询所有商品标签")
+    @Operation(summary = "查询用户购物车信息")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<List<CartVo>> listCart(@RequestBody @Valid EmptyDto dto, BindingResult result) {
