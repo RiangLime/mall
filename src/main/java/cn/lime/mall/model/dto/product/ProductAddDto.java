@@ -4,9 +4,11 @@ import cn.lime.core.common.LongListToStringSerializer;
 import cn.lime.mall.model.bean.SkuInfo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,8 +24,10 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductAddDto implements Serializable {
     @Schema(description = "商品编码")
+    @NotNull
     private String productCode;
     @Schema(description = "商品名称")
+    @NotNull
     private String productName;
     @Schema(description = "商品品牌")
     private String productBrand;
@@ -33,8 +37,10 @@ public class ProductAddDto implements Serializable {
     private String realVirtualType;
     @Schema(description = "产品类型2 待定")
     private String detectNormalType;
-    @Schema(description = "用户是否可见")
-    private Integer visible;
+    @Schema(description = "用户是否可见 1可见 0不可见")
+    @NotNull
+    @Range(min = 0,max = 1)
+    private Integer visible = 1;
     @Schema(description = "商品主图")
     private String mainPicUrl;
     @Schema(description = "商品轮播图")

@@ -3,6 +3,7 @@ package cn.lime.mall.model.dto.product;
 import cn.lime.core.common.LongListToStringSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,5 +19,6 @@ import java.util.List;
 public class ProductDeleteDto implements Serializable {
     @Schema(description = "商品ID 序列化为String")
     @JsonSerialize(using = LongListToStringSerializer.class)
+    @NotNull
     private List<Long> productIds;
 }

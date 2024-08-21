@@ -117,7 +117,7 @@ create table `Order`
     order_source         int                 not null comment '订单来源',
     order_code           nvarchar(64)        not null comment '订单编号',
     user_id              bigint              not null comment '用户ID',
-    address_id           bigint              not null comment '用户收货地址ID',
+    address_id           bigint              null comment '用户收货地址ID',
     order_pay_method     tinyint             null comment '付款方式',
     order_status         int       default 0 not null comment '订单状态 订单状态 0待支付、1支付中、2待发货、3待收货、4待评价、5已完成、8关闭订单、9退/换货',
     origin_order_price   int       default 0 not null comment '订单价格',

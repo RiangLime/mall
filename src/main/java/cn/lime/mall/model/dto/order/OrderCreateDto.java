@@ -1,6 +1,7 @@
 package cn.lime.mall.model.dto.order;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class OrderCreateDto implements Serializable {
     @Schema(description = "地址ID")
     private Integer addressId;
     @Schema(description = "购买商品信息")
+    @NotNull
     private List<OrderItemDto> orderItems;
     @Schema(description = "用户备注")
     private String remark;
