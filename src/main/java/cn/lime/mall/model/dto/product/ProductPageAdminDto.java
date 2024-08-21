@@ -1,6 +1,8 @@
 package cn.lime.mall.model.dto.product;
 
+import cn.lime.core.common.LongListToStringSerializer;
 import cn.lime.core.common.PageRequest;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,12 +23,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductPageAdminDto extends PageRequest implements Serializable {
-    @Schema(description = "")
+    @Schema(description = "商品名称")
     private String productName;
-    @Schema(description = "")
+    @Schema(description = "商品标签ID 序列化为String")
+    @JsonSerialize(using = LongListToStringSerializer.class)
     private List<Long> tagIds;
-    @Schema(description = "")
+    @Schema(description = "商品类型1")
     private String productType;
-
+    @Schema(description = "商品状态 0下架 1上架")
     private Integer productState;
 }

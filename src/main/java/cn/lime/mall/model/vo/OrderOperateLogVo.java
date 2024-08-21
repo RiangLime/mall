@@ -1,5 +1,7 @@
 package cn.lime.mall.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,8 +18,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderOperateLogVo implements Serializable {
+    @Schema(description = "操作ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
+    @Schema(description = "操作用户ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
+    @Schema(description = "操作内容")
     private String operation;
+    @Schema(description = "操作时间 （秒级时间戳 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long operateTime;
 }

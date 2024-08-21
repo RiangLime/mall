@@ -1,6 +1,8 @@
 package cn.lime.mall.model.dto.product;
 
+import cn.lime.core.common.LongListToStringSerializer;
 import cn.lime.mall.model.bean.SkuInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,26 +21,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductAddDto implements Serializable {
-    @Schema(description = "")
+    @Schema(description = "商品编码")
     private String productCode;
-    @Schema(description = "")
+    @Schema(description = "商品名称")
     private String productName;
-    @Schema(description = "")
+    @Schema(description = "商品品牌")
     private String productBrand;
-    @Schema(description = "")
+    @Schema(description = "商品内容")
     private String productDescription;
-    @Schema(description = "")
+    @Schema(description = "产品类型1 待定")
     private String realVirtualType;
-    @Schema(description = "")
+    @Schema(description = "产品类型2 待定")
     private String detectNormalType;
-    @Schema(description = "")
+    @Schema(description = "用户是否可见")
     private Integer visible;
-    @Schema(description = "")
+    @Schema(description = "商品主图")
     private String mainPicUrl;
-    @Schema(description = "")
+    @Schema(description = "商品轮播图")
     private List<String> roundUrls;
-    @Schema(description = "")
+    @Schema(description = "SKU 信息")
     private List<SkuInfo> skuInfos;
-    @Schema(description = "")
+    @Schema(description = "商品标签ID 序列化为String")
+    @JsonSerialize(using = LongListToStringSerializer.class)
     private List<Long> productTagIds;
 }

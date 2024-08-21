@@ -18,13 +18,13 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SkuInfo implements Serializable {
-    @Schema(description = "")
+    @Schema(description = "SKU价格")
     private Integer skuPrice;
-    @Schema(description = "")
+    @Schema(description = "SKU库存")
     private Integer skuStock;
-    @Schema(description = "")
+    @Schema(description = "SKU展示图片")
     private String skuUrl;
-    @Schema(description = "")
+    @Schema(description = "SKU属性  如{color:red ，size:big}")
     private Map<String,String> attributes;
 
 }

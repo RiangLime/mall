@@ -213,6 +213,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         Page<?> page = PageUtils.build(current, pageSize, sortField, sortOrder);
         Page<OrderPageVo> res = baseMapper.pageOrder(orderCode, userName, productName, receiverName, orderState,
                 orderUserId, orderStartTime, orderEndTime, page);
+        for (OrderPageVo record : res.getRecords()) {
+            record.setOrderSkuList(baseMapper.getProductSkusByOrderId(record.getOrderId()));
+        }
         return new PageResult<>(res);
     }
 

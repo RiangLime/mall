@@ -3,8 +3,11 @@ package cn.lime.mall.mapper;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
+import cn.lime.mall.model.vo.OrderProductSkuVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -17,7 +20,7 @@ public interface OrderMapper extends BaseMapper<Order> {
 
     Page<OrderPageVo> pageOrder(String orderCode, String userName, String productName, String receiverName,
                                 Integer orderState, Long orderUserId, Long orderStartTime, Long orderEndTime, Page<?> page);
-
+    List<OrderProductSkuVo> getProductSkusByOrderId(Long orderId);
     OrderDetailVo getOrderDetail(Long orderId);
     boolean insertOrder(Long orderId,String orderCode,Long userId,Integer addressId,Integer originPrice,Integer realPrice,String remark);
 }

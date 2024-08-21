@@ -1,5 +1,6 @@
 package cn.lime.mall.model.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
  */
 @Data
 public class ProductSpecificationInfo {
+    @Schema(description = "规格")
     private String specificationKey;
+    @Schema(description = "当前规格下所有值")
     private List<String> specificationValues;
 }

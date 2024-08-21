@@ -96,7 +96,7 @@ public class OrderController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody@Valid OrderPageUserDto dto, BindingResult result){
-        return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), dto.getUserName(),dto.getProductName(),
+        return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), null,dto.getProductName(),
                 null, dto.getOrderState(),null,dto.getOrderStartTime(),dto.getOrderEndTime(),
                 dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -60,7 +61,12 @@ public class ProductTagServiceImpl extends ServiceImpl<ProductTagMapper, Product
 
     @Override
     public List<ProductTag> listTags() {
-        return list();
+        return list().stream().sorted(new Comparator<ProductTag>() {
+            @Override
+            public int compare(ProductTag o1, ProductTag o2) {
+                return o1.getTagSort()-o2.getTagSort();
+            }
+        }).toList();
     }
 }
 

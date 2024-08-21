@@ -47,7 +47,7 @@ public class ProductAdminController {
     @Operation(summary = "用户查询商品详情页")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductDetailDto dto, BindingResult result) {
+    public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductDetail(dto.getProductId()));
     }
 

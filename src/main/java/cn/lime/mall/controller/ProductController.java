@@ -8,7 +8,7 @@ import cn.lime.core.common.PageResult;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
-import cn.lime.mall.model.dto.product.ProductDetailDto;
+import cn.lime.mall.model.dto.product.ProductIdDto;
 import cn.lime.mall.model.dto.product.ProductPageUserDto;
 import cn.lime.mall.model.vo.ProductDetailVo;
 import cn.lime.mall.model.vo.ProductPageVo;
@@ -50,7 +50,7 @@ public class ProductController {
     @Operation(summary = "用户查询商品详情页")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductDetailDto dto, BindingResult result) {
+    public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductDetail(dto.getProductId()));
     }
 

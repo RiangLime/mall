@@ -2,6 +2,8 @@ package cn.lime.mall.model.vo;
 
 import cn.lime.mall.model.entity.Skuattribute;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,27 +24,35 @@ import java.util.Map;
 public class OrderPageVo implements Serializable {
 
     // 订单信息
+    @Schema(description = "订单ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long orderId;
-    private Integer productNumber;
+    @Schema(description = "订单编码")
+    private String orderCode;
+    @Schema(description = "订单状态")
+    private Integer orderState;
+    @Schema(description = "订单价格")
     private Integer realOrderPrice;
-
     // 用户信息
+    @Schema(description = "用户ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
+    @Schema(description = "用户昵称")
     private String userName;
-
+    @Schema(description = "用户头像")
+    private String userAvatar;
     // 收货地址
-    private Long addressId;
+    @Schema(description = "收货地址ID")
+    private Integer addressId;
+    @Schema(description = "收货人姓名")
     private String receiverName;
+    @Schema(description = "收货地址")
     private String receiverAddress;
+    @Schema(description = "收货人手机号")
     private String receiverPhone;
 
-    // 商品信息
-    private Long productId;
-    private String productName;
-    private String productCode;
-    private String productMainUrl;
-    private Long skuId;
-    private String skuCode;
-    private List<Skuattribute> skuAttributes;
+    @Schema(description = "订单包含的商品信息")
+    private List<OrderProductSkuVo> orderSkuList;
+
 
 }

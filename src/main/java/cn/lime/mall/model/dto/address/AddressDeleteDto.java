@@ -1,5 +1,6 @@
 package cn.lime.mall.model.dto.address;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressDeleteDto implements Serializable {
+    @Schema(description = "地址ID")
     private Integer addressId;
 }
