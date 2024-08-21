@@ -5,10 +5,7 @@ import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
 import cn.lime.core.common.*;
 import cn.lime.core.constant.AuthLevel;
-import cn.lime.mall.model.dto.order.OrderIdDto;
-import cn.lime.mall.model.dto.order.OrderPageUserDto;
-import cn.lime.mall.model.dto.order.OrderSendDto;
-import cn.lime.mall.model.dto.order.OrderUpdateAdminDto;
+import cn.lime.mall.model.dto.order.*;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.OrderPageVo;
 import cn.lime.mall.service.db.OrderService;
@@ -38,7 +35,7 @@ public class OrderAdminController {
     @Operation(summary = "管理员查询订单列表")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody @Valid OrderPageUserDto dto, BindingResult result){
+    public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody @Valid OrderPageAdminDto dto, BindingResult result){
         return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), dto.getUserName(),dto.getProductName(),
                 null, dto.getOrderState(),null,dto.getOrderStartTime(),dto.getOrderEndTime(),
                 dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
