@@ -151,10 +151,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "恢复库存失败");
         }
         logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户取消订单");
-        return lambdaUpdate()
-                .eq(Order::getOrderId, orderId)
-                .set(Order::getOrderStatus, OrderStatus.CLOSE.getVal())
-                .update();
+        ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToClose(orderId),ErrorCode.UPDATE_ERROR,"更新订单状态异常");
+        return true;
     }
 
     @Override
@@ -176,13 +174,29 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
-    public Boolean refund(Long orderId) {
+    public void reviewRefund(Long orderId, Integer isApprove) {
+        Order order = getById(orderId);
+        if (isApprove == YesNoEnum.NO.getVal()){
+            // 退款拒绝
+            ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId,orderId)
+                    .set(Order::getRefundStatus,RefundStatus.CLOSED.getVal()).update(),ErrorCode.UPDATE_ERROR);
+        }else{
+            // 同意退款
+            ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId,orderId)
+                    .set(Order::getRefundStatus,RefundStatus.PROCESSING.getVal())
+                    .set(Order::getOrderStatus,OrderStatus.REFUNDING.getVal())
+                    .update(),ErrorCode.UPDATE_ERROR);
+            refund(orderId);
+        }
+    }
+
+    @Override
+    public void refund(Long orderId) {
         Order order = getById(orderId);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "管理员同意订单退款");
         WxPayFactory.get(PaymentTypeEnum.WX_PAY_BASE.getVal()).refund(orderId, order.getRefundPrice(),
                 params.getWxPayNotifyUrlPrefix() + OrderController.REFUND_NOTICE_URL);
-        return true;
     }
 
     @Override
@@ -324,9 +338,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Boolean updateOrderStatusFromPayingToPayed(Long orderId) {
-        return lambdaUpdate().eq(Order::getOrderId, orderId)
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getOrderStatus, OrderStatus.WAITING_SEND.getVal())
-                .update();
+                .update(),ErrorCode.UPDATE_ERROR);
+        producerSendOrderId2Redis(orderId);
+        return true;
     }
 
     @Override
@@ -497,6 +513,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
                 .eq(Order::getOrderId, order.getOrderId())
                 .set(Order::getOrderIsDeal, YesNoEnum.YES.getVal())
                 .update(), ErrorCode.UPDATE_ERROR);
+    }
+
+    @Override
+    public void producerSendOrderId2Redis(Long orderId) {
+        redisTemplateMap.get(RedisDb.BIZ_DB.getVal()).opsForList().rightPush(
+                RedisKeyName.BIZ_NOTICE_SUCCESS_PAID_ORDER.getVal(), String.valueOf(orderId));
     }
 
     /**

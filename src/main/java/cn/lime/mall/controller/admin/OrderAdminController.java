@@ -67,4 +67,12 @@ public class OrderAdminController {
         return ResultUtils.success(null);
     }
 
+    @PostMapping("/refund/review")
+    @Operation(summary = "管理员审批退款")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> reviewRefund(@RequestBody@Valid OrderRefundReviewDto dto, BindingResult result){
+        return ResultUtils.success(null);
+    }
+
 }

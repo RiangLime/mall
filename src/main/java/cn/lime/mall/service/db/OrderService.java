@@ -30,7 +30,8 @@ public interface OrderService extends IService<Order> {
                                          Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime,
                                          Integer current, Integer pageSize, String sortField, String sortOrder);
     Boolean applyRefund(Long orderId);
-    Boolean refund(Long orderId);
+    void reviewRefund(Long orderId,Integer isApprove);
+    void refund(Long orderId);
     void receive(Long orderId);
     void comment(Long orderId,String comment);
     void orderUpdateByAdmin(Long orderId, String merchantRemark, Integer changedPrice);
@@ -44,6 +45,7 @@ public interface OrderService extends IService<Order> {
     // 待支付 -> 关闭
     Boolean updateOrderStatusFromWaitingPayToClose(Long orderId);
     Boolean updateOrderStatusFromPayingToPayed(Long orderId);
+    @Deprecated
     Boolean updateOrderStatusFromPayedToWaitingSend(Long orderId);
     Boolean updateOrderStatusFromWaitingSendToWaitingReceive(Long orderId);
     Boolean updateOrderStatusFromWaitingReceiveToWaitingComment(Long orderId);
@@ -61,4 +63,5 @@ public interface OrderService extends IService<Order> {
     void doRefundCallback(RefundNotification refundNotification);
     void doOrderCallback(PaymentIntent paymentIntent);
     void doOrderCallback(Session stripeSession);
+    void producerSendOrderId2Redis(Long orderId);
 }

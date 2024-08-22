@@ -65,7 +65,7 @@ public class OrderController {
     }
 
     @PostMapping("/refund")
-    @Operation(summary = "用户订单退款")
+    @Operation(summary = "用户申请订单退款")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> applyRefund(@RequestBody@Valid OrderIdDto dto, BindingResult result){
