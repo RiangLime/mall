@@ -17,6 +17,7 @@ import java.util.List;
 */
 public interface OrderMapper extends BaseMapper<Order> {
     Integer updateTimeoutWaitingOrder(Integer orderTimeoutHour);
+    List<Long> getWaitingComment2FinishOrderIds();
 
     Page<OrderPageVo> pageOrder(String orderCode, String userName, String productName, String receiverName,
                                 Integer orderState, Long orderUserId, Long orderStartTime, Long orderEndTime, Page<?> page);

@@ -50,6 +50,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -341,7 +342,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getOrderStatus, OrderStatus.WAITING_SEND.getVal())
                 .update(),ErrorCode.UPDATE_ERROR);
-        producerSendOrderId2Redis(orderId);
+        noticeOrderPaySuccess(orderId);
         return true;
     }
 
@@ -370,10 +371,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Boolean updateOrderStatusFromWaitingCommentToFinish(Long orderId) {
-        return lambdaUpdate().eq(Order::getOrderId, orderId)
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_COMMENT.getVal())
                 .set(Order::getOrderStatus, OrderStatus.FINISH.getVal())
-                .update();
+                .update(),ErrorCode.UPDATE_ERROR);
+        noticeOrderFinishSuccess(orderId);
+        return true;
     }
 
     @Override
@@ -452,6 +455,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
+    @Transactional
     public void doRefundCallback(RefundNotification refundNotification) {
         logService.log(Long.valueOf(refundNotification.getOutTradeNo()),null, "收到微信退款回调信息");
         RefundStatus refundStatus = null;
@@ -466,6 +470,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             case SUCCESS -> {
                 refundStatus = RefundStatus.SUCCESS;
                 wrapper.set(Order::getRefundIsDeal, YesNoEnum.YES.getVal());
+                noticeOrderRefundSuccess(Long.valueOf(refundNotification.getOutTradeNo()));
             }
             case PROCESSING -> refundStatus = RefundStatus.PROCESSING;
             case CLOSED -> {
@@ -516,9 +521,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
-    public void producerSendOrderId2Redis(Long orderId) {
+    public void noticeOrderPaySuccess(Long orderId) {
         redisTemplateMap.get(RedisDb.BIZ_DB.getVal()).opsForList().rightPush(
                 RedisKeyName.BIZ_NOTICE_SUCCESS_PAID_ORDER.getVal(), String.valueOf(orderId));
+    }
+
+    @Override
+    public void noticeOrderRefundSuccess(Long orderId) {
+        redisTemplateMap.get(RedisDb.BIZ_DB.getVal()).opsForList().rightPush(
+                RedisKeyName.BIZ_NOTICE_SUCCESS_REFUND_ORDER.getVal(), String.valueOf(orderId));
+    }
+
+    @Override
+    public void noticeOrderFinishSuccess(Long orderId) {
+        redisTemplateMap.get(RedisDb.BIZ_DB.getVal()).opsForList().rightPush(
+                RedisKeyName.BIZ_NOTICE_SUCCESS_FINISH_ORDER.getVal(), String.valueOf(orderId));
     }
 
     /**
@@ -556,6 +573,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         int expireNum = updateTimeoutWaitingPayOrder(params.getOrderTimeout());
         if (expireNum != 0) {
             log.warn("[EXPIRE_ORDER] FIND ORDER EXPIRE");
+        }
+    }
+
+    /**
+     * 七天后将收货的订单更新为订单结束
+     */
+    @Scheduled(cron = "${payment.wx.schedule-scan: 30 * * * * ?}")
+    @Transactional
+    public void scheduleUpdateWaitingComment2Finish() {
+        List<Long> orderIds = baseMapper.getWaitingComment2FinishOrderIds();
+        if (!CollectionUtils.isEmpty(orderIds)) {
+            for (Long orderId : orderIds) {
+                updateOrderStatusFromWaitingCommentToFinish(orderId);
+                log.info("[7 DAYS ORDER] {} -> FINISH STATE", orderId);
+            }
         }
     }
 

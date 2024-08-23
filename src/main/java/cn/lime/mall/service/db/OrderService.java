@@ -63,5 +63,7 @@ public interface OrderService extends IService<Order> {
     void doRefundCallback(RefundNotification refundNotification);
     void doOrderCallback(PaymentIntent paymentIntent);
     void doOrderCallback(Session stripeSession);
-    void producerSendOrderId2Redis(Long orderId);
+    void noticeOrderPaySuccess(Long orderId);
+    void noticeOrderRefundSuccess(Long orderId);
+    void noticeOrderFinishSuccess(Long orderId);
 }

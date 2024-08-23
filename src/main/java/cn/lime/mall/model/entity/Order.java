@@ -75,6 +75,9 @@ public class Order implements Serializable {
     @TableField(value = "order_pay_time")
     private Date orderPayTime;
 
+    @TableField(value = "order_receive_time")
+    private Date orderReceiveTime;
+
     /**
      * 订单完成时间
      */

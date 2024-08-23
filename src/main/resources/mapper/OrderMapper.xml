@@ -286,4 +286,9 @@
         WHERE
             oi.order_id = #{orderId}
     </select>
+    <select id="getWaitingComment2FinishOrderIds" resultType="java.lang.Long">
+        SELECT order_id
+        FROM `Order`
+        WHERE order_receive_time &lt;= NOW() - INTERVAL 7 DAY;
+    </select>
 </mapper>

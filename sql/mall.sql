@@ -123,6 +123,7 @@ create table `Order`
     origin_order_price   int       default 0 not null comment '订单价格',
     real_order_price     int       default 0 not null comment '实际订单价格',
     order_pay_time       timestamp           null comment '订单支付时间',
+    order_receive_time   timestamp           null comment '订单收货时间',
     order_finish_time    timestamp           null comment '订单完成时间',
     order_is_deal        tinyint   default 0 not null comment '微信回调函数是否被处理过 0没有 1处理过',
     third_payment_id     nvarchar(255)       null comment '第三方付款ID',
