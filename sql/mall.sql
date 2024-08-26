@@ -149,6 +149,7 @@ create table Order_Item
     product_id  bigint not null comment '商品ID',
     sku_id      bigint not null comment 'SKU ID',
     number      int    not null default 1 comment '购买数量',
+    item_price  int    not null comment '该项SKU总价',
     gmt_created TIMESTAMP       DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单物品表' collate = utf8mb4_unicode_ci;
 

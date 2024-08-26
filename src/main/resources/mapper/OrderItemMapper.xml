@@ -5,16 +5,18 @@
 <mapper namespace="cn.lime.mall.mapper.OrderItemMapper">
 
     <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.OrderItem">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="orderId" column="order_id" jdbcType="BIGINT"/>
-            <result property="productId" column="product_id" jdbcType="BIGINT"/>
-            <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
-            <result property="number" column="number" jdbcType="INTEGER"/>
-            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="orderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+        <result property="number" column="number" jdbcType="INTEGER"/>
+        <result property="itemPrice" column="item_price" jdbcType="INTEGER"/>
+        <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,order_id,product_id,
-        sku_id,number,gmt_created
+        id
+        ,order_id,product_id,
+        sku_id,number,item_price,gmt_created
     </sql>
 </mapper>

@@ -45,6 +45,10 @@ public class OrderItem implements Serializable {
     @TableField(value = "number")
     private Integer number;
 
+
+    @TableField(value = "item_price")
+    private Integer itemPrice;
+
     /**
      * 创建时间
      */

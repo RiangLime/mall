@@ -72,6 +72,7 @@ public class OrderAdminController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> reviewRefund(@RequestBody@Valid OrderRefundReviewDto dto, BindingResult result){
+        orderService.reviewRefund(dto.getOrderId(),dto.getIsApprove());
         return ResultUtils.success(null);
     }
 

@@ -122,11 +122,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 //                order.getOriginOrderPrice(),order.getRealOrderPrice(),order.getRemark1()), ErrorCode.INSERT_ERROR);
         for (OrderItemDto orderItem : orderItems) {
             OrderItem bean = new OrderItem();
+            Sku sku = skuService.getById(orderItem.getSkuId());
+            ThrowUtils.throwIf(ObjectUtils.isEmpty(sku),ErrorCode.NOT_FOUND_ERROR);
             bean.setOrderId(order.getOrderId());
             bean.setId(ids.nextId());
             bean.setProductId(orderItem.getProductId());
             bean.setSkuId(orderItem.getSkuId());
             bean.setNumber(orderItem.getNumber());
+            bean.setItemPrice(orderItem.getNumber()*sku.getPrice());
             ThrowUtils.throwIf(!orderItemService.save(bean), ErrorCode.INSERT_ERROR, "生成购买物品失败");
         }
         logService.log(order.getOrderId(), userId, "用户创建订单");
