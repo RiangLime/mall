@@ -119,9 +119,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
 
     @Override
     @Transactional
-    public ProductDetailVo getProductDetail(Long productId) {
+    public ProductDetailVo getProductDetail(Long productId,Integer state) {
         // 基本信息
-        ProductDetailVo vo = baseMapper.getProductBasicDetail(productId);
+        ProductDetailVo vo = baseMapper.getProductBasicDetail(productId,state);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(vo),ErrorCode.NOT_FOUND_ERROR);
         // 规格信息
         vo.setSpecificationInfos(baseMapper.getProductSpecification(productId));
         // URL信息

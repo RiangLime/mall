@@ -48,7 +48,7 @@ public class ProductAdminController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
-        return ResultUtils.success(productService.getProductDetail(dto.getProductId()));
+        return ResultUtils.success(productService.getProductDetail(dto.getProductId(),null));
     }
 
     @PostMapping("/add")
@@ -57,7 +57,7 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> addNewProduct(@RequestBody @Valid ProductAddDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.addProduct(dto.getProductCode(),dto.getProductName(),dto.getProductDescription(),
-                dto.getRealVirtualType(), dto.getDetectNormalType(),dto.getVisible(),dto.getMainPicUrl(),
+                dto.getProductType1(), dto.getProductType2(),dto.getVisible(),dto.getMainPicUrl(),
                 dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds()), ErrorCode.INSERT_ERROR);
         return ResultUtils.success(null);
     }

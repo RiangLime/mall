@@ -9,7 +9,9 @@ create table Address
     is_DEFAULT       tinyINT       NOT NULL DEFAULT 0 comment '是否为默认地址',
     gmt_created      TIMESTAMP              DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified     TIMESTAMP              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+)comment '收货地址表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Address ADD CONSTRAINT fk_address_user_id
+    FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
 -- 商品
 create table Product
@@ -29,7 +31,7 @@ create table Product
     reserve_int_b       int           null comment '保留字段 intB',
     gmt_created         TIMESTAMP              DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified        TIMESTAMP              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment '商品表' collate = utf8mb4_unicode_ci;;
 
 -- 商品URL
 create table Product_Url
@@ -41,7 +43,9 @@ create table Product_Url
     url_sort     INT            NOT NULL DEFAULT 1 comment '轮播图序号',
     gmt_created  TIMESTAMP               DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified TIMESTAMP               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment '商品URL表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Product_Url ADD CONSTRAINT fk_product_url_product_id
+    FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;
 
 
 -- sku
@@ -56,7 +60,9 @@ create table Sku
     remark          NVARCHAR(512) NULL comment '备注',
     gmt_created     TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment 'SKU表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Sku ADD CONSTRAINT fk_sku_product_id
+    FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;
 
 create table SkuAttribute
 (
@@ -66,7 +72,9 @@ create table SkuAttribute
     attribute_value NVARCHAR(128) NOT NULL comment '分组值',
     gmt_created     TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment 'SKU属性表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE SkuAttribute ADD CONSTRAINT fk_sku_attribute_sku_id
+    FOREIGN KEY (sku_id) REFERENCES Sku (sku_id) on delete cascade;
 
 
 create table Product_Tag
@@ -79,7 +87,7 @@ create table Product_Tag
     tag_state     tinyINT       NOT NULL DEFAULT 1 comment '分类状态 是否展示',
     gmt_created   TIMESTAMP              DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified  TIMESTAMP              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment '商品标签表' collate = utf8mb4_unicode_ci;;
 
 -- 商品标签
 create table Product_Have_Tag
@@ -88,7 +96,11 @@ create table Product_Have_Tag
     product_id  BIGINT NOT NULL comment '商品ID',
     tag_id      BIGINT NOT NULL comment '分类ID',
     gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '商品标签关联表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Product_Have_Tag ADD CONSTRAINT fk_product_have_tag_product_id
+    FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;
+ALTER TABLE Product_Have_Tag ADD CONSTRAINT fk_product_have_tag_tag_id
+    FOREIGN KEY (tag_id) REFERENCES Product_Tag (tag_id) on delete cascade;
 
 -- 购物车
 create table Cart
@@ -100,7 +112,7 @@ create table Cart
     number       INT    NOT NULL comment '购买数量',
     gmt_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
-);
+)comment '购物车表' collate = utf8mb4_unicode_ci;;
 
 create table Product_View_Log
 (
@@ -108,7 +120,7 @@ create table Product_View_Log
     product_id  bigint not null comment '商品ID',
     user_id     bigint null comment '浏览用户ID',
     gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '商品详情页浏览日志表' collate = utf8mb4_unicode_ci;;
 
 -- 订单表
 create table `Order`
@@ -152,6 +164,8 @@ create table Order_Item
     item_price  int    not null comment '该项SKU总价',
     gmt_created TIMESTAMP       DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单物品表' collate = utf8mb4_unicode_ci;
+ALTER TABLE Order_Item ADD CONSTRAINT fk_order_item_order_id
+    FOREIGN KEY (order_id) REFERENCES `Order` (order_id) on delete cascade;
 
 create table Order_Operate_Log
 (

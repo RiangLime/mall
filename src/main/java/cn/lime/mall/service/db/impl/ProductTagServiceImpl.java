@@ -60,13 +60,22 @@ public class ProductTagServiceImpl extends ServiceImpl<ProductTagMapper, Product
     }
 
     @Override
-    public List<ProductTag> listTags() {
-        return list().stream().sorted(new Comparator<ProductTag>() {
-            @Override
-            public int compare(ProductTag o1, ProductTag o2) {
-                return o1.getTagSort()-o2.getTagSort();
-            }
-        }).toList();
+    public List<ProductTag> listTags(Integer state) {
+        if (ObjectUtils.isNotEmpty(state)) {
+            return lambdaQuery().eq(ProductTag::getTagState, state).list().stream().sorted(new Comparator<ProductTag>() {
+                @Override
+                public int compare(ProductTag o1, ProductTag o2) {
+                    return o1.getTagSort() - o2.getTagSort();
+                }
+            }).toList();
+        }else {
+            return list().stream().sorted(new Comparator<ProductTag>() {
+                @Override
+                public int compare(ProductTag o1, ProductTag o2) {
+                    return o1.getTagSort() - o2.getTagSort();
+                }
+            }).toList();
+        }
     }
 }
 

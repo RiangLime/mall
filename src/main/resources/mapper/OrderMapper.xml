@@ -37,7 +37,7 @@
         <id property="orderId" column="order_id" jdbcType="BIGINT"/>
         <result property="orderCode" column="order_code" jdbcType="VARCHAR"/>
         <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
-        <result property="orderState" column="order_state" jdbcType="INTEGER"/>
+        <result property="orderState" column="order_status" jdbcType="INTEGER"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
@@ -48,39 +48,42 @@
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.mall.model.vo.OrderDetailVo">
         <id property="orderId" column="order_id" jdbcType="BIGINT"/>
-        <result property="orderCode" column="orderCode" jdbcType="NVARCHAR"/>
+        <result property="orderCode" column="order_code" jdbcType="VARCHAR"/>
+        <result property="orderSource" column="order_source" jdbcType="INTEGER"/>
         <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
         <result property="orderState" column="order_status" jdbcType="INTEGER"/>
         <result property="orderCreateTime" column="order_create_time" jdbcType="BIGINT"/>
         <result property="orderPayMethod" column="order_pay_method" jdbcType="INTEGER"/>
         <result property="orderPayTime" column="order_pay_method" jdbcType="BIGINT"/>
         <result property="orderFinishTime" column="order_finish_time" jdbcType="BIGINT"/>
-        <result property="userRemark" column="remark_user" jdbcType="NVARCHAR"/>
-        <result property="merchantRemark" column="remark_merchant" jdbcType="NVARCHAR"/>
+        <result property="userRemark" column="remark_user" jdbcType="VARCHAR"/>
+        <result property="merchantRemark" column="remark_merchant" jdbcType="VARCHAR"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
-        <result property="userName" column="user_name" jdbcType="NVARCHAR"/>
-        <result property="userAvatar" column="user_avatar" jdbcType="NVARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
         <result property="addressId" column="address_id" jdbcType="INTEGER"/>
-        <result property="receiverName" column="receiver_name" jdbcType="NVARCHAR"/>
-        <result property="receiverAddress" column="receiver_address" jdbcType="NVARCHAR"/>
-        <result property="receiverPhone" column="receiver_phone" jdbcType="NVARCHAR"/>
+        <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
+        <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
+        <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
         <result property="deliverCompany" column="deliver_company" jdbcType="VARCHAR"/>
-        <result property="deliverId" column="deliver_id" jdbcType="NVARCHAR"/>
+        <result property="deliverId" column="deliver_id" jdbcType="VARCHAR"/>
         <result property="deliverTime" column="deliver_time" jdbcType="BIGINT"/>
         <collection property="orderSkuList" resultMap="orderProductSkuVo"/>
         <collection property="logs" resultMap="orderOperationLogVo"/>
     </resultMap>
     <resultMap id="orderProductSkuVo" type="cn.lime.mall.model.vo.OrderProductSkuVo">
         <id property="skuId" column="sku_id" jdbcType="BIGINT"/>
-        <result property="skuCode" column="sku_code" jdbcType="NVARCHAR"/>
-        <result property="skuPrice" column="price" jdbcType="NVARCHAR"/>
+        <result property="skuCode" column="sku_code" jdbcType="VARCHAR"/>
+        <result property="skuPrice" column="price" jdbcType="VARCHAR"/>
+        <result property="buyNumber" column="itemNumber" jdbcType="INTEGER"/>
         <result property="productId" column="product_id" jdbcType="BIGINT"/>
-        <result property="productCode" column="product_code" jdbcType="NVARCHAR"/>
-        <result property="productName" column="product_name" jdbcType="NVARCHAR"/>
-        <result property="productDescription" column="product_description" jdbcType="NVARCHAR"/>
+        <result property="productCode" column="product_code" jdbcType="VARCHAR"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productState" column="product_state" jdbcType="INTEGER"/>
+        <result property="productDescription" column="product_description" jdbcType="VARCHAR"/>
         <result property="productType1" column="product_type_1" jdbcType="INTEGER"/>
         <result property="productType2" column="product_type_2" jdbcType="INTEGER"/>
-        <result property="productMainUrl" column="product_main_url" jdbcType="NVARCHAR"/>
+        <result property="productMainUrl" column="product_main_url" jdbcType="VARCHAR"/>
         <collection property="skuAttributes" resultMap="skuAttributeVo"/>
     </resultMap>
     <resultMap id="skuAttributeVo" type="cn.lime.mall.model.vo.SkuAttributeVo">
@@ -91,7 +94,7 @@
     <resultMap id="orderOperationLogVo" type="cn.lime.mall.model.vo.OrderOperateLogVo">
         <id property="id" column="operation_id" jdbcType="BIGINT"/>
         <result property="userId" column="operate_user_id" jdbcType="BIGINT"/>
-        <result property="operation" column="operation" jdbcType="NVARCHAR"/>
+        <result property="operation" column="operation" jdbcType="VARCHAR"/>
         <result property="operateTime" column="operation_time" jdbcType="BIGINT"/>
     </resultMap>
     <sql id="Base_Column_List">
@@ -130,6 +133,7 @@
                      o.remark2 as remark_merchant,
                      o.deliver_company as deliver_company,
                      o.deliver_id as deliver_id,
+                     o.gmt_created,
                      UNIX_TIMESTAMP(o.send_deliver_time) as deliver_time,
                      u.user_id ,
                      u.name as user_name,
@@ -191,7 +195,7 @@
             sa.id as attribute_id,
             sa.attribute_name ,
             sa.attribute_value ,
-            oi.`number` itemNumber,
+            oi.`number` as itemNumber,
             ool.id as operate_id,
             ool.user_id as operate_user_id,
             ool.operate as operation,
@@ -201,6 +205,7 @@
                 SELECT
                     o.order_id ,
                     o.order_code,
+                    o.order_source,
                     o.real_order_price ,
                     o.order_status,
                     UNIX_TIMESTAMP(o.gmt_created) as order_create_time,

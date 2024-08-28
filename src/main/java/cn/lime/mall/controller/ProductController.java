@@ -51,7 +51,7 @@ public class ProductController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
-        return ResultUtils.success(productService.getProductDetail(dto.getProductId()));
+        return ResultUtils.success(productService.getProductDetail(dto.getProductId(),YesNoEnum.YES.getVal()));
     }
 
 

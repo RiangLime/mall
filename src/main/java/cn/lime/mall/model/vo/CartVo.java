@@ -29,12 +29,18 @@ public class CartVo implements Serializable {
     @Schema(description = "购物车内容ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long cartId;
+    @Schema(description = "商品ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long productId;
     @Schema(description = "商品编码")
     private String productCode;
     @Schema(description = "商品名称")
     private String productName;
     @Schema(description = "商品主图")
     private String productMainUrl;
+    @Schema(description = "skuID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long skuId;
     @Schema(description = "SKU编码")
     private String skuCode;
     @Schema(description = "SKU描述")

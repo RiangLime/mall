@@ -34,9 +34,9 @@ public class ProductAddDto implements Serializable {
     @Schema(description = "商品内容")
     private String productDescription;
     @Schema(description = "产品类型1 待定")
-    private String realVirtualType;
+    private String productType1;
     @Schema(description = "产品类型2 待定")
-    private String detectNormalType;
+    private String productType2;
     @Schema(description = "用户是否可见 1可见 0不可见")
     @NotNull
     @Range(min = 0,max = 1)

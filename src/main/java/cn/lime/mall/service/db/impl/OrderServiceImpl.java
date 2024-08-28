@@ -116,6 +116,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         order.setOriginOrderPrice(price);
         order.setRealOrderPrice(realPrice);
         order.setRemark1(remark);
+        order.setOrderSource(ReqThreadLocal.getInfo().getPlatform());
         order.setOrderStatus(OrderStatus.WAITING_PAY.getVal());
         ThrowUtils.throwIf(!save(order), ErrorCode.INSERT_ERROR);
 //        ThrowUtils.throwIf(!baseMapper.insertOrder(order.getOrderId(),order.getOrderCode(),order.getUserId(),order.getAddressId(),
@@ -131,6 +132,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             bean.setNumber(orderItem.getNumber());
             bean.setItemPrice(orderItem.getNumber()*sku.getPrice());
             ThrowUtils.throwIf(!orderItemService.save(bean), ErrorCode.INSERT_ERROR, "生成购买物品失败");
+            // 锁库存
+            boolean res = skuService.lambdaUpdate()
+                    .eq(Sku::getSkuId, sku.getSkuId())
+                    .set(Sku::getStock, sku.getStock() - orderItem.getNumber()).update();
+            ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "锁定库存失败");
+
         }
         logService.log(order.getOrderId(), userId, "用户创建订单");
         return order;
@@ -140,7 +147,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Transactional
     public Boolean cancelOrder(Long orderId) {
         Order order = getById(orderId);
-        ThrowUtils.throwIf(!ObjectUtils.isEmpty(order), ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(order), ErrorCode.NOT_FOUND_ERROR);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal()),
                 ErrorCode.PARAMS_ERROR, "仅待付款订单可取消,已付款订单请走退款流程");
@@ -148,7 +155,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         List<OrderItem> orderItems = orderItemService.lambdaQuery().eq(OrderItem::getOrderId, orderId).list();
         for (OrderItem orderItem : orderItems) {
             Sku sku = skuService.getById(orderItem.getSkuId());
-            ThrowUtils.throwIf(!ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
+            ThrowUtils.throwIf(ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
             // 恢复库存
             boolean res = skuService.lambdaUpdate().eq(Sku::getSkuId, sku.getSkuId())
                     .set(Sku::getStock, sku.getStock() + orderItem.getNumber()).update();
@@ -267,6 +274,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         User user = userService.getById(ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getUserId().equals(user.getUserId()), ErrorCode.AUTH_FAIL);
+        ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal()),ErrorCode.PARAMS_ERROR,"仅待支付订单可支付");
         ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()), ErrorCode.UPDATE_ERROR, "更新订单状态异常");
         logService.log(order.getOrderId(),ReqThreadLocal.getInfo().getUserId(), "用户付款");
         // 成功

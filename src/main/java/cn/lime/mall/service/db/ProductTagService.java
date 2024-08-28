@@ -14,5 +14,5 @@ public interface ProductTagService extends IService<ProductTag> {
     boolean addTag(Long parentTagId,String tag,String tagUrl,Integer sort);
     boolean deleteTag(Long tagId);
     boolean updateTag(Long tagId,Long parentId,String tag,String tagUrl,Integer sort,Integer state);
-    List<ProductTag> listTags();
+    List<ProductTag> listTags(Integer state);
 }

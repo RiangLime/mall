@@ -27,7 +27,7 @@ public interface ProductService extends IService<Product> {
     boolean stateDownProducts(List<Long> productIds);
     PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,
                                              Integer current, Integer pageSize, String sortField, String sortOrder);
-    ProductDetailVo getProductDetail(Long productId);
+    ProductDetailVo getProductDetail(Long productId,Integer state);
     boolean addProductTag(Long productId,Long tagId);
     boolean removeProductTag(Long productId,Long tagId);
 }

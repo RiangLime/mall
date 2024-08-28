@@ -8,6 +8,7 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.AuthLevel;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.module.dto.EmptyDto;
 import cn.lime.mall.model.dto.producttag.ProductTagAddDto;
 import cn.lime.mall.model.entity.ProductTag;
@@ -42,6 +43,6 @@ public class TagController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.TOURIST)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<List<ProductTag>> addTag(@RequestBody @Valid EmptyDto dto, BindingResult result) {
-        return ResultUtils.success(tagService.listTags());
+        return ResultUtils.success(tagService.listTags(YesNoEnum.YES.getVal()));
     }
 }
