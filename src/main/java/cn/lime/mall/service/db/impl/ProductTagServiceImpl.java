@@ -3,6 +3,7 @@ package cn.lime.mall.service.db.impl;
 import cn.lime.core.common.BusinessException;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
+import cn.lime.mall.model.vo.ProductTagVo;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.ProductTag;
@@ -60,21 +61,21 @@ public class ProductTagServiceImpl extends ServiceImpl<ProductTagMapper, Product
     }
 
     @Override
-    public List<ProductTag> listTags(Integer state) {
+    public List<ProductTagVo> listTags(Integer state) {
         if (ObjectUtils.isNotEmpty(state)) {
             return lambdaQuery().eq(ProductTag::getTagState, state).list().stream().sorted(new Comparator<ProductTag>() {
                 @Override
                 public int compare(ProductTag o1, ProductTag o2) {
                     return o1.getTagSort() - o2.getTagSort();
                 }
-            }).toList();
+            }).map(ProductTagVo::fromBean).toList();
         }else {
             return list().stream().sorted(new Comparator<ProductTag>() {
                 @Override
                 public int compare(ProductTag o1, ProductTag o2) {
                     return o1.getTagSort() - o2.getTagSort();
                 }
-            }).toList();
+            }).map(ProductTagVo::fromBean).toList();
         }
     }
 }

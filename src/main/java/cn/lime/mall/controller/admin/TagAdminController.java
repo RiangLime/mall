@@ -13,6 +13,7 @@ import cn.lime.mall.model.dto.producttag.ProductTagDeleteDto;
 import cn.lime.mall.model.dto.producttag.ProductTagUpdateDto;
 import cn.lime.mall.model.entity.ProductTag;
 import cn.lime.mall.model.vo.ProductPageVo;
+import cn.lime.mall.model.vo.ProductTagVo;
 import cn.lime.mall.service.db.ProductTagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,7 +71,7 @@ public class TagAdminController {
     @Operation(summary = "查询所有商品标签")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<List<ProductTag>> addTag(@RequestBody @Valid EmptyDto dto, BindingResult result) {
+    public BaseResponse<List<ProductTagVo>> addTag(@RequestBody @Valid EmptyDto dto, BindingResult result) {
         return ResultUtils.success(tagService.listTags(null));
     }
 

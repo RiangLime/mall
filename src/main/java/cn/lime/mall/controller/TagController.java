@@ -13,6 +13,7 @@ import cn.lime.core.module.dto.EmptyDto;
 import cn.lime.mall.model.dto.producttag.ProductTagAddDto;
 import cn.lime.mall.model.entity.ProductTag;
 import cn.lime.mall.model.vo.CartVo;
+import cn.lime.mall.model.vo.ProductTagVo;
 import cn.lime.mall.service.db.ProductTagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,7 +43,7 @@ public class TagController {
     @Operation(summary = "查询所有商品标签")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.TOURIST)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<List<ProductTag>> addTag(@RequestBody @Valid EmptyDto dto, BindingResult result) {
+    public BaseResponse<List<ProductTagVo>> addTag(@RequestBody @Valid EmptyDto dto, BindingResult result) {
         return ResultUtils.success(tagService.listTags(YesNoEnum.YES.getVal()));
     }
 }

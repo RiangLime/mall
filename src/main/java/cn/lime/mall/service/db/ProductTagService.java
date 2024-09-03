@@ -1,6 +1,7 @@
 package cn.lime.mall.service.db;
 
 import cn.lime.mall.model.entity.ProductTag;
+import cn.lime.mall.model.vo.ProductTagVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface ProductTagService extends IService<ProductTag> {
     boolean addTag(Long parentTagId,String tag,String tagUrl,Integer sort);
     boolean deleteTag(Long tagId);
     boolean updateTag(Long tagId,Long parentId,String tag,String tagUrl,Integer sort,Integer state);
-    List<ProductTag> listTags(Integer state);
+    List<ProductTagVo> listTags(Integer state);
 }

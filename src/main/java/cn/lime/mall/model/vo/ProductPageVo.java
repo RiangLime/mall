@@ -21,6 +21,8 @@ public class ProductPageVo {
     private String productName;
     @Schema(description = "商品品牌")
     private String productBrand;
+    @Schema(description = "商品主图")
+    private String productMainUrl;
     @Schema(description = "商品价格范围 开始")
     private Integer priceRangeStart;
     @Schema(description = "商品范围价格 结束")
