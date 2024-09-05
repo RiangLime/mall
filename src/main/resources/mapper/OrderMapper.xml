@@ -45,6 +45,11 @@
         <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
         <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
         <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
+        <result property="createTime" column="order_create_time" jdbcType="BIGINT"/>
+        <result property="payTime" column="order_pay_time" jdbcType="BIGINT"/>
+        <result property="sendTime" column="deliver_time" jdbcType="BIGINT"/>
+        <result property="receiveTime" column="order_receive_time" jdbcType="BIGINT"/>
+        <result property="finishTime" column="order_finish_time" jdbcType="BIGINT"/>
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.mall.model.vo.OrderDetailVo">
         <id property="orderId" column="order_id" jdbcType="BIGINT"/>
@@ -128,6 +133,7 @@
                      UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
                      o.order_pay_method,
                      UNIX_TIMESTAMP(o.order_pay_time) as order_pay_time,
+                     UNIX_TIMESTAMP(o.order_receive_time) as order_receive_time,
                      UNIX_TIMESTAMP(o.order_finish_time) as order_finish_time,
                      o.remark1 as remark_user,
                      o.remark2 as remark_merchant,

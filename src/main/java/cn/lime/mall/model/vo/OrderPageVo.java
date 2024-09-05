@@ -51,6 +51,22 @@ public class OrderPageVo implements Serializable {
     @Schema(description = "收货人手机号")
     private String receiverPhone;
 
+    @Schema(description = "订单创建时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long createTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @Schema(description = "用户付款时间")
+    private Long payTime;
+    @Schema(description = "发货时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long sendTime;
+    @Schema(description = "用户收货时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long receiveTime;
+    @Schema(description = "订单结束时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long finishTime;
+
     @Schema(description = "订单包含的商品信息")
     private List<OrderProductSkuVo> orderSkuList;
 
