@@ -35,6 +35,8 @@ public class ProductPageVo {
     private Integer productViews;
     @Schema(description = "商品状态")
     private Integer productState;
+    @Schema(description = "商品是否可见")
+    private Integer productVisible;
     @Schema(description = "商品类型1")
     private String productType;
     @Schema(description = "商品排序字段")

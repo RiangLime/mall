@@ -277,13 +277,15 @@
             p.product_id ,
             p.product_code ,
             p.product_name ,
+            p.product_state ,
             p.product_description ,
             p.product_type_1 ,
             p.product_type_2 ,
             main_pic.url as product_main_url,
             sa.id as attribute_id,
             sa.attribute_name ,
-            sa.attribute_value
+            sa.attribute_value ,
+            oi.number as itemNumber
         FROM
             Order_Item oi
                 left join Product p on
