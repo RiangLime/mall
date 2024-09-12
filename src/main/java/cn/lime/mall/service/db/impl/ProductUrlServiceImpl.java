@@ -11,7 +11,9 @@ import cn.lime.mall.mapper.ProductUrlMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,6 +40,7 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
     @Override
     @Transactional
     public boolean addRoundPicUrl(Long productUrl, List<String> urls) {
+        if (CollectionUtils.isEmpty(urls)) return true;
         List<ProductUrl> beans = new LinkedList<>();
         for (String url : urls) {
             ProductUrl bean = new ProductUrl();

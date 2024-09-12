@@ -4,6 +4,7 @@ import cn.lime.core.common.LongListToStringSerializer;
 import cn.lime.mall.model.bean.SkuInfo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,9 @@ public class ProductAddDto implements Serializable {
     private String productBrand;
     @Schema(description = "商品内容")
     private String productDescription;
+    @Schema(description = "产品状态 0下架1上架 默认1上架")
+    @Nullable
+    private Integer productState = 1;
     @Schema(description = "产品类型1 待定")
     private String productType1;
     @Schema(description = "产品类型2 待定")

@@ -58,7 +58,7 @@ public class ProductAdminController {
     public BaseResponse<Void> addNewProduct(@RequestBody @Valid ProductAddDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.addProduct(dto.getProductCode(),dto.getProductName(),dto.getProductDescription(),
                 dto.getProductType1(), dto.getProductType2(),dto.getVisible(),dto.getMainPicUrl(),
-                dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds()), ErrorCode.INSERT_ERROR);
+                dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds(),dto.getProductState()), ErrorCode.INSERT_ERROR);
         return ResultUtils.success(null);
     }
 
@@ -75,6 +75,7 @@ public class ProductAdminController {
     @Operation(summary = "管理员上下架商品")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
+    @Deprecated
     public BaseResponse<Void> updateProductState(@RequestBody@Valid ProductUpdateStateDto dto,BindingResult result){
         if (dto.getState().equals(YesNoEnum.YES.getVal())){
             ThrowUtils.throwIf(!productService.stateUpProducts(dto.getProductIds()),ErrorCode.UPDATE_ERROR);
@@ -90,6 +91,7 @@ public class ProductAdminController {
     @Operation(summary = "管理员给商品添加标签")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
+    @Deprecated
     public BaseResponse<Void> addTagForProduct(@RequestBody@Valid ProductTagDto dto, BindingResult result){
         ThrowUtils.throwIf(!productService.addProductTag(dto.getProductId(),dto.getTagId()),ErrorCode.UPDATE_ERROR);
         return ResultUtils.success(null);
@@ -99,6 +101,7 @@ public class ProductAdminController {
     @Operation(summary = "管理员给商品删除标签")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
+    @Deprecated
     public BaseResponse<Void> deleteTagForProduct(@RequestBody@Valid ProductTagDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.removeProductTag(dto.getProductId(),dto.getTagId()),ErrorCode.UPDATE_ERROR);
         return ResultUtils.success(null);
@@ -117,6 +120,7 @@ public class ProductAdminController {
     @Operation(summary = "管理员重置商品sku")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
+    @Deprecated
     public BaseResponse<Void> reformSkusForProduct(@RequestBody@Valid ProductSkuReformDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.reformatSkus(dto.getProductId(),dto.getSkuInfos()),ErrorCode.DELETE_ERROR);
         return ResultUtils.success(null);
@@ -128,8 +132,9 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> updateProduct(@RequestBody@Valid ProductUpdateDto dto,BindingResult result){
         productService.updateProduct(dto.getProductId(),dto.getProductCode(),dto.getProductName(),
-                dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),dto.getIsVisible(),
-                dto.getMainPicUrl(), dto.getRoundUrls(),dto.getBrand());
+                dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),dto.getVisible(),
+                dto.getMainPicUrl(), dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),
+                dto.getProductTagIds(),dto.getProductState());
         return ResultUtils.success(null);
     }
 

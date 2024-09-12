@@ -13,4 +13,5 @@ import java.util.List;
 public interface ProductHaveTagService extends IService<ProductHaveTag> {
     boolean addRelation(Long productId, List<Long> tagIds);
     boolean delTag(Long productId,Long tagId);
+    void reformRelation(Long productId,List<Long> tagIds);
 }
