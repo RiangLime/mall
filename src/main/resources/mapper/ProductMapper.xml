@@ -28,8 +28,11 @@
         <result property="modifiedTime" column="modifiedTime" jdbcType="BIGINT"/>
         <result property="productType1" column="productTypeVirtual" jdbcType="VARCHAR"/>
         <result property="productType2" column="productTypeDetect" jdbcType="VARCHAR"/>
-        <collection property="productTags" ofType="string" column="productTag">
-            <result column="productTag"/>
+        <result property="productVisible" column="productVisible" javaType="INTEGER"/>
+        <!-- Collection for tags -->
+        <collection property="productTags" ofType="cn.lime.mall.model.vo.SimpleTagVo">
+            <id property="tagId" column="productTagId"/>
+            <result property="tagName" column="productTagName"/>
         </collection>
     </resultMap>
     <resultMap id="specificationInfo" type="cn.lime.mall.model.vo.ProductSpecificationInfo">
@@ -60,7 +63,7 @@
         )
 
         SELECT
-        t.*,
+        distinct t.*,
         p_url.url as productMainUrl,
         COALESCE(sales.sales, 0)
         FROM
@@ -138,9 +141,11 @@
                p.product_type_1               as productTypeVirtual,
                p.product_type_2               as productTypeDetect,
                p.reserve_str_a                as productBrand,
+               p.visible as productVisible,
                UNIX_TIMESTAMP(p.gmt_created)  as createTime,
                UNIX_TIMESTAMP(p.gmt_modified) as modifiedTime,
-               pt.tag_name                    as productTag
+               pt.tag_name                    as productTagName,
+               pt.tag_id as productTagId
         FROM Product p
                  left join Product_Have_Tag pht on
             p.product_id = pht.product_id

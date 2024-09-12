@@ -37,6 +37,8 @@ public class ProductDetailVo {
     private String productType2;
     @Schema(description = "商品品牌")
     private String productBrand;
+    @Schema(description = "商品是否可见")
+    private Integer productVisible;
     @Schema(description = "商品创建时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long createTime;
@@ -56,7 +58,7 @@ public class ProductDetailVo {
      * 标签分类信息
      */
     @Schema(description = "商品相关标签")
-    private List<String> productTags;
+    private List<SimpleTagVo> productTags;
 
     /**
      * 规格信息
