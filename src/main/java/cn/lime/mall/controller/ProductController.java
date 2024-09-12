@@ -38,7 +38,7 @@ public class ProductController {
 
     @PostMapping("/page")
     @Operation(summary = "用户查询商品分页")
-    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.TOURIST)
+    @AuthCheck(authLevel = AuthLevel.TOURIST)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<ProductPageVo>> getProductPage(@RequestBody @Valid ProductPageUserDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductPage(
@@ -48,7 +48,7 @@ public class ProductController {
 
     @PostMapping("/detail")
     @Operation(summary = "用户查询商品详情页")
-    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.TOURIST)
+    @AuthCheck(authLevel = AuthLevel.TOURIST)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductDetail(dto.getProductId(),YesNoEnum.YES.getVal()));
