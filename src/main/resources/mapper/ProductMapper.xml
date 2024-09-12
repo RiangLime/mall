@@ -77,8 +77,9 @@
         p.reserve_str_a as productBrand,
         UNIX_TIMESTAMP(p.gmt_created) as createTime,
         p.product_sort as productSort,
-        MAX(s.price) as priceRangeStart,
-        MIN(s.price) as priceRangeEnd,
+        MIN(s.price) as priceRangeStart,
+        MAX(s.price) as priceRangeEnd,
+        p.visible as productVisible,
         SUM(s.stock) as productTotalStock,
         CASE
         WHEN COUNT(s.sku_id) > 1 THEN true
