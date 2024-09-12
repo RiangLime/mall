@@ -2,6 +2,7 @@ package cn.lime.mall.service.db.impl;
 
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
+import cn.lime.mall.constant.ProductUrlType;
 import cn.lime.mall.constant.ProductUrlTypeEnum;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.ProductUrl;
@@ -52,6 +53,11 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
     @Override
     public boolean delUrl(Long urlId) {
         return lambdaUpdate().eq(ProductUrl::getUrlId,urlId).remove();
+    }
+
+    @Override
+    public boolean delRoundUrl(Long productId) {
+        return lambdaUpdate().eq(ProductUrl::getProductId,productId).eq(ProductUrl::getUrlType, ProductUrlType.ROUND.getVal()).remove();
     }
 }
 

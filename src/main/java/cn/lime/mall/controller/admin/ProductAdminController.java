@@ -122,4 +122,15 @@ public class ProductAdminController {
         return ResultUtils.success(null);
     }
 
+    @PostMapping("/update")
+    @Operation(summary = "管理员修改商品基本信息")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> updateProduct(@RequestBody@Valid ProductUpdateDto dto,BindingResult result){
+        productService.updateProduct(dto.getProductId(),dto.getProductCode(),dto.getProductName(),
+                dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),dto.getIsVisible(),
+                dto.getMainPicUrl(), dto.getRoundUrls(),dto.getBrand());
+        return ResultUtils.success(null);
+    }
+
 }

@@ -15,14 +15,17 @@ import cn.lime.mall.model.entity.Sku;
 import cn.lime.mall.model.vo.ProductDetailVo;
 import cn.lime.mall.model.vo.ProductPageVo;
 import cn.lime.mall.service.db.*;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Product;
 import cn.lime.mall.mapper.ProductMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -78,6 +81,40 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
             res = skuattributeService.addAttributes(sku,skuInfo.getAttributes());
             ThrowUtils.throwIf(!res,ErrorCode.INSERT_ERROR,"新增商品库存单元失败");
         }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
+                                 String realVirtualType, String detectNormalType, Integer isVisible,
+                                 String mainPicUrl, List<String> roundUrls, String brand) {
+        boolean res = true;
+        LambdaUpdateWrapper<Product> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(Product::getProductId,productId);
+        if (StringUtils.isNotEmpty(productCode) || StringUtils.isNotEmpty(productName) ||
+                StringUtils.isNotEmpty(productDescription) || StringUtils.isNotEmpty(realVirtualType) ||
+                StringUtils.isNotEmpty(detectNormalType) || ObjectUtils.isNotEmpty(isVisible) ||StringUtils.isNotEmpty(brand)) {
+            if (StringUtils.isNotEmpty(productCode)) wrapper.set(Product::getProductCode, productCode);
+            if (StringUtils.isNotEmpty(productName)) wrapper.set(Product::getProductName, productName);
+            if (StringUtils.isNotEmpty(productDescription))
+                wrapper.set(Product::getProductDescription, productDescription);
+            if (StringUtils.isNotEmpty(realVirtualType)) wrapper.set(Product::getProductType1, realVirtualType);
+            if (StringUtils.isNotEmpty(detectNormalType)) wrapper.set(Product::getProductType2, detectNormalType);
+            if (ObjectUtils.isNotEmpty(isVisible)) wrapper.set(Product::getVisible, isVisible);
+            if (StringUtils.isNotEmpty(brand)) wrapper.set(Product::getReserveStrA, brand);
+            res = update(wrapper);
+        }
+        if (StringUtils.isNotEmpty(mainPicUrl) || !CollectionUtils.isEmpty(roundUrls)){
+            if (StringUtils.isNotEmpty(mainPicUrl)){
+                res &= productUrlService.addMainPicUrl(productId,mainPicUrl);
+            }
+            if (!CollectionUtils.isEmpty(roundUrls)){
+                res &= productUrlService.delRoundUrl(productId);
+                res &= productUrlService.addRoundPicUrl(productId,roundUrls);
+            }
+        }
+        ThrowUtils.throwIf(!res,ErrorCode.UPDATE_ERROR,"更新产品信息异常");
         return true;
     }
 

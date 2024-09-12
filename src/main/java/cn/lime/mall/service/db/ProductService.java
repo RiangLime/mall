@@ -16,18 +16,33 @@ import java.util.List;
  */
 public interface ProductService extends IService<Product> {
     boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                       String detectNormalType, Integer isVisible,String mainPicUrl, List<String> roundUrls,String brand,
+                       String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls, String brand,
                        List<SkuInfo> skuInfos, List<Long> productTagIds);
+
+    boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
+                          String realVirtualType, String detectNormalType, Integer isVisible, String mainPicUrl,
+                          List<String> roundUrls, String brand);
+
     boolean deleteSkus(Long productId);
+
     boolean reformatSkus(Long productId, List<SkuInfo> skuInfos);
+
     boolean deleteProduct(Long productId);
+
     boolean deleteProducts(List<Long> productIds);
+
     boolean updateProductState(Long productId, Integer state);
+
     boolean stateUpProducts(List<Long> productIds);
+
     boolean stateDownProducts(List<Long> productIds);
+
     PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,
                                              Integer current, Integer pageSize, String sortField, String sortOrder);
-    ProductDetailVo getProductDetail(Long productId,Integer state);
-    boolean addProductTag(Long productId,Long tagId);
-    boolean removeProductTag(Long productId,Long tagId);
+
+    ProductDetailVo getProductDetail(Long productId, Integer state);
+
+    boolean addProductTag(Long productId, Long tagId);
+
+    boolean removeProductTag(Long productId, Long tagId);
 }

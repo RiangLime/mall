@@ -14,4 +14,5 @@ public interface ProductUrlService extends IService<ProductUrl> {
     boolean addMainPicUrl(Long productUrl,String url);
     boolean addRoundPicUrl(Long productUrl, List<String> urls);
     boolean delUrl(Long urlId);
+    boolean delRoundUrl(Long productId);
 }
