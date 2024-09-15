@@ -56,7 +56,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     @Transactional
     public boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
                               String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls, String productBrand,
-                              List<SkuInfo> skuInfos, List<Long> productTagIds,Integer productState) {
+                              List<SkuInfo> skuInfos, List<Long> productTagIds,Integer productState,String productSubTitle) {
         // 新增商品
         Product product = new Product();
         product.setProductId(ids.nextId());
@@ -68,6 +68,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         product.setProductType1(realVirtualType);
         product.setProductType2(detectNormalType);
         product.setProductState(productState);
+        product.setReserveStrB(productSubTitle);
         ThrowUtils.throwIf(!save(product), ErrorCode.INSERT_ERROR, "新增商品信息失败");
         // 新增商品图片
         boolean res = productUrlService.addMainPicUrl(product.getProductId(), mainPicUrl);
@@ -91,7 +92,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     public boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
                                  String realVirtualType, String detectNormalType, Integer isVisible,
                                  String mainPicUrl, List<String> roundUrls, String brand, List<SkuInfo> skuInfos,
-                                 List<Long> productTagIds,Integer productState) {
+                                 List<Long> productTagIds,Integer productState,String productSubTitle) {
         boolean res = true;
         LambdaUpdateWrapper<Product> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Product::getProductId, productId);
@@ -107,6 +108,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
             if (ObjectUtils.isNotEmpty(isVisible)) wrapper.set(Product::getVisible, isVisible);
             if (StringUtils.isNotEmpty(brand)) wrapper.set(Product::getReserveStrA, brand);
             if (ObjectUtils.isNotEmpty(productState)) wrapper.set(Product::getProductState,productState);
+            if (StringUtils.isNotEmpty(productSubTitle)) wrapper.set(Product::getReserveStrB,productSubTitle);
             res = update(wrapper);
         }
         ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "更新产品信息异常");
@@ -205,6 +207,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     public boolean reformatSkus(Long productId, List<SkuInfo> skuInfos) {
         Product product = getById(productId);
         ThrowUtils.throwIf(ObjectUtils.isEmpty(product), ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(!deleteSkus(productId),ErrorCode.DELETE_ERROR,"删除已有SKU失败");
         boolean res = true;
         // 新增SKU
         for (SkuInfo skuInfo : skuInfos) {

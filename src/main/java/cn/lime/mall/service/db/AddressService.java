@@ -12,8 +12,8 @@ import java.util.List;
 * @createDate 2024-07-31 15:03:53
 */
 public interface AddressService extends IService<Address> {
-    void addAddress(Long userId,String receiverName,String receiverAddress,String receiverPhone,Integer isDefault);
+    void addAddress(Long userId,String receiverName,String receiverPosition,String receiverAddress,String receiverPhone,Integer isDefault);
     void deleteAddress(Integer addressId);
-    boolean updateAddress(Integer addressId,String receiverName,String receiverAddress,String receiverPhone,Integer isDefault);
+    boolean updateAddress(Integer addressId,String receiverName,String receiverPosition,String receiverAddress,String receiverPhone,Integer isDefault);
     List<AddressVo> listUserAddress(Long userId);
 }

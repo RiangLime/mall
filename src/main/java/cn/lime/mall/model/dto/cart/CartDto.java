@@ -30,6 +30,6 @@ public class CartDto implements Serializable {
     private Long skuId;
     @Schema(description = "购买数量")
     @NotNull
-    @Min(value = 1,message = "数量必须大于等于1")
+    @Min(value = 0,message = "数量必须大于等于0")
     private Integer number;
 }

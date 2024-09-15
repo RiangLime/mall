@@ -28,6 +28,8 @@ public class ProductUpdateDto implements Serializable {
     @Schema(description = "商品名称")
     @NotNull
     private String productName;
+    @Schema(description = "商品副标题")
+    private String productSubTitle;
     @Schema(description = "商品品牌")
     private String productBrand;
     @Schema(description = "商品内容")

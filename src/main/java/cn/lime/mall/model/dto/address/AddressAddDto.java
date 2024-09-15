@@ -20,6 +20,10 @@ public class AddressAddDto implements Serializable {
     @Schema(description = "收货人姓名")
     @NotNull
     private String receiverName;
+
+    @NotNull
+    @Schema(description = "收货省市区")
+    private String receiverPosition;
     /**
      * 收货地址
      */

@@ -58,7 +58,8 @@ public class ProductAdminController {
     public BaseResponse<Void> addNewProduct(@RequestBody @Valid ProductAddDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.addProduct(dto.getProductCode(),dto.getProductName(),dto.getProductDescription(),
                 dto.getProductType1(), dto.getProductType2(),dto.getVisible(),dto.getMainPicUrl(),
-                dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds(),dto.getProductState()), ErrorCode.INSERT_ERROR);
+                dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds(),dto.getProductState(),
+                dto.getProductSubTitle()), ErrorCode.INSERT_ERROR);
         return ResultUtils.success(null);
     }
 
@@ -134,7 +135,7 @@ public class ProductAdminController {
         productService.updateProduct(dto.getProductId(),dto.getProductCode(),dto.getProductName(),
                 dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),dto.getVisible(),
                 dto.getMainPicUrl(), dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),
-                dto.getProductTagIds(),dto.getProductState());
+                dto.getProductTagIds(),dto.getProductState(),dto.getProductSubTitle());
         return ResultUtils.success(null);
     }
 

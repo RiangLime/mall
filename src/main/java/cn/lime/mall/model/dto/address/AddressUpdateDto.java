@@ -26,6 +26,9 @@ public class AddressUpdateDto implements Serializable {
      */
     @Schema(description = "收货人姓名")
     private String receiverName;
+
+    @Schema(description = "收货省市区")
+    private String receiverPosition;
     /**
      * 收货地址
      */

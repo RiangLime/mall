@@ -120,7 +120,7 @@
     <update id="updateTimeoutWaitingOrder">
         update
             `Order` o
-        set o.order_status = 8
+        set o.order_status = 9
         where TIMESTAMPDIFF(HOUR, o.gmt_created, NOW()) >= #{orderTimeoutHour}
           AND o.order_status = 0
     </update>

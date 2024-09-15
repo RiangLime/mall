@@ -33,6 +33,9 @@ public class Address implements Serializable {
     @TableField(value = "receiver_name")
     private String receiverName;
 
+    @TableField(value = "receiver_position")
+    private String receiverPosition;
+
     /**
      * 收货地址
      */

@@ -17,12 +17,12 @@ import java.util.List;
 public interface ProductService extends IService<Product> {
     boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
                        String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls, String brand,
-                       List<SkuInfo> skuInfos, List<Long> productTagIds, Integer productState);
+                       List<SkuInfo> skuInfos, List<Long> productTagIds, Integer productState,String productSubTitle);
 
     boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
                           String realVirtualType, String detectNormalType, Integer isVisible, String mainPicUrl,
                           List<String> roundUrls, String brand, List<SkuInfo> skuInfos, List<Long> productTagIds,
-                          Integer productState);
+                          Integer productState,String productSubTitle);
 
     boolean deleteSkus(Long productId);
 

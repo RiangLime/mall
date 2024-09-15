@@ -51,6 +51,8 @@ public class CartVo implements Serializable {
     private List<SkuAttributeVo> attributeVos;
     @Schema(description = "数量")
     private Integer number;
+    @Schema(description = "购物车单项总价")
+    private Integer totalPrice;
 
 
 

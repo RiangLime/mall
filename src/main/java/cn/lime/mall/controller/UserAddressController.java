@@ -53,7 +53,7 @@ public class UserAddressController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> addAddress(@RequestBody @Valid AddressAddDto dto, BindingResult result) {
         addressService.addAddress(ReqThreadLocal.getInfo().getUserId(), dto.getReceiverName(),
-                dto.getReceiverAddress(), dto.getReceiverPhone(), dto.getIsDefault());
+                dto.getReceiverPosition(),dto.getReceiverAddress(), dto.getReceiverPhone(), dto.getIsDefault());
         return ResultUtils.success(null);
     }
 
@@ -62,8 +62,8 @@ public class UserAddressController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> updateAddress(@RequestBody @Valid AddressUpdateDto dto, BindingResult result) {
-        addressService.updateAddress(dto.getAddressId(), dto.getReceiverName(), dto.getReceiverAddress(),
-                dto.getReceiverPhone(), dto.getIsDefault());
+        addressService.updateAddress(dto.getAddressId(), dto.getReceiverName(),dto.getReceiverPosition(),
+                dto.getReceiverAddress(), dto.getReceiverPhone(), dto.getIsDefault());
         return ResultUtils.success(null);
     }
 

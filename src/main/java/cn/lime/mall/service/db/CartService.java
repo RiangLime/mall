@@ -15,5 +15,6 @@ import java.util.List;
 public interface CartService extends IService<Cart> {
     boolean addCart(Long userId,Long proId,Long skuId,Integer number);
     boolean deleteCart(Long userId,Long proId,Long skuId,Integer number);
+    void updateCartNumber(Long userId,Long proId,Long skuId,Integer number);
     List<CartVo> listUserCart(Long userId);
 }

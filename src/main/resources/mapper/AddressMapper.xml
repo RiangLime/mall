@@ -8,6 +8,7 @@
             <id property="addressId" column="address_id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
+            <result property="receiverPosition" column="receiver_position" jdbcType="VARCHAR"/>
             <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
             <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
             <result property="isDefault" column="is_DEFAULT" jdbcType="TINYINT"/>
@@ -16,7 +17,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        address_id,user_id,receiver_name,
+        address_id,user_id,receiver_name,receiver_position,
         receiver_address,receiver_phone,is_DEFAULT,
         gmt_created,gmt_modified
     </sql>

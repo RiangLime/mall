@@ -19,6 +19,8 @@ public class ProductPageVo {
     private String productCode;
     @Schema(description = "商品名称")
     private String productName;
+    @Schema(description = "商品副标题")
+    private String productSubTitle;
     @Schema(description = "商品品牌")
     private String productBrand;
     @Schema(description = "商品主图")

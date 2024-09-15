@@ -29,6 +29,7 @@
         <result property="skuDescription" column="sku_description" jdbcType="VARCHAR"/>
         <result property="skuPrice" column="price" jdbcType="INTEGER"/>
         <result property="number" column="number" jdbcType="INTEGER"/>
+        <result property="totalPrice" column="total_price" jdbcType="INTEGER"/>
         <association property="attributeVos" resultMap="skuAttributeVo"/>
     </resultMap>
 
@@ -50,6 +51,7 @@
             s.sku_description ,
             s.price ,
             c.number,
+            s.price * c.number as total_price,
             sa.attribute_name ,
             sa.attribute_value
         FROM

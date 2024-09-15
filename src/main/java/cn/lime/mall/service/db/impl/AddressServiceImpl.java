@@ -28,13 +28,14 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
         implements AddressService {
     @Override
     @Transactional
-    public void addAddress(Long userId, String receiverName, String receiverAddress, String receiverPhone, Integer isDefault) {
+    public void addAddress(Long userId, String receiverName,String receiverPosition, String receiverAddress, String receiverPhone, Integer isDefault) {
         Address add = new Address();
         add.setUserId(userId);
         add.setReceiverName(receiverName);
         add.setReceiverAddress(receiverAddress);
         add.setReceiverPhone(receiverPhone);
         add.setIsDefault(isDefault);
+        add.setReceiverPosition(receiverPosition);
         if (ObjectUtils.isNotEmpty(isDefault) && isDefault == 1) {
             ThrowUtils.throwIf(!clearDefaultAddress(add.getUserId()),ErrorCode.UPDATE_ERROR);
         }
@@ -47,7 +48,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
     }
 
     @Override
-    public boolean updateAddress(Integer addressId, String receiverName, String receiverAddress, String receiverPhone, Integer isDefault) {
+    public boolean updateAddress(Integer addressId, String receiverName,String receiverPosition, String receiverAddress, String receiverPhone, Integer isDefault) {
         if (StringUtils.isEmpty(receiverName) && StringUtils.isEmpty(receiverAddress) &&
                 StringUtils.isEmpty(receiverPhone) && ObjectUtils.isEmpty(isDefault)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "更新项不可全空");
@@ -62,6 +63,9 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
         }
         if (StringUtils.isNotEmpty(receiverPhone)) {
             add.setReceiverPhone(receiverPhone);
+        }
+        if (StringUtils.isNotEmpty(receiverPosition)){
+            add.setReceiverPosition(receiverPosition);
         }
         if (ObjectUtils.isNotEmpty(isDefault)) {
             add.setIsDefault(isDefault);

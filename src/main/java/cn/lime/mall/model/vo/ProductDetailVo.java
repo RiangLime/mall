@@ -25,6 +25,8 @@ public class ProductDetailVo {
     private String productCode;
     @Schema(description = "商品名")
     private String productName;
+    @Schema(description = "商品副标题")
+    private String productSubTitle;
     @Schema(description = "商品详情页")
     private String productDescription;
     @Schema(description = "商品状态")
