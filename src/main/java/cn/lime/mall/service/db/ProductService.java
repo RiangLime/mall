@@ -4,6 +4,7 @@ import cn.lime.core.common.PageResult;
 import cn.lime.mall.model.bean.SkuInfo;
 import cn.lime.mall.model.entity.Product;
 import cn.lime.mall.model.vo.ProductDetailVo;
+import cn.lime.mall.model.vo.ProductMallHomePageVo;
 import cn.lime.mall.model.vo.ProductPageVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -38,7 +39,7 @@ public interface ProductService extends IService<Product> {
 
     boolean stateDownProducts(List<Long> productIds);
 
-    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,
+    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,Integer visible,
                                              Integer current, Integer pageSize, String sortField, String sortOrder);
 
     ProductDetailVo getProductDetail(Long productId, Integer state);
@@ -46,4 +47,5 @@ public interface ProductService extends IService<Product> {
     boolean addProductTag(Long productId, Long tagId);
 
     boolean removeProductTag(Long productId, Long tagId);
+    ProductMallHomePageVo getMallHomePage();
 }

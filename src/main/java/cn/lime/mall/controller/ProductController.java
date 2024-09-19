@@ -8,9 +8,11 @@ import cn.lime.core.common.PageResult;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
+import cn.lime.core.module.dto.EmptyDto;
 import cn.lime.mall.model.dto.product.ProductIdDto;
 import cn.lime.mall.model.dto.product.ProductPageUserDto;
 import cn.lime.mall.model.vo.ProductDetailVo;
+import cn.lime.mall.model.vo.ProductMallHomePageVo;
 import cn.lime.mall.model.vo.ProductPageVo;
 import cn.lime.mall.service.db.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,7 +44,7 @@ public class ProductController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<ProductPageVo>> getProductPage(@RequestBody @Valid ProductPageUserDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductPage(
-                dto.getProductName(),dto.getTagIds(),dto.getProductType(), YesNoEnum.YES.getVal(),
+                dto.getProductName(),dto.getTagIds(),dto.getProductType(), YesNoEnum.YES.getVal(),YesNoEnum.YES.getVal(),
                 dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 
@@ -52,6 +54,15 @@ public class ProductController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductDetail(dto.getProductId(),YesNoEnum.YES.getVal()));
+    }
+
+
+    @PostMapping("/mallhomepage")
+    @Operation(summary = "商城首页")
+    @AuthCheck(authLevel = AuthLevel.TOURIST)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<ProductMallHomePageVo> getProductList(@RequestBody @Valid EmptyDto dto, BindingResult result) {
+        return ResultUtils.success(productService.getMallHomePage());
     }
 
 

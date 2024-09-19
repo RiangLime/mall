@@ -12,8 +12,7 @@ import cn.lime.mall.model.bean.SkuInfo;
 import cn.lime.mall.model.entity.ProductHaveTag;
 import cn.lime.mall.model.entity.ProductUrl;
 import cn.lime.mall.model.entity.Sku;
-import cn.lime.mall.model.vo.ProductDetailVo;
-import cn.lime.mall.model.vo.ProductPageVo;
+import cn.lime.mall.model.vo.*;
 import cn.lime.mall.service.db.*;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,6 +51,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     private SkuattributeService skuattributeService;
     @Resource
     private ProductViewLogService logService;
+    @Resource
+    private ProductTagService productTagService;
 
     @Override
     @Transactional
@@ -120,7 +122,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "更新产品SKU信息异常");
 
         // tag
-        if (CollectionUtils.isEmpty(productTagIds)) {
+        if (!CollectionUtils.isEmpty(productTagIds)) {
             productHaveTagService.reformRelation(productId, productTagIds);
         }
 
@@ -167,10 +169,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     }
 
     @Override
-    public PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,
+    public PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,Integer visible,
                                                     Integer current, Integer pageSize, String sortField, String sortOrder) {
         Page<?> page = PageUtils.build(current, pageSize, sortField, sortOrder);
-        Page<ProductPageVo> vos = baseMapper.pageProduct(productName, tagIds, productType, productState, page);
+        Page<ProductPageVo> vos = baseMapper.pageProduct(productName, tagIds, productType, productState, visible, page);
         return new PageResult<>(vos);
     }
 
@@ -233,6 +235,36 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         return productHaveTagService.lambdaUpdate()
                 .eq(ProductHaveTag::getProductId, productId)
                 .eq(ProductHaveTag::getTagId, tagId).remove();
+    }
+
+    @Override
+    public ProductMallHomePageVo getMallHomePage() {
+        PageResult<ProductPageVo> page = getProductPage(null,null,null,YesNoEnum.YES.getVal()
+                ,YesNoEnum.YES.getVal(), 1,10000,null,null);
+        // 所有商品
+        ProductMallHomePageVo vo = new ProductMallHomePageVo();
+        vo.setProducts(page.getList());
+        // 一级标签
+        List<ProductLevelTagVo> topTags = productTagService.listTopTags(YesNoEnum.YES.getVal());
+        List<ProductGroupVo> groupVos = new ArrayList<>();
+        for (ProductLevelTagVo topTag : topTags) {
+            ProductGroupVo groupVo = new ProductGroupVo();
+            groupVo.setTagVo(topTag);
+            // 二级标签
+            List<ProductLevelTagVo> subTags = productTagService.listChildrenTags(YesNoEnum.YES.getVal(), topTag.getTagId());
+            List<ProductSubGroupVo> subGroupVos = new ArrayList<>();
+            for (ProductLevelTagVo subTag : subTags) {
+                ProductSubGroupVo subGroupVo = new ProductSubGroupVo();
+                subGroupVo.setTagVo(subTag);
+                subGroupVo.setProductVos(getProductPage(null,List.of(subTag.getTagId()), null,
+                        YesNoEnum.YES.getVal(),YesNoEnum.YES.getVal(),1,10000,null,null).getList());
+                subGroupVos.add(subGroupVo);
+            }
+            groupVo.setSubGroupVos(subGroupVos);
+            groupVos.add(groupVo);
+        }
+        vo.setGroupProductVos(groupVos);
+        return vo;
     }
 }
 

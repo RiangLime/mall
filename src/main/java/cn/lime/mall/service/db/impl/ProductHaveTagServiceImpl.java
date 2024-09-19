@@ -8,6 +8,7 @@ import cn.lime.mall.model.entity.ProductHaveTag;
 import cn.lime.mall.service.db.ProductHaveTagService;
 import cn.lime.mall.mapper.ProductHaveTagMapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -54,15 +55,7 @@ public class ProductHaveTagServiceImpl extends ServiceImpl<ProductHaveTagMapper,
     @Override
     @Transactional
     public void reformRelation(Long productId, List<Long> tagIds) {
-        Set<Long> exist = lambdaQuery().eq(ProductHaveTag::getProductId, productId)
-                .list()
-                .stream()
-                .map(ProductHaveTag::getTagId)
-                .collect(Collectors.toSet());
-        if (exist.equals(new HashSet<>(tagIds))){
-            return;
-        }
-        ThrowUtils.throwIf(!lambdaUpdate().eq(ProductHaveTag::getProductId,productId).remove(), ErrorCode.DB_DATA_ERROR);
+        ThrowUtils.throwIf(!lambdaUpdate().eq(ProductHaveTag::getProductId,productId).remove(),ErrorCode.DELETE_ERROR);
         ThrowUtils.throwIf(!addRelation(productId,tagIds),ErrorCode.UPDATE_ERROR);
     }
 }

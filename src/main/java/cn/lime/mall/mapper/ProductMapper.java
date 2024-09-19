@@ -19,7 +19,7 @@ import java.util.List;
  * @Entity cn.lime.mall.model.entity.Product
  */
 public interface ProductMapper extends BaseMapper<Product> {
-    Page<ProductPageVo> pageProduct(String productName, List<Long> tagIds, String productType, Integer state, Page<?> page);
+    Page<ProductPageVo> pageProduct(String productName, List<Long> tagIds, String productType, Integer state, Integer visible, Page<?> page);
 
     ProductDetailVo getProductBasicDetail(Long productId,Integer state);
 

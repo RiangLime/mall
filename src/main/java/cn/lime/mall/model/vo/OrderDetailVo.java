@@ -59,6 +59,8 @@ public class OrderDetailVo implements Serializable {
     private Integer addressId;
     @Schema(description = "收货人姓名")
     private String receiverName;
+    @Schema(description = "收货省市区")
+    private String receiverPosition;
     @Schema(description = "收货地址")
     private String receiverAddress;
     @Schema(description = "收货人手机号")

@@ -31,4 +31,6 @@ public class ProductTagUpdateDto implements Serializable {
     private Integer tagSort;
     @Schema(description = "标签状态是否可见")
     private Integer tagState;
+    @Schema(description = "父标签ID")
+    private Long parentId;
 }

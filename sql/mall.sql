@@ -120,8 +120,8 @@ create table Cart
     gmt_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 ) comment '购物车表' collate = utf8mb4_unicode_ci;
-ALTER TABLE Address
-    ADD CONSTRAINT fk_address_user_id
+ALTER TABLE Cart
+    ADD CONSTRAINT fk_cart_user_id
         FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
 create table Product_View_Log

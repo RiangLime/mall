@@ -43,6 +43,7 @@
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
         <result property="addressId" column="address_id" jdbcType="INTEGER"/>
         <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
+        <result property="receiverPosition" column="receiver_position" jdbcType="VARCHAR"/>
         <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
         <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
         <result property="createTime" column="order_create_time" jdbcType="BIGINT"/>
@@ -68,6 +69,7 @@
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
         <result property="addressId" column="address_id" jdbcType="INTEGER"/>
         <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
+        <result property="receiverPosition" column="receiver_position" jdbcType="VARCHAR"/>
         <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
         <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
         <result property="deliverCompany" column="deliver_company" jdbcType="VARCHAR"/>
@@ -146,6 +148,7 @@
                      u.avatar as user_avatar,
                      a.address_id ,
                      a.receiver_name ,
+                     a.receiver_position ,
                      a.receiver_address ,
                      a.receiver_phone
         FROM
@@ -228,6 +231,7 @@
                     u.avatar as user_avatar,
                     a.address_id ,
                     a.receiver_name ,
+                    a.receiver_position,
                     a.receiver_address ,
                     a.receiver_phone
                 FROM
