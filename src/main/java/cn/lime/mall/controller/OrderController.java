@@ -19,6 +19,8 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @ClassName: OrderController
  * @Description: TODO
@@ -31,8 +33,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 @RequestLog
 public class OrderController {
-    public static final String ORDER_CALLBACK_URL = "notice/order";
-    public static final String REFUND_NOTICE_URL = "notice/refund";
     @Resource
     private OrderService orderService;
 
@@ -108,5 +108,7 @@ public class OrderController {
     public BaseResponse<OrderDetailVo> getOrderDetail(@RequestBody@Valid OrderIdDto dto, BindingResult result){
         return ResultUtils.success(orderService.getOrderDetail(dto.getOrderId()));
     }
+
+
 
 }

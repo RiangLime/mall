@@ -28,7 +28,7 @@ public class H5PayServiceImpl extends BaseWxPayServiceImpl {
         request.setAppid(mallParams.getWxPayAppId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
         request.setOutTradeNo(String.valueOf(orderId));
-        request.setDescription("ApplyEasy Order " + orderId);
+        request.setDescription(getOrderDescription(orderId));
         request.setSceneInfo(sceneInfo);
         // 预下单
         PrepayResponse response = h5Service.prepay(request);

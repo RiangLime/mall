@@ -27,7 +27,7 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
         request.setAppid(mallParams.getWxPayAppId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
         request.setOutTradeNo(String.valueOf(orderId));
-        request.setDescription("PeerReview Order " + orderId);
+        request.setDescription(getOrderDescription(orderId));
         // 预下单
         PrepayResponse response = nativeService.prepay(request);
         cacheOrder(orderId);

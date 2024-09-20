@@ -48,4 +48,6 @@ public interface WxPayService {
      */
     Refund queryRefundById(Long orderId);
 
+    Refund queryRefundByRefundId(Long refundId);
+
 }

@@ -24,7 +24,7 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
         request.setMchid(mallParams.getWxPayMerchantId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
         request.setOutTradeNo(String.valueOf(orderId));
-        request.setDescription("ApplyEasy Order " + orderId);
+        request.setDescription(getOrderDescription(orderId));
         Payer payer = new Payer();
         payer.setOpenid(openId);
         request.setPayer(payer);

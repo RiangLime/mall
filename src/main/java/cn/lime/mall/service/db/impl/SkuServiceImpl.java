@@ -70,7 +70,11 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
 
     @Override
     public boolean deleteProductSkus(Long productId) {
-        return lambdaUpdate().eq(Sku::getProductId,productId).remove();
+        if (lambdaQuery().eq(Sku::getProductId,productId).exists()) {
+            return lambdaUpdate().eq(Sku::getProductId, productId).remove();
+        }else {
+            return true;
+        }
     }
 }
 

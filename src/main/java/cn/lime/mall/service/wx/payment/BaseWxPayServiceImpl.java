@@ -6,13 +6,18 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.RedisDb;
 import cn.lime.core.constant.RedisKeyName;
+import cn.lime.core.constant.Symbol;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.utils.HttpUtils;
 import cn.lime.mall.config.MallParams;
 import cn.lime.mall.constant.OrderStatus;
+import cn.lime.mall.model.entity.OrderItem;
+import cn.lime.mall.model.entity.Product;
 import cn.lime.mall.model.vo.OrderPayVo;
+import cn.lime.mall.service.db.OrderItemService;
 import cn.lime.mall.service.db.OrderService;
+import cn.lime.mall.service.db.ProductService;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.core.notification.NotificationConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;
@@ -30,9 +35,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +60,10 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
     protected Map<Integer, StringRedisTemplate> redisTemplateMap;
     @Resource
     protected OrderService orderService;
+    @Resource
+    protected OrderItemService orderItemService;
+    @Resource
+    protected ProductService productService;
     protected NativePayService nativeService;
     protected JsapiServiceExtension jsapiService;
     protected H5Service h5Service;
@@ -64,7 +75,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         initSuccess = initSuccess();
-        if (!initSuccess){
+        if (!initSuccess) {
             log.warn("[Init Wx Pay] 未检测到正确的微信支付相关配置");
             return;
         }
@@ -132,17 +143,33 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         if (clazz == Transaction.class) {
             // 以支付通知回调为例，验签、解密并转换成 Transaction
             Transaction transaction = parser.parse(requestParam, Transaction.class);
-            // 根据支付通知解析回调结果，并更新订单状态
-            orderService.doOrderCallback(transaction);
-            // 更新订单状态
-            removeOrder(Long.parseLong(transaction.getOutTradeNo()));
+            dealTransaction(transaction);
         } else if (clazz == RefundNotification.class) {
             RefundNotification notification = parser.parse(requestParam, RefundNotification.class);
-            // 根据退款通知解析回调结果，并更新订单状态
-            orderService.doRefundCallback(notification);
+            dealRefundNotification(notification);
         } else {
             throw new BusinessException(ErrorCode.UNSUPPORTED_METHOD, "无效的回调实体类");
         }
+    }
+
+    public void dealRefundNotification(RefundNotification refundNotification) {
+        // 根据退款通知解析回调结果，并更新订单状态
+        orderService.doRefundCallback(refundNotification);
+    }
+
+    public void dealRefund(Refund refund) {
+        orderService.doRefundCallback(refund);
+    }
+
+    public void dealRefund(Long orderId,Exception e){
+        orderService.doRefundCallback(orderId,e);
+    }
+
+    public void dealTransaction(Transaction transaction) {
+        // 根据支付通知解析回调结果，并更新订单状态
+        orderService.doOrderCallback(transaction);
+        // 更新订单状态
+        removeOrder(Long.parseLong(transaction.getOutTradeNo()));
     }
 
     @Override
@@ -165,14 +192,19 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         amountReq.setRefund(Long.valueOf(refundPrice));
         amountReq.setTotal(Long.valueOf(order.getRealOrderPrice()));
         amountReq.setCurrency("CNY");
-        FundsFromItem fundsFromItem = new FundsFromItem();
-        fundsFromItem.setAmount(Long.valueOf(refundPrice));
-        fundsFromItem.setAccount(Account.AVAILABLE);
-        amountReq.setFrom(List.of(fundsFromItem));
+//        FundsFromItem fundsFromItem = new FundsFromItem();
+//        fundsFromItem.setAmount(Long.valueOf(refundPrice));
+//        fundsFromItem.setAccount(Account.AVAILABLE);
+//        amountReq.setFrom(List.of(fundsFromItem));
         request.setAmount(amountReq);
         // 拼接完成
         Refund refund = refundService.create(request);
         orderService.doRefundCallback(refund);
+        try {
+            Thread.sleep(500);
+        }catch (Exception ignored){
+
+        }
     }
 
     @Override
@@ -180,6 +212,13 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         Order order = orderService.getById(orderId);
         QueryByOutRefundNoRequest request = new QueryByOutRefundNoRequest();
         request.setOutRefundNo(String.valueOf(order.getRefundId()));
+        return refundService.queryByOutRefundNo(request);
+    }
+
+    @Override
+    public Refund queryRefundByRefundId(Long refundId) {
+        QueryByOutRefundNoRequest request = new QueryByOutRefundNoRequest();
+        request.setOutRefundNo(String.valueOf(refundId));
         return refundService.queryByOutRefundNo(request);
     }
 
@@ -196,7 +235,34 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
 
     }
 
-    public boolean initSuccess(){
+    protected String getOrderDescription(Long orderId){
+        List<OrderItem> orderItems = orderItemService.lambdaQuery().eq(OrderItem::getOrderId,orderId).list();
+        if (!CollectionUtils.isEmpty(orderItems)){
+            List<Long> productIds = orderItems.stream().map(OrderItem::getProductId).toList();
+            List<String> productNames = productService.lambdaQuery().in(Product::getProductId,productIds)
+                    .list()
+                    .stream()
+                    .map(Product::getProductName)
+                    .toList();
+            return String.join(String.valueOf(Symbol.COMMA),productNames);
+        }
+        return "订单号" + orderId;
+    }
+
+    public boolean initSuccess() {
+        log.info("""
+                                        
+                        WxPayAppId={},
+                        WxPayMerchantId={},
+                        WxPayPrivateKeyPath={},
+                        WxPayCertificatePath={},
+                        WxPayApiV3Key={},
+                        WxPayMerchantSerialNumber={},
+                        WxPayNotifyUrlPrefix={}
+                        """, mallParams.getWxPayAppId(), mallParams.getWxPayMerchantId(),
+                mallParams.getWxPayPrivateKeyPath(), mallParams.getWxPayCertificatePath(),
+                mallParams.getWxPayApiV3Key(), mallParams.getWxPayMerchantSerialNumber(),
+                mallParams.getWxPayNotifyUrlPrefix());
         return StringUtils.isNotBlank(mallParams.getWxPayAppId())
                 && StringUtils.isNotEmpty(mallParams.getWxPayMerchantId())
                 && StringUtils.isNotEmpty(mallParams.getWxPayPrivateKeyPath())

@@ -6,6 +6,8 @@ import cn.lime.mall.service.db.OrderItemService;
 import cn.lime.mall.mapper.OrderItemMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
 * @author riang
 * @description 针对表【Order_Item(订单物品表)】的数据库操作Service实现
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem>
     implements OrderItemService{
-
 }
 
 

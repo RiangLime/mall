@@ -39,7 +39,7 @@ public class ProductUpdateDto implements Serializable {
     @Schema(description = "产品状态 0下架1上架")
     private Integer productState;
     @Schema(description = "用户是否可见 1可见 0不可见")
-    private Integer visible = 1;
+    private Integer visible;
     @Schema(description = "商品主图")
     private String mainPicUrl;
     @Schema(description = "商品轮播图")

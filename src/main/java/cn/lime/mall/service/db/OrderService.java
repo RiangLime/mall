@@ -60,6 +60,7 @@ public interface OrderService extends IService<Order> {
     Integer updateTimeoutWaitingPayOrder(Integer timeout);
     void doOrderCallback(Transaction transaction);
     void doRefundCallback(Refund refund);
+    void doRefundCallback(Long orderId, Exception e);
     void doRefundCallback(RefundNotification refundNotification);
     void doOrderCallback(PaymentIntent paymentIntent);
     void doOrderCallback(Session stripeSession);
