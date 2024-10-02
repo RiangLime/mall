@@ -1,5 +1,6 @@
 package cn.lime.mall.model.vo;
 
+import cn.lime.mall.model.entity.OrderOperateLog;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,13 @@ public class OrderOperateLogVo implements Serializable {
     @Schema(description = "操作时间 （秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long operateTime;
+
+    public static OrderOperateLogVo fromBean(OrderOperateLog bean){
+        OrderOperateLogVo vo = new OrderOperateLogVo();
+        vo.setId(bean.getId());
+        vo.setUserId(bean.getUserId());
+        vo.setOperation(bean.getOperate());
+        vo.setOperateTime(bean.getGmtCreated().getTime()/1000);
+        return vo;
+    }
 }

@@ -1,6 +1,8 @@
 package cn.lime.mall.service.db.impl;
 
 import cn.hutool.core.lang.generator.SnowflakeGenerator;
+import cn.lime.core.common.ErrorCode;
+import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.mall.constant.ProductUrlType;
 import cn.lime.mall.constant.ProductUrlTypeEnum;
@@ -16,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
 * @author riang
@@ -28,7 +31,14 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
     @Resource
     private SnowFlakeGenerator ids;
     @Override
+    @Transactional
     public boolean addMainPicUrl(Long productUrl, String url) {
+        if (lambdaQuery().eq(ProductUrl::getProductId,productUrl)
+                .eq(ProductUrl::getUrlType,ProductUrlType.MAIN.getVal()).exists()){
+            ThrowUtils.throwIf(!lambdaUpdate().eq(ProductUrl::getProductId,productUrl)
+                    .eq(ProductUrl::getUrlType,ProductUrlType.MAIN.getVal())
+                    .remove(), ErrorCode.DELETE_ERROR,"删除已有主图失败");
+        }
         ProductUrl bean = new ProductUrl();
         bean.setUrlId(ids.nextId());
         bean.setUrl(url);
@@ -51,6 +61,12 @@ public class ProductUrlServiceImpl extends ServiceImpl<ProductUrlMapper, Product
             beans.add(bean);
         }
         return saveBatch(beans);
+    }
+
+    @Override
+    public String getMainPic(Long productId) {
+        Optional<ProductUrl> productUrl = lambdaQuery().eq(ProductUrl::getProductId,productId).eq(ProductUrl::getUrlType,ProductUrlTypeEnum.MAIN.getVal()).oneOpt();
+        return productUrl.map(ProductUrl::getUrl).orElse(null);
     }
 
     @Override

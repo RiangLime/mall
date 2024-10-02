@@ -17,18 +17,11 @@ import cn.lime.mall.controller.OrderController;
 import cn.lime.mall.mapper.OrderMapper;
 import cn.lime.mall.model.dto.order.OrderItemDto;
 import cn.lime.mall.model.dto.order.OrderPayDto;
-import cn.lime.mall.model.entity.Order;
-import cn.lime.mall.model.entity.OrderItem;
-import cn.lime.mall.model.entity.Sku;
-import cn.lime.mall.model.vo.OrderDetailVo;
-import cn.lime.mall.model.vo.OrderPageVo;
-import cn.lime.mall.model.vo.OrderPayVo;
-import cn.lime.mall.service.db.OrderItemService;
-import cn.lime.mall.service.db.OrderOperateLogService;
-import cn.lime.mall.service.db.OrderService;
+import cn.lime.mall.model.entity.*;
+import cn.lime.mall.model.vo.*;
+import cn.lime.mall.service.db.*;
 import cn.lime.core.service.db.UserService;
 import cn.lime.core.service.db.UserthirdauthorizationService;
-import cn.lime.mall.service.db.SkuService;
 import cn.lime.mall.service.stripe.StripePayService;
 import cn.lime.mall.service.wx.payment.WxPayFactory;
 import cn.lime.mall.service.wx.payment.WxPayService;
@@ -47,6 +40,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -54,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +83,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Resource
     private SnowFlakeGenerator ids;
     @Resource
+    private AddressService addressService;
+    @Resource
     private OrderOperateLogService logService;
+    @Resource
+    private CartService cartService;
 
     @Override
     public Order getById(Serializable orderId) {
@@ -146,6 +145,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     @Transactional
+    public Order createOrder(Long userId, Integer addressId, String remark, List<Long> cartIds) {
+        List<OrderItemDto> orderItems = new ArrayList<>();
+        for (Long cartId : cartIds) {
+            Cart cart = cartService.getById(cartId);
+            ThrowUtils.throwIf(!ObjectUtils.isEmpty(cart), ErrorCode.NOT_FOUND_ERROR, "该购物车项不存在");
+            OrderItemDto orderItemDto = new OrderItemDto();
+            orderItemDto.setProductId(cart.getProductId());
+            orderItemDto.setSkuId(cart.getSkuId());
+            orderItemDto.setNumber(cart.getNumber());
+            orderItems.add(orderItemDto);
+            ThrowUtils.throwIf(!cartService.lambdaUpdate().eq(Cart::getId, cartId).remove(),
+                    ErrorCode.DELETE_ERROR, "删除购物车项失败");
+        }
+        return createOrder(userId, addressId, orderItems, remark);
+    }
+
+    @Override
+    @Transactional
     public Boolean cancelOrder(Long orderId) {
         Order order = getById(orderId);
         ThrowUtils.throwIf(ObjectUtils.isEmpty(order), ErrorCode.NOT_FOUND_ERROR);
@@ -170,7 +187,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     public OrderDetailVo getOrderDetail(Long orderId) {
         orderOwnerCheck(orderId, ReqThreadLocal.getInfo().getUserId());
-        return baseMapper.getOrderDetail(orderId);
+        OrderDetailVo vo = new OrderDetailVo();
+        // 订单信息
+        Order order = getById(orderId);
+        vo.fillOrderInfo(order);
+        // 用户信息
+        User user = userService.getById(order.getUserId());
+        vo.fillUserInfo(user);
+        // 地址信息
+        Address address = addressService.getById(order.getAddressId());
+        vo.fillAddressInfo(address);
+        // 商品SKU信息
+        List<OrderProductSkuVo> productSkuVos = orderItemService.getItemsByOrderId(orderId);
+        vo.setOrderSkuList(productSkuVos);
+        // 日志信息
+        List<OrderOperateLogVo> logs = logService.lambdaQuery().eq(OrderOperateLog::getOrderId, orderId).list().stream().map(OrderOperateLogVo::fromBean).toList();
+        vo.setLogs(logs);
+
+        return vo;
     }
 
     @Override
@@ -246,14 +280,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
+    @Transactional
     public void orderUpdateByAdmin(Long orderId, String merchantRemark, Integer changedPrice) {
         Order order = getById(orderId);
         logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员修改订单信息" + order.getRealOrderPrice()
                 + "->" + changedPrice + ",REMARK[" + merchantRemark + "]");
-        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
-                .set(Order::getRemark2, merchantRemark)
-                .set(Order::getRealOrderPrice, changedPrice)
-                .update(), ErrorCode.UPDATE_ERROR, "添加订单备注异常");
+        ThrowUtils.throwIf(merchantRemark==null && ObjectUtils.isEmpty(changedPrice),
+                ErrorCode.PARAMS_ERROR, "不可全为空");
+        LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(Order::getOrderId, orderId);
+        if (merchantRemark != null) {
+            wrapper.set(Order::getRemark2, merchantRemark);
+        }
+        if (!ObjectUtils.isEmpty(changedPrice)) {
+            wrapper.set(Order::getRealOrderPrice, changedPrice);
+        }
+        ThrowUtils.throwIf(!update(wrapper), ErrorCode.UPDATE_ERROR, "添加订单备注/改价异常");
     }
 
     @Override
@@ -262,21 +304,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员确认订单发货");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getDeliverCompany, deliverCompany)
-                .set(Order::getDeliverCompany, deliverCompany)
+                .set(Order::getDeliverId, deliverId)
                 .set(Order::getSendDeliverTime, new Date()).update(), ErrorCode.UPDATE_ERROR);
-        ThrowUtils.throwIf(!updateOrderStatusFromWaitingSendToWaitingReceive(orderId),
-                ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        Order order = getById(orderId);
+        if (order.getOrderStatus().equals(OrderStatus.WAITING_SEND.getVal())) {
+            ThrowUtils.throwIf(!updateOrderStatusFromWaitingSendToWaitingReceive(orderId),
+                    ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        }
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public OrderPayVo payOrder(OrderPayDto dto) {
         Order order = getById(dto.getOrderId());
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
         User user = userService.getById(ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getUserId().equals(user.getUserId()), ErrorCode.AUTH_FAIL);
-        ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal()), ErrorCode.PARAMS_ERROR, "仅待支付订单可支付");
-        ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()), ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal())
+                && !order.getOrderStatus().equals(OrderStatus.PAYING.getVal()) ,
+                ErrorCode.PARAMS_ERROR, "该订单已支付");
+        if (order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal())) {
+            ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()),
+                    ErrorCode.UPDATE_ERROR, "更新订单状态异常");
+        }else {
+            ThrowUtils.throwIf(!updatePayTime(dto.getOrderId()),ErrorCode.UPDATE_ERROR,"更新付款时间异常");
+        }
         logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户付款");
         // 成功
         if (order.getRealOrderPrice() == 0) {
@@ -284,11 +336,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             return null;
         }
         //
+        OrderPayVo vo = null;
         if (dto.getPayMethod().equals(PaymentTypeEnum.STRIPE.getVal())) {
-            return doStripePay(order, dto.getSuccessUrl(), dto.getCancelUrl());
+            vo = doStripePay(order, dto.getSuccessUrl(), dto.getCancelUrl());
         } else {
-            return doWxPay(order, dto.getPayMethod());
+            vo = doWxPay(order, dto.getPayMethod());
         }
+        // 写不进去测试
+        redisTemplateMap.get(RedisDb.PAYMENT_EXPIRE_DB.getVal()).opsForHash()
+                .put(RedisKeyName.PAY_EXPIRE.getVal(), String.valueOf(order.getOrderId()),
+                        String.valueOf(System.currentTimeMillis()));
+        return vo;
     }
 
     private OrderPayVo doStripePay(Order order, String successUrl, String cancelUrl) {
@@ -316,6 +374,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         return lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_PAY.getVal())
                 .set(Order::getOrderStatus, OrderStatus.PAYING.getVal())
+                .set(Order::getOrderPayTime,new Date())
+                .update();
+    }
+
+    @Override
+    public Boolean updatePayTime(Long orderId){
+        return lambdaUpdate().eq(Order::getOrderId, orderId)
+                .set(Order::getOrderPayTime,new Date())
                 .update();
     }
 
@@ -477,9 +543,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     public void doRefundCallback(Long orderId, Exception e) {
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Order::getOrderId, orderId);
-        wrapper.set(Order::getRefundStatus,RefundStatus.FAIL.getVal());
-        wrapper.set(Order::getRemark2,e.getMessage());
-        ThrowUtils.throwIf(!update(wrapper),ErrorCode.UPDATE_ERROR);
+        wrapper.set(Order::getRefundStatus, RefundStatus.FAIL.getVal());
+        wrapper.set(Order::getRemark2, e.getMessage());
+        ThrowUtils.throwIf(!update(wrapper), ErrorCode.UPDATE_ERROR);
     }
 
     @Override
@@ -590,6 +656,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
                 redisTemplateMap.get(PAYMENT_EXPIRE_DB.getVal()).opsForHash().delete(RedisKeyName.PAY_EXPIRE.getVal(), k.toString());
             }
         });
+        List<Order> payingOrders = lambdaQuery().eq(Order::getOrderStatus, OrderStatus.PAYING.getVal()).list();
+        for (Order payingOrder : payingOrders) {
+            // 超时付款
+            if (payingOrder.getOrderStartPayTime() + params.getPaymentTimeout() < System.currentTimeMillis()) {
+                // 如果没被处理 就更新为代付款
+                // 如果只是第三方付款有时间差  回调函数会强制改为付款成功
+                if (payingOrder.getOrderIsDeal() == YesNoEnum.NO.getVal()) {
+                    updateOrderStatusFromPayingToWaitingPay(payingOrder.getOrderId());
+                }
+            }
+        }
     }
 
     /**

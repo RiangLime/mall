@@ -144,6 +144,7 @@ create table `Order`
     order_status         int       default 0 not null comment '订单状态 订单状态 0待支付、1支付中、2待发货、3待收货、4待评价、5已完成、8关闭订单、9退/换货',
     origin_order_price   int       default 0 not null comment '订单价格',
     real_order_price     int       default 0 not null comment '实际订单价格',
+    order_start_pay_time bigint              null comment '用户开始支付时间',
     order_pay_time       timestamp           null comment '订单支付时间',
     order_receive_time   timestamp           null comment '订单收货时间',
     order_finish_time    timestamp           null comment '订单完成时间',

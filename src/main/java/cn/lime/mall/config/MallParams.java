@@ -27,7 +27,7 @@ public class MallParams {
     @Value("${mall.pay.wx.notice-url-prefix:}")
     private String wxPayNotifyUrlPrefix;
 
-    @Value("${mall.pay.timeout: 300000}")
+    @Value("${mall.pay.timeout: 60000}")
     private Long paymentTimeout;
     /**
      * 单位Hour 3小时

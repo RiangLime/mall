@@ -42,6 +42,7 @@
         with main_pics as (SELECT * FROM Product_Url pu where pu.url_type = 1)
         SELECT
             c.id as cart_id,
+            c.gmt_created,
             p.product_id,
             p.product_code ,
             p.product_name ,
@@ -65,5 +66,6 @@
                 left join SkuAttribute sa on
                 s.sku_id = sa.sku_id
         WHERE c.user_id = #{userId}
+        order by c.gmt_created desc
     </select>
 </mapper>

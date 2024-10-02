@@ -33,6 +33,10 @@ public class OrderPageVo implements Serializable {
     private Integer orderState;
     @Schema(description = "订单价格")
     private Integer realOrderPrice;
+    @Schema(description = "用户备注信息")
+    private String userRemark;
+    @Schema(description = "商家备注信息")
+    private String merchantRemark;
     // 用户信息
     @Schema(description = "用户ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)

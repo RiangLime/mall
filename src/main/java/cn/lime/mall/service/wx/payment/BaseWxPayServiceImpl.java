@@ -226,6 +226,8 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         redisTemplateMap.get(RedisDb.PAYMENT_EXPIRE_DB.getVal()).opsForHash()
                 .put(RedisKeyName.PAY_EXPIRE.getVal(), String.valueOf(orderId),
                         String.valueOf(System.currentTimeMillis()));
+        ThrowUtils.throwIf(!orderService.lambdaUpdate().eq(Order::getOrderId,orderId)
+                .set(Order::getOrderStartPayTime,System.currentTimeMillis()).update(),ErrorCode.UPDATE_ERROR);
 
     }
 

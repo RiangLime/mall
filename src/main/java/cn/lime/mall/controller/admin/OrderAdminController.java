@@ -37,7 +37,7 @@ public class OrderAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody @Valid OrderPageAdminDto dto, BindingResult result){
         return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), dto.getUserName(),dto.getProductName(),
-                null, dto.getOrderState(),null,dto.getOrderStartTime(),dto.getOrderEndTime(),
+                dto.getReceiverName(), dto.getOrderState(),dto.getOrderUserId(),dto.getOrderStartTime(),dto.getOrderEndTime(),
                 dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 

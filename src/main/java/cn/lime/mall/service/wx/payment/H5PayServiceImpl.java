@@ -32,7 +32,7 @@ public class H5PayServiceImpl extends BaseWxPayServiceImpl {
         request.setSceneInfo(sceneInfo);
         // 预下单
         PrepayResponse response = h5Service.prepay(request);
-        cacheOrder(orderId);
+        super.cacheOrder(orderId);
         OrderPayVo res = new OrderPayVo();
         res.setUrlCode(response.getH5Url());
         return res;

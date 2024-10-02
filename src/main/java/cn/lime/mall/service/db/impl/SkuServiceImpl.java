@@ -12,6 +12,7 @@ import cn.lime.mall.service.db.SkuService;
 import cn.lime.mall.mapper.SkuMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +35,11 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
     public Sku addSku(SkuInfo skuInfo, Long productId) {
         Sku sku = new Sku();
         sku.setSkuId(ids.nextId());
-        sku.setSkuCode(String.valueOf(skuInfo.getAttributes().hashCode()));
+        sku.setSkuCode(String.valueOf(Math.abs(skuInfo.getAttributes().hashCode())));
         sku.setProductId(productId);
         sku.setPrice(skuInfo.getSkuPrice());
         sku.setStock(skuInfo.getSkuStock());
+        sku.setSkuDescription(skuInfo.getSkuDescription());
         ThrowUtils.throwIf(!save(sku), ErrorCode.INSERT_ERROR);
         return sku;
     }
@@ -59,12 +61,17 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
     }
 
     @Override
-    public boolean updateSkuPriceStock(Long skuId, Integer price, Integer stock) {
-        ThrowUtils.throwIf(ObjectUtils.isEmpty(price) && ObjectUtils.isNotEmpty(stock), ErrorCode.PARAMS_ERROR);
+    public boolean updateSkuPriceStock(Long skuId,String skuCode, Integer price, Integer stock,String skuDescription,String remark) {
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(price) && ObjectUtils.isNotEmpty(stock)
+                && StringUtils.isEmpty(skuCode) && StringUtils.isEmpty(skuDescription)
+                && StringUtils.isEmpty(remark), ErrorCode.PARAMS_ERROR);
         LambdaUpdateWrapper<Sku> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Sku::getSkuId,skuId);
         if (ObjectUtils.isNotEmpty(price)) wrapper.set(Sku::getPrice,price);
         if (ObjectUtils.isNotEmpty(stock)) wrapper.set(Sku::getStock,stock);
+        if (StringUtils.isNotEmpty(skuCode)) wrapper.set(Sku::getSkuCode,skuCode);
+        if (StringUtils.isNotEmpty(skuDescription)) wrapper.set(Sku::getSkuDescription,skuDescription);
+        if (StringUtils.isNotEmpty(remark)) wrapper.set(Sku::getRemark,remark);
         return update(wrapper);
     }
 

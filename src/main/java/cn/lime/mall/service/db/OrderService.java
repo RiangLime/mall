@@ -23,6 +23,7 @@ import java.util.List;
 */
 public interface OrderService extends IService<Order> {
     Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark);
+    Order createOrder(Long userId,Integer addressId,String remark,List<Long> cartIds);
     Boolean cancelOrder(Long orderId);
     OrderPayVo payOrder(OrderPayDto dto);
     OrderDetailVo getOrderDetail(Long orderId);
@@ -42,6 +43,7 @@ public interface OrderService extends IService<Order> {
 
     // 待支付 -> 支付中
     Boolean updateOrderStatusFromWaitingPayToPaying(Long orderId);
+    Boolean updatePayTime(Long orderId);
     // 待支付 -> 关闭
     Boolean updateOrderStatusFromWaitingPayToClose(Long orderId);
     Boolean updateOrderStatusFromPayingToPayed(Long orderId);

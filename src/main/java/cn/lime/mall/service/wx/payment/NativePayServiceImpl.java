@@ -30,7 +30,7 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
         request.setDescription(getOrderDescription(orderId));
         // 预下单
         PrepayResponse response = nativeService.prepay(request);
-        cacheOrder(orderId);
+        super.cacheOrder(orderId);
         OrderPayVo res = new OrderPayVo();
         res.setUrlCode(response.getCodeUrl());
         return res;

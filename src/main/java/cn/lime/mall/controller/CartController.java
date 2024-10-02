@@ -10,6 +10,8 @@ import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.module.dto.EmptyDto;
 import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.model.dto.cart.CartAddBatchDto;
+import cn.lime.mall.model.dto.cart.CartDeleteBatchDto;
 import cn.lime.mall.model.dto.cart.CartDto;
 import cn.lime.mall.model.dto.cart.UpdateCartNumberDto;
 import cn.lime.mall.model.vo.CartVo;
@@ -56,6 +58,14 @@ public class CartController {
         cartService.addCart(ReqThreadLocal.getInfo().getUserId(), dto.getProductId(),dto.getSkuId(),dto.getNumber());
         return ResultUtils.success(null);
     }
+    @PostMapping("/add/batch")
+    @Operation(summary = "添加购物车 批量")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> batchAddCart(@RequestBody @Valid CartAddBatchDto dto, BindingResult result) {
+        cartService.addCartBatch(ReqThreadLocal.getInfo().getUserId(), dto.getDtoList());
+        return ResultUtils.success(null);
+    }
 
     @PostMapping("/delete")
     @Operation(summary = "删除购物车")
@@ -67,8 +77,18 @@ public class CartController {
         return ResultUtils.success(null);
     }
 
+    @PostMapping("/delete/batch")
+    @Operation(summary = "删除购物车 批量")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> batchDeleteCart(@RequestBody @Valid CartDeleteBatchDto dto, BindingResult result) {
+
+        cartService.batchDelete(ReqThreadLocal.getInfo().getUserId(), dto.getCartIds());
+        return ResultUtils.success(null);
+    }
+
     @PostMapping("/updatenumber")
-    @Operation(summary = "删除购物车")
+    @Operation(summary = "更新购物车商品数量")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> updateCartNumber(@RequestBody @Valid CartDto dto, BindingResult result) {

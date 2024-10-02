@@ -32,7 +32,7 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
         PrepayWithRequestPaymentResponse response =
                 jsapiService.prepayWithRequestPayment(request);
         // 入缓存
-        cacheOrder(orderId);
+        super.cacheOrder(orderId);
         OrderPayVo res = new OrderPayVo();
         res.setJsapiResponse(response);
         return res;

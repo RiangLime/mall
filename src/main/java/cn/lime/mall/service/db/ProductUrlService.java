@@ -13,6 +13,7 @@ import java.util.List;
 public interface ProductUrlService extends IService<ProductUrl> {
     boolean addMainPicUrl(Long productUrl,String url);
     boolean addRoundPicUrl(Long productUrl, List<String> urls);
+    String getMainPic(Long productUrl);
     boolean delUrl(Long urlId);
     boolean delRoundUrl(Long productId);
 }

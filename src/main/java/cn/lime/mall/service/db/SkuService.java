@@ -15,6 +15,6 @@ import java.util.List;
 public interface SkuService extends IService<Sku> {
     Sku addSku(SkuInfo skuInfo, Long productId);
     List<SkuInfoVo> getProductSkuInfos(Long productId);
-    boolean updateSkuPriceStock(Long skuId, Integer price, Integer stock);
+    boolean updateSkuPriceStock(Long skuId,String skuCode, Integer price, Integer stock,String skuDescription,String remark);
     boolean deleteProductSkus(Long productId);
 }

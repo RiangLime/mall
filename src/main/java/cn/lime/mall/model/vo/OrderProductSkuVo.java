@@ -1,5 +1,6 @@
 package cn.lime.mall.model.vo;
 
+import cn.lime.mall.model.entity.Product;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderProductSkuVo implements Serializable {
+    @Schema(description = "订单商品是否依旧存在")
+    private Integer productIsExist;
+    @Schema(description = "订单SKU是否依旧存在")
+    private Integer skuIsExist;
     @Schema(description = "商品ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long productId;
@@ -31,9 +36,9 @@ public class OrderProductSkuVo implements Serializable {
     @Schema(description = "商品状态 0下架1上架")
     private Integer productState;
     @Schema(description = "商品类型1")
-    private Integer productType1;
+    private String productType1;
     @Schema(description = "商品类型2")
-    private Integer productType2;
+    private String productType2;
     @Schema(description = "商品主图")
     private String productMainUrl;
     @Schema(description = "SKU ID 序列化为String")
@@ -47,5 +52,16 @@ public class OrderProductSkuVo implements Serializable {
     private Integer buyNumber;
     @Schema(description = "SKU属性信息")
     List<SkuAttributeVo> skuAttributes;
+
+    public void fillProductInfo(Product product,String mainUrl){
+        setProductId(product.getProductId());
+        setProductCode(product.getProductCode());
+        setProductName(product.getProductName());
+        setProductDescription(product.getProductDescription());
+        setProductState(product.getProductState());
+        setProductType1(product.getProductType1());
+        setProductType2(product.getProductType2());
+        setProductMainUrl(mainUrl);
+    }
 
 }

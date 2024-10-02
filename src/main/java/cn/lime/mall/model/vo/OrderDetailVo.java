@@ -1,10 +1,15 @@
 package cn.lime.mall.model.vo;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.lime.core.module.entity.User;
+import cn.lime.mall.model.entity.Address;
+import cn.lime.mall.model.entity.Order;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,6 +32,8 @@ public class OrderDetailVo implements Serializable {
     private String orderCode;
     @Schema(description = "订单来源")
     private Integer orderSource;
+    @Schema(description = "订单原始价格")
+    private Integer originOrderPrice;
     @Schema(description = "订单实际价格")
     private Integer realOrderPrice;
     @Schema(description = "订单状态 0待支付、1支付中、2待发货、3待收货、4待评价、5已完成、8关闭订单、9退/换货")
@@ -77,5 +84,43 @@ public class OrderDetailVo implements Serializable {
     private List<OrderProductSkuVo> orderSkuList;
     @Schema(description = "订单历史操作信息")
     private List<OrderOperateLogVo> logs;
+
+    public void fillOrderInfo(Order order){
+        setOrderId(order.getOrderId());
+        setOrderCode(order.getOrderCode());
+        setOrderSource(order.getOrderSource());
+        setOriginOrderPrice(order.getOriginOrderPrice());
+        setRealOrderPrice(order.getRealOrderPrice());
+        setOrderState(order.getOrderStatus());
+        setOrderCreateTime(order.getGmtCreated().getTime()/1000);
+        setOrderPayMethod(order.getOrderPayMethod());
+        if (ObjectUtils.isNotEmpty(order.getOrderPayTime())){
+            setOrderPayTime(order.getOrderPayTime().getTime()/1000);
+        }
+        if (ObjectUtils.isNotEmpty(order.getOrderFinishTime())){
+            setOrderFinishTime(order.getOrderFinishTime().getTime()/1000);
+        }
+        setUserRemark(order.getRemark1());
+        setMerchantRemark(order.getRemark2());
+        setDeliverCompany(order.getDeliverCompany());
+        setDeliverId(order.getDeliverId());
+        if (ObjectUtils.isNotEmpty(order.getSendDeliverTime())) {
+            setDeliverTime(order.getSendDeliverTime().getTime()/1000);
+        }
+    }
+
+    public void fillAddressInfo(Address address){
+        setAddressId(address.getAddressId());
+        setReceiverName(address.getReceiverName());
+        setReceiverPhone(address.getReceiverPhone());
+        setReceiverPosition(address.getReceiverPosition());
+        setReceiverAddress(address.getReceiverAddress());
+    }
+
+    public void fillUserInfo(User user){
+        setUserId(user.getUserId());
+        setUserName(user.getName());
+        setUserAvatar(user.getAvatar());
+    }
 
 }

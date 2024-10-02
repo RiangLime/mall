@@ -69,6 +69,9 @@ public class Order implements Serializable {
     @TableField(value = "real_order_price")
     private Integer realOrderPrice;
 
+    @TableField(value = "order_start_pay_time")
+    private Long orderStartPayTime;
+
     /**
      * 订单支付时间
      */

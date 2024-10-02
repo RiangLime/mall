@@ -46,6 +46,16 @@ public class OrderController {
         return ResultUtils.success(vo);
     }
 
+    @PostMapping("/create/fromcart")
+    @Operation(summary = "用户创建订单 购物车结算")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<OrderDetailVo> createOrderFromCart(@RequestBody @Valid OrderCreateFromCartDto dto, BindingResult result) {
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getRemark(),dto.getCartIds());
+        OrderDetailVo vo = orderService.getOrderDetail(order.getOrderId());
+        return ResultUtils.success(vo);
+    }
+
     @PostMapping("/cancel")
     @Operation(summary = "用户取消订单")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)

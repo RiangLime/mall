@@ -3,6 +3,8 @@ package cn.lime.mall.service.db.impl;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
+import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.model.dto.cart.CartDto;
 import cn.lime.mall.model.vo.CartVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Cart;
@@ -10,6 +12,7 @@ import cn.lime.mall.service.db.CartService;
 import cn.lime.mall.mapper.CartMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +49,16 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart>
     }
 
     @Override
+    @Transactional
+    public boolean addCartBatch(Long userId, List<CartDto> dtoList) {
+        for (CartDto cartDto : dtoList) {
+            ThrowUtils.throwIf(cartDto.getNumber()==0, ErrorCode.INSERT_ERROR,"添加购物车商品数量最小值为1");
+            addCart(ReqThreadLocal.getInfo().getUserId(), cartDto.getProductId(),cartDto.getSkuId(),cartDto.getNumber());
+        }
+        return false;
+    }
+
+    @Override
     public boolean deleteCart(Long userId, Long proId, Long skuId, Integer number) {
         Optional<Cart> optionalCart = lambdaQuery().eq(Cart::getUserId,userId).eq(Cart::getProductId,proId).eq(Cart::getSkuId,skuId).oneOpt();
         ThrowUtils.throwIf(optionalCart.isEmpty(), ErrorCode.PARAMS_ERROR,"购物车无该项");
@@ -55,6 +68,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart>
             return lambdaUpdate().eq(Cart::getId,optionalCart.get().getId()).set(Cart::getNumber,optionalCart.get().getNumber()-number).update();
         }
 
+    }
+
+    @Override
+    public void batchDelete(Long userId, List<Long> cartIds) {
+        ThrowUtils.throwIf(!lambdaUpdate().in(Cart::getId,cartIds).eq(Cart::getUserId,userId).remove(),ErrorCode.DELETE_ERROR);
     }
 
     @Override

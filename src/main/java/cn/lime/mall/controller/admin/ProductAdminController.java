@@ -10,6 +10,7 @@ import cn.lime.mall.model.dto.product.*;
 import cn.lime.mall.model.vo.ProductDetailVo;
 import cn.lime.mall.model.vo.ProductPageVo;
 import cn.lime.mall.service.db.ProductService;
+import cn.lime.mall.service.db.SkuService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -32,6 +33,8 @@ public class ProductAdminController {
 
     @Resource
     private ProductService productService;
+    @Resource
+    private SkuService skuService;
 
     @PostMapping("/page")
     @Operation(summary = "用户查询商品分页")
@@ -127,6 +130,17 @@ public class ProductAdminController {
         return ResultUtils.success(null);
     }
 
+    @PostMapping("/update/sku")
+    @Operation(summary = "管理员修改商品sku信息")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    @Deprecated
+    public BaseResponse<Void> updateSku(@RequestBody@Valid SkuUpdateDto dto,BindingResult result){
+        ThrowUtils.throwIf(!skuService.updateSkuPriceStock(dto.getSkuId(),dto.getSkuCode(),dto.getSkuPrice(),
+                dto.getSkuStock(),dto.getSkuDescription(),dto.getRemark()),ErrorCode.UPDATE_ERROR);
+        return ResultUtils.success(null);
+    }
+
     @PostMapping("/update")
     @Operation(summary = "管理员修改商品基本信息")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.ADMIN)
@@ -138,5 +152,7 @@ public class ProductAdminController {
                 dto.getProductTagIds(),dto.getProductState(),dto.getProductSubTitle());
         return ResultUtils.success(null);
     }
+
+
 
 }

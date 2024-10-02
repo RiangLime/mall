@@ -1,5 +1,6 @@
 package cn.lime.mall.model.vo;
 
+import cn.lime.mall.model.entity.Skuattribute;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -28,4 +29,13 @@ public class SkuAttributeVo implements Serializable {
     private String attributeName;
     @Schema(description = "SKU属性值")
     private String attributeValue;
+
+    public static SkuAttributeVo fromBean(Skuattribute bean) {
+        SkuAttributeVo vo = new SkuAttributeVo();
+        vo.setId(bean.getId());
+        vo.setSkuId(bean.getSkuId());
+        vo.setAttributeName(bean.getAttributeName());
+        vo.setAttributeValue(bean.getAttributeValue());
+        return vo;
+    }
 }

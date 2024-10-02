@@ -1,6 +1,7 @@
 package cn.lime.mall.service.db;
 
 import cn.lime.mall.model.entity.OrderItem;
+import cn.lime.mall.model.vo.OrderProductSkuVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -11,4 +12,5 @@ import java.util.List;
 * @createDate 2024-08-02 15:59:55
 */
 public interface OrderItemService extends IService<OrderItem> {
+    List<OrderProductSkuVo> getItemsByOrderId(Long orderId);
 }

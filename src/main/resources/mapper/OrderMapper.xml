@@ -14,6 +14,7 @@
             <result property="orderStatus" column="order_status" jdbcType="INTEGER"/>
             <result property="originOrderPrice" column="origin_order_price" jdbcType="INTEGER"/>
             <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
+            <result property="orderStartPayTime" column="order_start_pay_time" jdbcType="BIGINT"/>
             <result property="orderPayTime" column="order_pay_time" jdbcType="TIMESTAMP"/>
             <result property="orderFinishTime" column="order_finish_time" jdbcType="TIMESTAMP"/>
             <result property="orderIsDeal" column="order_is_deal" jdbcType="TINYINT"/>
@@ -38,6 +39,8 @@
         <result property="orderCode" column="order_code" jdbcType="VARCHAR"/>
         <result property="realOrderPrice" column="real_order_price" jdbcType="INTEGER"/>
         <result property="orderState" column="order_status" jdbcType="INTEGER"/>
+        <result property="userRemark" column="remark1" jdbcType="VARCHAR"/>
+        <result property="merchantRemark" column="remark2" jdbcType="VARCHAR"/>
         <result property="userId" column="user_id" jdbcType="BIGINT"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
@@ -132,6 +135,8 @@
                      o.order_code,
                      o.real_order_price ,
                      o.order_status,
+                     o.remark1,
+                     o.remark2,
                      UNIX_TIMESTAMP(o.gmt_created) as order_create_time,
                      o.order_pay_method,
                      UNIX_TIMESTAMP(o.order_pay_time) as order_pay_time,
@@ -161,22 +166,22 @@
                 LEFT JOIN Product p on oi.product_id = p.product_id
         where 1=1
         <if test="orderCode != null">
-            and o.order_code like CONCAT('%',${orderCode},'%')
+            and o.order_code like CONCAT('%',#{orderCode},'%')
         </if>
         <if test="userName != null">
-            and u.name like CONCAT('%',${userName},'%')
+            and u.name like CONCAT('%',#{userName},'%')
         </if>
         <if test="productName != null">
-            and p.product_name like CONCAT('%',${productName},'%')
+            and p.product_name like CONCAT('%',#{productName},'%')
         </if>
         <if test="receiverName != null">
-            and a.receiver_name like CONCAT('%',${receiverName},'%')
+            and a.receiver_name like CONCAT('%',#{receiverName},'%')
         </if>
         <if test="orderState != null">
-            and o.order_status = ${orderState}
+            and o.order_status = #{orderState}
         </if>
         <if test="orderUserId != null">
-            and u.user_id = ${orderUserId}
+            and u.user_id = #{orderUserId}
         </if>
         <if test="orderStartTime != null">
             and UNIX_TIMESTAMP(o.gmt_created) >= #{orderStartTime}
