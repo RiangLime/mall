@@ -42,7 +42,7 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<ProductPageVo>> getProductPage(@RequestBody @Valid ProductPageAdminDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductPage(
-                dto.getProductName(),dto.getTagIds(),dto.getProductType(), dto.getProductState(),null,
+                dto.getProductName(),dto.getTagIds(),dto.getProductType(), dto.getProductState(),dto.getIsVisible(),
                 dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 

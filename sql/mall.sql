@@ -187,3 +187,24 @@ create table Order_Operate_Log
     operate     nvarchar(2048) null comment '操作事件',
     gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单操作日志表' collate = utf8mb4_unicode_ci;
+
+CREATE TABLE Discount
+(
+    id             bigint not null comment '折扣项ID' primary key,
+    type           int    not null comment '折扣类型 1新用户免费送券 2指定用户类型优惠券 3CdKey',
+    owner_id       bigint null comment '拥有者用户ID 如果是cdKey就为空',
+    min_price      int    not null default 0 comment '可用时最小订单价格',
+    discount_price int    not null comment '优惠减少价格',
+    is_available   int    not null default 1 comment '是否可用 优惠仅可用一次 用完后变为0',
+    gmt_created    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+) comment '折扣表' collate = utf8mb4_unicode_ci;
+
+CREATE TABLE Discount_Available_Product
+(
+    discount_id bigint not null comment '折扣项ID' primary key,
+    product_id  bigint not null comment '折扣项可用商品ID',
+    gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+) comment '折扣可用商品表' collate = utf8mb4_unicode_ci;
+ALTER TABLE Discount_Available_Product
+    ADD CONSTRAINT fk_discount_available_product_id
+        FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;

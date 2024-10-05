@@ -1,6 +1,7 @@
 package cn.lime.mall.model.dto.order;
 
 import cn.lime.core.common.LongListToStringSerializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -24,5 +25,8 @@ public class OrderCreateFromCartDto implements Serializable {
     private List<Long> cartIds;
     @Schema(description = "用户备注")
     private String remark;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @Schema(description = "折扣ID 序列化为String")
+    private Long discountId;
 
 }

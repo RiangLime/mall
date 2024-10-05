@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.mall.mapper.DiscountMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.mall.model.entity.Discount">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="type" column="type" jdbcType="INTEGER"/>
+            <result property="ownerId" column="owner_id" jdbcType="BIGINT"/>
+            <result property="minPrice" column="min_price" jdbcType="INTEGER"/>
+            <result property="discountPrice" column="discount_price" jdbcType="INTEGER"/>
+            <result property="isAvailable" column="is_available" jdbcType="INTEGER"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="productTitleVo" type="cn.lime.mall.model.vo.discount.ProductTitleVo">
+        <id property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productCode" column="product_code" jdbcType="VARCHAR"/>
+        <result property="productSubTitle" column="reserve_str_b" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="detailVo" type="cn.lime.mall.model.vo.discount.DiscountVo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="ownerId" column="owner_id" jdbcType="BIGINT"/>
+        <result property="minPrice" column="min_price" jdbcType="INTEGER"/>
+        <result property="discountPrice" column="discount_price" jdbcType="INTEGER"/>
+        <result property="isAvailable" column="is_available" jdbcType="INTEGER"/>
+        <collection property="availableProductList" resultMap="productTitleVo"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,type,owner_id,
+        min_price,discount_price,is_available,
+        gmt_created
+    </sql>
+
+    <select id="getDetail" resultMap="detailVo">
+        SELECT
+            d.*,
+            dap.product_id,
+            p.product_code ,
+            p.product_name ,
+            p.reserve_str_b
+        FROM
+            Discount d
+                left join Discount_Available_Product dap on
+                d.id = dap.discount_id
+                LEFT JOIN Product p on
+                p.product_id = dap.product_id
+        WHERE d.id = #{id}
+    </select>
+    <select id="getPage" resultType="java.lang.Long">
+        SELECT
+            d.id,
+        FROM
+            Discount d
+                left join Discount_Available_Product dap on
+                d.id = dap.discount_id
+        <where>
+            <if test="type != null">AND d.type=#{type}</if>
+            <if test="ownerId != null">AND d.owner_id=#{ownerId}</if>
+            <if test="discountPriceRangeStart != null">AND d.discount_price>=#{discountPriceRangeStart}</if>
+            <if test="discountPriceEnd != null">AND d.discount_price &lt;=#{discountPriceEnd}</if>
+            <if test="productId != null and productId.size() > 0">
+                AND dap.product_id IN
+                <foreach item="id" collection="productId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="isAvailable != null">AND d.is_available = #{isAvailable}</if>
+        </where>
+    </select>
+</mapper>

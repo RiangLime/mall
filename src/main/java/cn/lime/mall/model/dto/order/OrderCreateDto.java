@@ -1,5 +1,6 @@
 package cn.lime.mall.model.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,4 +27,7 @@ public class OrderCreateDto implements Serializable {
     private List<OrderItemDto> orderItems;
     @Schema(description = "用户备注")
     private String remark;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @Schema(description = "折扣ID 序列化为String")
+    private Long discountId;
 }
