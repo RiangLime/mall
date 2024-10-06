@@ -146,7 +146,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         logService.log(order.getOrderId(), userId, "用户创建订单");
 
         // 折扣码减价格
-        if (ObjectUtils.isNotEmpty(order.getOrderId())) {
+        if (ObjectUtils.isNotEmpty(discountId)) {
             int newRealPrice = realPrice - discountService.useDiscount(discountId, order.getOrderId());
             ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, order.getOrderId()).set(Order::getRealOrderPrice, newRealPrice).update(),
                     ErrorCode.UPDATE_ERROR, "使用折扣券修改价格失败");
