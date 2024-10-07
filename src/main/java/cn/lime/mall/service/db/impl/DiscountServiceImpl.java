@@ -120,11 +120,25 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
     @Override
     @Transactional
     public DiscountVo updateNewUserDiscount(Integer minPrice, Integer discountPrice, List<Long> productIds) {
-        Optional<Discount> discountOpt = lambdaQuery().eq(Discount::getType, DiscountTypeEnum.NEW_USER_DISCOUNT.getVal()).oneOpt();
+        Optional<Discount> discountOpt = lambdaQuery()
+                .eq(Discount::getType, DiscountTypeEnum.NEW_USER_DISCOUNT.getVal())
+                .oneOpt();
         if (discountOpt.isPresent()){
-            ThrowUtils.throwIf(!lambdaUpdate().eq(Discount::getType,DiscountTypeEnum.NEW_USER_DISCOUNT.getVal())
+            ThrowUtils.throwIf(!lambdaUpdate()
+                    .eq(Discount::getType,DiscountTypeEnum.NEW_USER_DISCOUNT.getVal())
                     .set(Discount::getMinPrice,minPrice)
-                    .set(Discount::getDiscountPrice,discountPrice).update(), ErrorCode.UPDATE_ERROR);
+                    .set(Discount::getDiscountPrice,discountPrice)
+                    .update(), ErrorCode.UPDATE_ERROR);
+            availableProductService.lambdaUpdate().eq(DiscountAvailableProduct::getDiscountId,discountOpt.get().getId()).remove();
+            List<DiscountAvailableProduct> availableProducts = new LinkedList<>();
+            for (Long productId : productIds) {
+                DiscountAvailableProduct bean = new DiscountAvailableProduct();
+                bean.setDiscountId(discountOpt.get().getId());
+                bean.setProductId(productId);
+                availableProducts.add(bean);
+            }
+            ThrowUtils.throwIf(!availableProductService.saveBatch(availableProducts),
+                    ErrorCode.INSERT_ERROR,"新增折扣券可用商品异常");
             return getVoById(discountOpt.get().getId());
 
         }else {
@@ -132,6 +146,18 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
         }
     }
 
+    @Override
+    @Transactional
+    public void giveUserDiscount(Long userId) {
+        Optional<Discount> discountOpt = lambdaQuery()
+                .eq(Discount::getType, DiscountTypeEnum.NEW_USER_DISCOUNT.getVal())
+                .oneOpt();
+        if (discountOpt.isPresent()){
+            DiscountVo discountVo = getVoById(discountOpt.get().getId());
+            addDiscount(DiscountTypeEnum.USER_DISCOUNT.getVal(), userId,discountVo.getMinPrice(), discountVo.getDiscountPrice(),
+                    discountVo.getAvailableProductList().stream().map(ProductTitleVo::getProductId).toList());
+        }
+    }
 }
 
 

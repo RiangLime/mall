@@ -2,8 +2,10 @@ package cn.lime.mall.service.db;
 
 import cn.lime.mall.model.entity.Sku;
 import cn.lime.mall.model.entity.Skuattribute;
+import cn.lime.mall.model.vo.SkuAttributeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,4 +15,6 @@ import java.util.Map;
 */
 public interface SkuattributeService extends IService<Skuattribute> {
     boolean addAttributes(Sku sku, Map<String,String> attributeMap);
+
+    List<SkuAttributeVo> getSkuAttributeVos(Long skuId);
 }

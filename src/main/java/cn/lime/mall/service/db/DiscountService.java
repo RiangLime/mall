@@ -4,7 +4,6 @@ import cn.lime.core.common.PageResult;
 import cn.lime.mall.model.entity.Discount;
 import cn.lime.mall.model.vo.discount.DiscountVo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -22,4 +21,6 @@ public interface DiscountService extends IService<Discount> {
                                         List<Long> productId, Integer isAvailable, Integer current, Integer pageSize);
     Integer useDiscount(Long id,Long order);
     DiscountVo updateNewUserDiscount(Integer minPrice, Integer discountPrice, List<Long> productIds);
+
+    void giveUserDiscount(Long userId);
 }

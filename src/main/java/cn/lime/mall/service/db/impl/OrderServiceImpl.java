@@ -71,6 +71,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Resource
     private SkuService skuService;
     @Resource
+    private SkuattributeService skuattributeService;
+    @Resource
+    private ProductService productService;
+    @Resource
     private UserthirdauthorizationService openIdService;
     @Resource
     private StripePayService stripeService;
@@ -127,6 +131,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 //                order.getOriginOrderPrice(),order.getRealOrderPrice(),order.getRemark1()), ErrorCode.INSERT_ERROR);
         for (OrderItemDto orderItem : orderItems) {
             OrderItem bean = new OrderItem();
+            ProductDetailVo product = productService.getProductDetailWithoutLog(orderItem.getProductId(),null);
             Sku sku = skuService.getById(orderItem.getSkuId());
             ThrowUtils.throwIf(ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
             bean.setOrderId(order.getOrderId());
@@ -134,6 +139,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             bean.setProductId(orderItem.getProductId());
             bean.setSkuId(orderItem.getSkuId());
             bean.setNumber(orderItem.getNumber());
+            bean.setProductName(product.getProductName());
+            bean.setProductMainPic(product.getMainUrl());
+            for (SkuInfoVo skuInfo : product.getSkuInfos()) {
+                if (skuInfo.getSkuId().equals(orderItem.getSkuId())){
+                    bean.setSkuAttribute(JSON.toJSONString(skuattributeService.getSkuAttributeVos(orderItem.getSkuId())));
+                }
+            }
             bean.setItemPrice(orderItem.getNumber() * sku.getPrice());
             ThrowUtils.throwIf(!orderItemService.save(bean), ErrorCode.INSERT_ERROR, "生成购买物品失败");
             // 锁库存

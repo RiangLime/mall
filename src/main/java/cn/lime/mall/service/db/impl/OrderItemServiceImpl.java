@@ -7,6 +7,7 @@ import cn.lime.mall.model.entity.Skuattribute;
 import cn.lime.mall.model.vo.OrderProductSkuVo;
 import cn.lime.mall.model.vo.SkuAttributeVo;
 import cn.lime.mall.service.db.*;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.OrderItem;
 import cn.lime.mall.mapper.OrderItemMapper;
@@ -44,6 +45,8 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
             Product product = productService.getById(orderItem.getProductId());
             if (ObjectUtils.isEmpty(product)){
                 singleVo.setProductIsExist(YesNoEnum.NO.getVal());
+                singleVo.setProductName(orderItem.getProductName());
+                singleVo.setProductMainUrl(orderItem.getProductMainPic());
             }else {
                 singleVo.setProductIsExist(YesNoEnum.YES.getVal());
                 String mainUrl = productUrlService.getMainPic(product.getProductId());
@@ -57,12 +60,10 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemMapper, OrderItem
                 if (sku.isPresent()){
                     singleVo.setSkuCode(sku.get().getSkuCode());
                     // 获取attribute
-                    List<SkuAttributeVo> skuAttributeVos = skuattributeService.lambdaQuery()
-                            .eq(Skuattribute::getSkuId,orderItem.getSkuId())
-                            .list()
-                            .stream()
-                            .map(SkuAttributeVo::fromBean)
-                            .toList();
+                    List<SkuAttributeVo> skuAttributeVos = skuattributeService.getSkuAttributeVos(orderItem.getSkuId());
+                    singleVo.setSkuAttributes(skuAttributeVos);
+                }else {
+                    List<SkuAttributeVo> skuAttributeVos = JSON.parseArray(orderItem.getSkuAttribute(),SkuAttributeVo.class);
                     singleVo.setSkuAttributes(skuAttributeVos);
                 }
                 vos.add(singleVo);

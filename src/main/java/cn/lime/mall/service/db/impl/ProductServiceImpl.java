@@ -179,6 +179,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     @Override
     @Transactional
     public ProductDetailVo getProductDetail(Long productId, Integer state) {
+        // 留痕
+        logService.append(ReqThreadLocal.getInfo().getUserId(), productId);
+        return getProductDetailWithoutLog(productId,state);
+    }
+
+    @Override
+    public ProductDetailVo getProductDetailWithoutLog(Long productId, Integer state) {
         // 基本信息
         ProductDetailVo vo = baseMapper.getProductBasicDetail(productId, state);
         ThrowUtils.throwIf(ObjectUtils.isEmpty(vo), ErrorCode.NOT_FOUND_ERROR);
@@ -195,8 +202,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         }
         // sku 信息
         vo.setSkuInfos(skuService.getProductSkuInfos(productId));
-        // 留痕
-        logService.append(ReqThreadLocal.getInfo().getUserId(), productId);
         return vo;
     }
 
