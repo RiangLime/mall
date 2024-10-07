@@ -52,7 +52,7 @@
     </select>
     <select id="getPage" resultType="java.lang.Long">
         SELECT
-            d.id,
+            d.id
         FROM
             Discount d
                 left join Discount_Available_Product dap on
