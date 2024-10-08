@@ -38,7 +38,7 @@ public class DiscountAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<DiscountVo> addDiscount(@RequestBody @Valid DiscountAddDto dto, BindingResult result) {
         return ResultUtils.success(discountService.addDiscount(ObjectUtils.isEmpty(dto.getOwnerId()) ?
-                        DiscountTypeEnum.USER_DISCOUNT.getVal() : DiscountTypeEnum.CD_KEY.getVal(),
+                        DiscountTypeEnum.CD_KEY.getVal() : DiscountTypeEnum.USER_DISCOUNT.getVal(),
                 dto.getOwnerId(), dto.getMinPrice(), dto.getDiscountPrice(), dto.getAvailableProductList()));
     }
 

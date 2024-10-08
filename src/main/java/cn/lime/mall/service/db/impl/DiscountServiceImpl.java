@@ -114,7 +114,7 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
         }
         ThrowUtils.throwIf(!lambdaUpdate().eq(Discount::getId,id).set(Discount::getIsAvailable,YesNoEnum.NO.getVal()).update(),
                 ErrorCode.UPDATE_ERROR,"更新折扣状态异常");
-        return discount.getDiscountPrice();
+        return Math.min(discount.getDiscountPrice(),orderDetailVo.getRealOrderPrice());
     }
 
     @Override
