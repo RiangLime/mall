@@ -23,7 +23,7 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
         request.setAppid(mallParams.getWxPayAppId());
         request.setMchid(mallParams.getWxPayMerchantId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(getOrderOutTradeNo(orderId));
         request.setDescription(getOrderDescription(orderId));
         Payer payer = new Payer();
         payer.setOpenid(openId);
@@ -39,9 +39,9 @@ public class JsApiPayServiceImpl extends BaseWxPayServiceImpl {
     }
 
     @Override
-    public Transaction queryOrderById(Long orderId) {
+    public Transaction queryOrderByOutTradeNo(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(outTradeNo);
         request.setMchid(String.valueOf(mallParams.getWxPayMerchantId()));
         return jsapiService.queryOrderByOutTradeNo(request);
     }

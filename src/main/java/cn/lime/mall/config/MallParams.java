@@ -1,5 +1,6 @@
 package cn.lime.mall.config;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -42,5 +43,11 @@ public class MallParams {
     private String stripeSecret;
     @Value("${mall.pay.stripe.complete-endpoint-url:}")
     private String successEndpointSecret;
+
+
+    @Value("${mall.auto-finish-day}")
+    private Integer orderAutoFinishDays;
+    @Value("${mall.auto-receive-day}")
+    private Integer orderAutoReceiveDays;
 
 }

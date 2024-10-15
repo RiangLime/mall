@@ -17,10 +17,13 @@ import java.util.List;
 */
 public interface OrderMapper extends BaseMapper<Order> {
     Integer updateTimeoutWaitingOrder(Integer orderTimeoutHour);
-    List<Long> getWaitingComment2FinishOrderIds();
+    List<Long> getWaitingComment2FinishOrderIds(Integer days);
+
+    List<Long> getWaitingReceive2ReceivedTimeoutOrderIds(Integer days);
 
     Page<OrderPageVo> pageOrder(String orderCode, String userName, String productName, String receiverName,
-                                Integer orderState, Long orderUserId, Long orderStartTime, Long orderEndTime, Page<?> page);
+                                Integer orderState, Long orderUserId, Long orderStartTime, Long orderEndTime,
+                                Integer refundStatus, Page<?> page);
     List<OrderProductSkuVo> getProductSkusByOrderId(Long orderId);
     OrderDetailVo getOrderDetail(Long orderId);
     boolean insertOrder(Long orderId,String orderCode,Long userId,Integer addressId,Integer originPrice,Integer realPrice,String remark);

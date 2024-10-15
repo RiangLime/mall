@@ -177,6 +177,9 @@ public class Order implements Serializable {
     @TableField(value = "gmt_modified")
     private Date gmtModified;
 
+    @TableField(value = "out_trade_no")
+    private String outTradeNo;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

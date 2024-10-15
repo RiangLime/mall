@@ -73,6 +73,14 @@ public class OrderPageVo implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long finishTime;
 
+    @Schema(description = "退款ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long refundId;
+    @Schema(description = "退款状态")
+    private Integer refundStatus;
+    @Schema(description = "退款金额")
+    private Integer refundPrice;
+
     @Schema(description = "订单包含的商品信息")
     private List<OrderProductSkuVo> orderSkuList;
 

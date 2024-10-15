@@ -38,7 +38,7 @@ public class OrderAdminController {
     public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody @Valid OrderPageAdminDto dto, BindingResult result){
         return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), dto.getUserName(),dto.getProductName(),
                 dto.getReceiverName(), dto.getOrderState(),dto.getOrderUserId(),dto.getOrderStartTime(),dto.getOrderEndTime(),
-                dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
+                dto.getRefundStatus(), dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 
     @PostMapping("/detail")

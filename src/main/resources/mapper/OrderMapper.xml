@@ -32,6 +32,7 @@
             <result property="sendDeliverTime" column="send_deliver_time" jdbcType="TIMESTAMP"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
+            <result property="outTradeNo" column="out_trade_no" jdbcType="VARCHAR"/>
     </resultMap>
 
     <resultMap id="pageVo" type="cn.lime.mall.model.vo.OrderPageVo">
@@ -54,6 +55,9 @@
         <result property="sendTime" column="deliver_time" jdbcType="BIGINT"/>
         <result property="receiveTime" column="order_receive_time" jdbcType="BIGINT"/>
         <result property="finishTime" column="order_finish_time" jdbcType="BIGINT"/>
+        <result property="refundId" column="refund_id" jdbcType="BIGINT"/>
+        <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
+        <result property="refundPrice" column="refund_price" jdbcType="INTEGER"/>
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.mall.model.vo.OrderDetailVo">
         <id property="orderId" column="order_id" jdbcType="BIGINT"/>
@@ -78,6 +82,9 @@
         <result property="deliverCompany" column="deliver_company" jdbcType="VARCHAR"/>
         <result property="deliverId" column="deliver_id" jdbcType="VARCHAR"/>
         <result property="deliverTime" column="deliver_time" jdbcType="BIGINT"/>
+        <result property="refundId" column="refund_id" jdbcType="BIGINT"/>
+        <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
+        <result property="refundPrice" column="refund_price" jdbcType="INTEGER"/>
         <collection property="orderSkuList" resultMap="orderProductSkuVo"/>
         <collection property="logs" resultMap="orderOperationLogVo"/>
     </resultMap>
@@ -116,7 +123,7 @@
         refund_status,refund_price,refund_is_deal,
         remark1,remark2,comment,
         deliver_company,deliver_id,send_deliver_time,
-        gmt_created,gmt_modified
+        gmt_created,gmt_modified,out_trade_no
     </sql>
     <insert id="insertOrder">
         insert into `Order` (order_id,order_code,user_id,address_id,origin_order_price,real_order_price,remark1,order_status)
@@ -147,6 +154,9 @@
                      o.deliver_company as deliver_company,
                      o.deliver_id as deliver_id,
                      o.gmt_created,
+                     o.refund_id,
+                     o.refund_status,
+                     o.refund_price,
                      UNIX_TIMESTAMP(o.send_deliver_time) as deliver_time,
                      u.user_id ,
                      u.name as user_name,
@@ -189,6 +199,9 @@
         <if test="orderEndTime != null">
             and UNIX_TIMESTAMP(o.gmt_created) &lt;= #{orderEndTime}
         </if>
+        <if test="refundStatus != null">
+            and o.refund_status = #{refundStatus}
+        </if>
         order by o.gmt_created DESC
 
     </select>
@@ -230,6 +243,9 @@
                     o.remark2 as remark_merchant,
                     o.deliver_company as deliver_company,
                     o.deliver_id as deliver_id,
+                    o.refund_id,
+                    o.refund_status,
+                    o.refund_price,
                     UNIX_TIMESTAMP(o.send_deliver_time) as deliver_time,
                     u.user_id ,
                     u.name as user_name,
@@ -311,6 +327,11 @@
     <select id="getWaitingComment2FinishOrderIds" resultType="java.lang.Long">
         SELECT order_id
         FROM `Order`
-        WHERE order_receive_time &lt;= NOW() - INTERVAL 7 DAY;
+        WHERE order_receive_time &lt;= NOW() - INTERVAL #{days} DAY;
+    </select>
+    <select id="getWaitingReceive2ReceivedTimeoutOrderIds" resultType="java.lang.Long">
+        SELECT order_id
+        FROM `Order`
+        WHERE send_deliver_time  &lt;= NOW() - INTERVAL #{days} DAY;
     </select>
 </mapper>

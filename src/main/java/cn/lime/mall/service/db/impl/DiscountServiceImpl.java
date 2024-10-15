@@ -3,6 +3,8 @@ package cn.lime.mall.service.db.impl;
 import cn.lime.core.common.*;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
+import cn.lime.core.module.entity.User;
+import cn.lime.core.service.db.UserService;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.threadlocal.ReqThreadLocal;
 import cn.lime.mall.constant.DiscountTypeEnum;
@@ -41,6 +43,8 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
     private DiscountAvailableProductService availableProductService;
     @Resource
     private OrderService orderService;
+    @Resource
+    private UserService userService;
 
     @Override
     @Transactional
@@ -62,6 +66,15 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
         ThrowUtils.throwIf(!availableProductService.saveBatch(availableProducts),
                 ErrorCode.INSERT_ERROR,"新增折扣券可用商品异常");
         return getVoById(discount.getId());
+    }
+
+    @Override
+    @Transactional
+    public void addDiscountAll(Integer type, Integer minPrice, Integer discountPrice, List<Long> productIds) {
+        List<User> users = userService.lambdaQuery().list();
+        for (User user : users) {
+            addDiscount(type,user.getUserId(),minPrice,discountPrice,productIds);
+        }
     }
 
     @Override
@@ -92,7 +105,7 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
     @Override
     public Integer useDiscount(Long id,Long orderId) {
         DiscountVo discount = getVoById(id);
-        ThrowUtils.throwIf(!ObjectUtils.isEmpty(discount),ErrorCode.NOT_FOUND_ERROR,"无该折扣项");
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(discount),ErrorCode.NOT_FOUND_ERROR,"无该折扣项");
         ThrowUtils.throwIf(discount.getIsAvailable().equals(YesNoEnum.NO.getVal()),ErrorCode.PARAMS_ERROR,"该折扣项不可用");
         // 查订单信息 找商品信息
         OrderDetailVo orderDetailVo = orderService.getOrderDetail(orderId);
@@ -147,6 +160,12 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
     }
 
     @Override
+    public void updateAvailable(Long discountId, Integer isAvailable) {
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Discount::getId,discountId).set(Discount::getIsAvailable,isAvailable).update(),
+                ErrorCode.UPDATE_ERROR,"更新优惠券状态失败");
+    }
+
+    @Override
     @Transactional
     public void giveUserDiscount(Long userId) {
         Optional<Discount> discountOpt = lambdaQuery()
@@ -157,6 +176,15 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
             addDiscount(DiscountTypeEnum.USER_DISCOUNT.getVal(), userId,discountVo.getMinPrice(), discountVo.getDiscountPrice(),
                     discountVo.getAvailableProductList().stream().map(ProductTitleVo::getProductId).toList());
         }
+    }
+
+    @Override
+    @Transactional
+    public void cdKeyBind(Long discountId, Long userId) {
+        DiscountVo discount = getVoById(discountId);
+        ThrowUtils.throwIf(!ObjectUtils.isEmpty(discount.getOwnerId()),ErrorCode.PARAMS_ERROR,"该CdKey已被用户绑定");
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Discount::getId,discountId).set(Discount::getOwnerId,userId).update(),
+                ErrorCode.UPDATE_ERROR,"用户绑定CdKey异常");
     }
 }
 

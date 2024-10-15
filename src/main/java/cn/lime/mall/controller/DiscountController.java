@@ -10,7 +10,9 @@ import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.module.dto.EmptyDto;
+import cn.lime.core.module.dto.user.UserRegisterDto;
 import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.model.dto.discount.DiscountIdDto;
 import cn.lime.mall.model.vo.CartVo;
 import cn.lime.mall.model.vo.discount.DiscountVo;
 import cn.lime.mall.service.db.CartService;
@@ -42,5 +44,15 @@ public class DiscountController {
                 null,null,null, YesNoEnum.YES.getVal()
                 ,dto.getCurrent(),dto.getPageSize()));
     }
+
+    @PostMapping("/bind")
+    @Operation(summary = "用户绑定cdkey")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> bind(@RequestBody @Valid DiscountIdDto dto, BindingResult result) {
+        discountService.cdKeyBind(dto.getDiscountId(), ReqThreadLocal.getInfo().getUserId());
+        return ResultUtils.success(null);
+    }
+
 
 }

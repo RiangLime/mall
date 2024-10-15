@@ -14,6 +14,7 @@ import java.util.List;
 */
 public interface DiscountService extends IService<Discount> {
     DiscountVo addDiscount(Integer type, Long ownerId, Integer minPrice, Integer discountPrice, List<Long> productIds);
+    void addDiscountAll(Integer type, Integer minPrice, Integer discountPrice, List<Long> productIds);
     DiscountVo getVoById(Long id);
 
     void deleteDiscount(Long id);
@@ -22,5 +23,8 @@ public interface DiscountService extends IService<Discount> {
     Integer useDiscount(Long id,Long order);
     DiscountVo updateNewUserDiscount(Integer minPrice, Integer discountPrice, List<Long> productIds);
 
+    void updateAvailable(Long discountId,Integer isAvailable);
+
     void giveUserDiscount(Long userId);
+    void cdKeyBind(Long discountId,Long userId);
 }
