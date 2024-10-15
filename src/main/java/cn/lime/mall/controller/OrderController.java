@@ -41,7 +41,7 @@ public class OrderController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<OrderDetailVo> createOrder(@RequestBody @Valid OrderCreateDto dto, BindingResult result) {
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getOrderItems(), dto.getRemark());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getOrderItems(), dto.getRemark(),dto.getDiscountId());
         OrderDetailVo vo = orderService.getOrderDetail(order.getOrderId());
         return ResultUtils.success(vo);
     }
@@ -51,7 +51,7 @@ public class OrderController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<OrderDetailVo> createOrderFromCart(@RequestBody @Valid OrderCreateFromCartDto dto, BindingResult result) {
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getRemark(),dto.getCartIds());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getRemark(),dto.getCartIds(),dto.getDiscountId());
         OrderDetailVo vo = orderService.getOrderDetail(order.getOrderId());
         return ResultUtils.success(vo);
     }

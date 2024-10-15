@@ -11,12 +11,16 @@
         <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
         <result property="number" column="number" jdbcType="INTEGER"/>
         <result property="itemPrice" column="item_price" jdbcType="INTEGER"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productMainPic" column="product_main_pic" jdbcType="VARCHAR"/>
+        <result property="skuAttribute" column="sku_attribute" jdbcType="VARCHAR"/>
+        <result property="skuMainPic" column="sku_main_pic" jdbcType="VARCHAR"/>
         <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id
         ,order_id,product_id,
-        sku_id,number,item_price,gmt_created
+        sku_id,number,item_price,gmt_created,product_name,product_main_pic,sku_attribute,sku_main_pic
     </sql>
 </mapper>

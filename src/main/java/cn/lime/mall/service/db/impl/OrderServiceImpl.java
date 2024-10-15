@@ -71,6 +71,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Resource
     private SkuService skuService;
     @Resource
+    private SkuattributeService skuattributeService;
+    @Resource
+    private ProductService productService;
+    @Resource
     private UserthirdauthorizationService openIdService;
     @Resource
     private StripePayService stripeService;
@@ -88,6 +92,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     private OrderOperateLogService logService;
     @Resource
     private CartService cartService;
+    @Resource
+    private DiscountService discountService;
 
     @Override
     public Order getById(Serializable orderId) {
@@ -98,7 +104,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     @Transactional
-    public Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark) {
+    public Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark, Long discountId) {
         int price = 0;
         for (OrderItemDto orderItem : orderItems) {
             Sku sku = skuService.getById(orderItem.getSkuId());
@@ -106,7 +112,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             ThrowUtils.throwIf(sku.getStock() < orderItem.getNumber(), ErrorCode.PARAMS_ERROR, "库存不足");
             price += sku.getPrice() * orderItem.getNumber();
         }
+
         int realPrice = price;
+
         // 默认原价生成订单,后续有优惠政策在业务模块修改订单价格
         Order order = new Order();
         order.setOrderId(ids.nextId());
@@ -123,6 +131,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 //                order.getOriginOrderPrice(),order.getRealOrderPrice(),order.getRemark1()), ErrorCode.INSERT_ERROR);
         for (OrderItemDto orderItem : orderItems) {
             OrderItem bean = new OrderItem();
+            ProductDetailVo product = productService.getProductDetailWithoutLog(orderItem.getProductId(),null);
             Sku sku = skuService.getById(orderItem.getSkuId());
             ThrowUtils.throwIf(ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
             bean.setOrderId(order.getOrderId());
@@ -130,6 +139,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             bean.setProductId(orderItem.getProductId());
             bean.setSkuId(orderItem.getSkuId());
             bean.setNumber(orderItem.getNumber());
+            bean.setProductName(product.getProductName());
+            bean.setProductMainPic(product.getMainUrl());
+            for (SkuInfoVo skuInfo : product.getSkuInfos()) {
+                if (skuInfo.getSkuId().equals(orderItem.getSkuId())){
+                    bean.setSkuAttribute(JSON.toJSONString(skuattributeService.getSkuAttributeVos(orderItem.getSkuId())));
+                }
+            }
             bean.setItemPrice(orderItem.getNumber() * sku.getPrice());
             ThrowUtils.throwIf(!orderItemService.save(bean), ErrorCode.INSERT_ERROR, "生成购买物品失败");
             // 锁库存
@@ -140,12 +156,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
         }
         logService.log(order.getOrderId(), userId, "用户创建订单");
+
+        // 折扣码减价格
+        if (ObjectUtils.isNotEmpty(discountId)) {
+            int newRealPrice = realPrice - discountService.useDiscount(discountId, order.getOrderId());
+            ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, order.getOrderId()).set(Order::getRealOrderPrice, newRealPrice).update(),
+                    ErrorCode.UPDATE_ERROR, "使用折扣券修改价格失败");
+            logService.log(order.getOrderId(), userId, "用户使用折扣券 订单价格:" + realPrice + "->" + newRealPrice);
+        }
         return order;
     }
 
     @Override
     @Transactional
-    public Order createOrder(Long userId, Integer addressId, String remark, List<Long> cartIds) {
+    public Order createOrder(Long userId, Integer addressId, String remark, List<Long> cartIds, Long discountId) {
         List<OrderItemDto> orderItems = new ArrayList<>();
         for (Long cartId : cartIds) {
             Cart cart = cartService.getById(cartId);
@@ -158,7 +182,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             ThrowUtils.throwIf(!cartService.lambdaUpdate().eq(Cart::getId, cartId).remove(),
                     ErrorCode.DELETE_ERROR, "删除购物车项失败");
         }
-        return createOrder(userId, addressId, orderItems, remark);
+        return createOrder(userId, addressId, orderItems, remark, discountId);
     }
 
     @Override
@@ -285,7 +309,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         Order order = getById(orderId);
         logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员修改订单信息" + order.getRealOrderPrice()
                 + "->" + changedPrice + ",REMARK[" + merchantRemark + "]");
-        ThrowUtils.throwIf(merchantRemark==null && ObjectUtils.isEmpty(changedPrice),
+        ThrowUtils.throwIf(merchantRemark == null && ObjectUtils.isEmpty(changedPrice),
                 ErrorCode.PARAMS_ERROR, "不可全为空");
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Order::getOrderId, orderId);
@@ -321,13 +345,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         User user = userService.getById(ReqThreadLocal.getInfo().getUserId());
         ThrowUtils.throwIf(!order.getUserId().equals(user.getUserId()), ErrorCode.AUTH_FAIL);
         ThrowUtils.throwIf(!order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal())
-                && !order.getOrderStatus().equals(OrderStatus.PAYING.getVal()) ,
+                        && !order.getOrderStatus().equals(OrderStatus.PAYING.getVal()),
                 ErrorCode.PARAMS_ERROR, "该订单已支付");
         if (order.getOrderStatus().equals(OrderStatus.WAITING_PAY.getVal())) {
             ThrowUtils.throwIf(!updateOrderStatusFromWaitingPayToPaying(dto.getOrderId()),
                     ErrorCode.UPDATE_ERROR, "更新订单状态异常");
-        }else {
-            ThrowUtils.throwIf(!updatePayTime(dto.getOrderId()),ErrorCode.UPDATE_ERROR,"更新付款时间异常");
+        } else {
+            ThrowUtils.throwIf(!updatePayTime(dto.getOrderId()), ErrorCode.UPDATE_ERROR, "更新付款时间异常");
         }
         logService.log(order.getOrderId(), ReqThreadLocal.getInfo().getUserId(), "用户付款");
         // 成功
@@ -374,14 +398,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
         return lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_PAY.getVal())
                 .set(Order::getOrderStatus, OrderStatus.PAYING.getVal())
-                .set(Order::getOrderPayTime,new Date())
+                .set(Order::getOrderPayTime, new Date())
                 .update();
     }
 
     @Override
-    public Boolean updatePayTime(Long orderId){
+    public Boolean updatePayTime(Long orderId) {
         return lambdaUpdate().eq(Order::getOrderId, orderId)
-                .set(Order::getOrderPayTime,new Date())
+                .set(Order::getOrderPayTime, new Date())
                 .update();
     }
 

@@ -49,6 +49,15 @@ public class OrderItem implements Serializable {
     @TableField(value = "item_price")
     private Integer itemPrice;
 
+    @TableField(value = "product_name")
+    private String productName;
+    @TableField(value = "product_main_pic")
+    private String productMainPic;
+    @TableField(value = "sku_attribute")
+    private String skuAttribute;
+    @TableField(value = "sku_main_pic")
+    private String skuMainPic;
+
     /**
      * 创建时间
      */

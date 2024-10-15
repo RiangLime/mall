@@ -32,4 +32,6 @@ public class ProductPageAdminDto extends PageRequest implements Serializable {
     private String productType;
     @Schema(description = "商品状态 0下架 1上架")
     private Integer productState;
+    @Schema(description = "商品是否可见")
+    private Integer isVisible;
 }

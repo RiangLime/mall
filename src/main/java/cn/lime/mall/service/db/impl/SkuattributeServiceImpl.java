@@ -1,7 +1,10 @@
 package cn.lime.mall.service.db.impl;
 
+import cn.lime.core.common.BusinessException;
+import cn.lime.core.common.ErrorCode;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.mall.model.entity.Sku;
+import cn.lime.mall.model.vo.SkuAttributeVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Skuattribute;
 import cn.lime.mall.service.db.SkuattributeService;
@@ -38,6 +41,19 @@ public class SkuattributeServiceImpl extends ServiceImpl<SkuattributeMapper, Sku
             beans.add(skuattribute);
         }
         return saveBatch(beans);
+    }
+
+    @Override
+    public List<SkuAttributeVo> getSkuAttributeVos(Long skuId) {
+        if (!lambdaQuery().eq(Skuattribute::getSkuId,skuId).exists()){
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR,"无该SKU");
+        }
+        return lambdaQuery()
+                .eq(Skuattribute::getSkuId,skuId)
+                .list()
+                .stream()
+                .map(SkuAttributeVo::fromBean)
+                .toList();
     }
 }
 

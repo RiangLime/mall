@@ -44,6 +44,8 @@ public interface ProductService extends IService<Product> {
 
     ProductDetailVo getProductDetail(Long productId, Integer state);
 
+    ProductDetailVo getProductDetailWithoutLog(Long productId, Integer state);
+
     boolean addProductTag(Long productId, Long tagId);
 
     boolean removeProductTag(Long productId, Long tagId);
