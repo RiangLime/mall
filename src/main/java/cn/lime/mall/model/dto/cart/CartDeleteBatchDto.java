@@ -17,7 +17,6 @@ import java.util.List;
 public class CartDeleteBatchDto implements Serializable {
 
     @Schema(description = "购物车ID列表 list<String>")
-    @NotNull
     @JsonSerialize(using = LongListToStringSerializer.class)
     private List<Long> cartIds;
 }
