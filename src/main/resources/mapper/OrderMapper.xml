@@ -327,11 +327,13 @@
     <select id="getWaitingComment2FinishOrderIds" resultType="java.lang.Long">
         SELECT order_id
         FROM `Order`
-        WHERE order_receive_time &lt;= NOW() - INTERVAL #{days} DAY;
+        WHERE order_receive_time &lt;= NOW() - INTERVAL #{days} DAY
+        AND order_status = 4;
     </select>
     <select id="getWaitingReceive2ReceivedTimeoutOrderIds" resultType="java.lang.Long">
         SELECT order_id
         FROM `Order`
-        WHERE send_deliver_time  &lt;= NOW() - INTERVAL #{days} DAY;
+        WHERE send_deliver_time  &lt;= NOW() - INTERVAL #{days} DAY
+        AND order_status = 3;
     </select>
 </mapper>
