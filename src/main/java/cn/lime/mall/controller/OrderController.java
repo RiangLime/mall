@@ -41,7 +41,7 @@ public class OrderController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<OrderDetailVo> createOrder(@RequestBody @Valid OrderCreateDto dto, BindingResult result) {
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getOrderItems(), dto.getRemark(),dto.getDiscountId());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getOrderItems(), dto.getRemark(), dto.getDiscountId());
         OrderDetailVo vo = orderService.getOrderDetail(order.getOrderId());
         return ResultUtils.success(vo);
     }
@@ -51,7 +51,7 @@ public class OrderController {
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<OrderDetailVo> createOrderFromCart(@RequestBody @Valid OrderCreateFromCartDto dto, BindingResult result) {
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getRemark(),dto.getCartIds(),dto.getDiscountId());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), dto.getRemark(), dto.getCartIds(), dto.getDiscountId());
         OrderDetailVo vo = orderService.getOrderDetail(order.getOrderId());
         return ResultUtils.success(vo);
     }
@@ -78,8 +78,8 @@ public class OrderController {
     @Operation(summary = "用户申请订单退款")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> applyRefund(@RequestBody@Valid OrderIdDto dto, BindingResult result){
-        ThrowUtils.throwIf(!orderService.applyRefund(dto.getOrderId()),ErrorCode.UPDATE_ERROR);
+    public BaseResponse<Void> applyRefund(@RequestBody @Valid OrderIdDto dto, BindingResult result) {
+        ThrowUtils.throwIf(!orderService.applyRefund(dto.getOrderId()), ErrorCode.UPDATE_ERROR);
         return ResultUtils.success(null);
     }
 
@@ -87,7 +87,7 @@ public class OrderController {
     @Operation(summary = "用户订单收货")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> receiveOrder(@RequestBody@Valid OrderIdDto dto, BindingResult result){
+    public BaseResponse<Void> receiveOrder(@RequestBody @Valid OrderIdDto dto, BindingResult result) {
         orderService.receive(dto.getOrderId());
         return ResultUtils.success(null);
     }
@@ -96,8 +96,8 @@ public class OrderController {
     @Operation(summary = "用户订单评论")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<Void> commentOrder(@RequestBody@Valid OrderCommentDto dto, BindingResult result){
-        orderService.comment(dto.getOrderId(),dto.getComment());
+    public BaseResponse<Void> commentOrder(@RequestBody @Valid OrderCommentDto dto, BindingResult result) {
+        orderService.comment(dto.getOrderId(), dto.getComment());
         return ResultUtils.success(null);
     }
 
@@ -105,20 +105,19 @@ public class OrderController {
     @Operation(summary = "用户查询订单列表")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody@Valid OrderPageUserDto dto, BindingResult result){
-        return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), null,dto.getProductName(),
-                null, dto.getOrderState(),null,dto.getOrderStartTime(),dto.getOrderEndTime(),
-                dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
+    public BaseResponse<PageResult<OrderPageVo>> pageOrder(@RequestBody @Valid OrderPageUserDto dto, BindingResult result) {
+        return ResultUtils.success(orderService.getOrderPage(dto.getOrderCode(), null, dto.getProductName(),
+                null, dto.getOrderState(), ReqThreadLocal.getInfo().getUserId(), dto.getOrderStartTime(), dto.getOrderEndTime(),
+                dto.getRefundStatus(), dto.getCurrent(), dto.getPageSize(), dto.getSortField(), dto.getSortOrder()));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "用户查询订单详情")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<OrderDetailVo> getOrderDetail(@RequestBody@Valid OrderIdDto dto, BindingResult result){
+    public BaseResponse<OrderDetailVo> getOrderDetail(@RequestBody @Valid OrderIdDto dto, BindingResult result) {
         return ResultUtils.success(orderService.getOrderDetail(dto.getOrderId()));
     }
-
 
 
 }

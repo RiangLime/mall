@@ -29,6 +29,8 @@ public class OrderPageAdminDto extends PageRequest implements Serializable {
     private String productName;
     @Schema(description = "订单状态")
     private Integer orderState;
+    @Schema(description = "退款状态")
+    private Integer refundStatus;
     @Schema(description = "订单时间查询范围 开始时间 （秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long orderStartTime;

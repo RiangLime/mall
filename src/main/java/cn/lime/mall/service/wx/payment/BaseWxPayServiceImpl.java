@@ -30,6 +30,7 @@ import com.wechat.pay.java.service.refund.RefundService;
 import com.wechat.pay.java.service.refund.model.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -113,7 +114,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
      * 由具体实现类实现
      */
     @Override
-    public Transaction queryOrderById(Long orderId) {
+    public Transaction queryOrderByOutTradeNo(String outTradeNo) {
         return null;
     }
 
@@ -168,8 +169,9 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
     public void dealTransaction(Transaction transaction) {
         // 根据支付通知解析回调结果，并更新订单状态
         orderService.doOrderCallback(transaction);
+        Order order = orderService.getByOutTradeNo(transaction.getOutTradeNo());
         // 更新订单状态
-        removeOrder(Long.parseLong(transaction.getOutTradeNo()));
+        removeOrder(order.getOrderId());
     }
 
     @Override
@@ -184,7 +186,7 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
         // 退款参数拼接
         CreateRequest request = new CreateRequest();
         request.setTransactionId(order.getThirdPaymentId());
-        request.setOutTradeNo(String.valueOf(order.getOrderId()));
+        request.setOutTradeNo(order.getOutTradeNo());
         request.setOutRefundNo(String.valueOf(order.getRefundId()));
         request.setReason("无offer无理由退款");
         request.setNotifyUrl(notifyUrl);
@@ -249,6 +251,12 @@ public class BaseWxPayServiceImpl implements WxPayService, InitializingBean {
             return String.join(String.valueOf(Symbol.COMMA),productNames);
         }
         return "订单号" + orderId;
+    }
+
+    protected String getOrderOutTradeNo(Long orderId){
+        Order order = orderService.getById(orderId);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(order),ErrorCode.NOT_FOUND_ERROR);
+        return order.getOutTradeNo();
     }
 
     public boolean initSuccess() {

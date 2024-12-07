@@ -13,6 +13,8 @@ import cn.lime.mall.mapper.CartMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +74,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart>
 
     @Override
     public void batchDelete(Long userId, List<Long> cartIds) {
+        if (ObjectUtils.isEmpty(cartIds) || CollectionUtils.isEmpty(cartIds)) return;
         ThrowUtils.throwIf(!lambdaUpdate().in(Cart::getId,cartIds).eq(Cart::getUserId,userId).remove(),ErrorCode.DELETE_ERROR);
     }
 

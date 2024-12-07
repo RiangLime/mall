@@ -162,22 +162,23 @@ create table `Order`
     deliver_id           nvarchar(64)        null comment '物流单号',
     send_deliver_time    timestamp           null comment '发货时间',
     gmt_created          TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
-    gmt_modified         TIMESTAMP DEFAULT null ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
+    gmt_modified         TIMESTAMP DEFAULT null ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+    out_trade_no         varchar(100)        null comment '第三方支付订单号'
 ) comment '订单表' collate = utf8mb4_unicode_ci;
 
 create table Order_Item
 (
-    id          bigint not null comment 'id' primary key,
-    order_id    bigint not null comment '订单ID',
-    product_id  bigint not null comment '商品ID',
-    product_name varchar(255) null comment '商品ID',
-    product_main_pic varchar(512) null comment '商品主图',
-    sku_attribute varchar(1024) null comment 'SKU属性信息',
-    sku_main_pic varchar(512) null comment 'SKU主图',
-    sku_id      bigint not null comment 'SKU ID',
-    number      int    not null default 1 comment '购买数量',
-    item_price  int    not null comment '该项SKU总价',
-    gmt_created TIMESTAMP       DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+    id               bigint        not null comment 'id' primary key,
+    order_id         bigint        not null comment '订单ID',
+    product_id       bigint        not null comment '商品ID',
+    product_name     varchar(255)  null comment '商品ID',
+    product_main_pic varchar(512)  null comment '商品主图',
+    sku_attribute    varchar(1024) null comment 'SKU属性信息',
+    sku_main_pic     varchar(512)  null comment 'SKU主图',
+    sku_id           bigint        not null comment 'SKU ID',
+    number           int           not null default 1 comment '购买数量',
+    item_price       int           not null comment '该项SKU总价',
+    gmt_created      TIMESTAMP              DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单物品表' collate = utf8mb4_unicode_ci;
 ALTER TABLE Order_Item
     ADD CONSTRAINT fk_order_item_order_id
@@ -187,7 +188,7 @@ create table Order_Operate_Log
 (
     id          bigint         not null comment '日志ID' primary key,
     order_id    bigint         not null comment '订单ID',
-    user_id     bigint         not null comment '操作用户ID',
+    user_id     bigint         null comment '操作用户ID',
     operate     nvarchar(2048) null comment '操作事件',
     gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '订单操作日志表' collate = utf8mb4_unicode_ci;
@@ -205,10 +206,13 @@ CREATE TABLE Discount
 
 CREATE TABLE Discount_Available_Product
 (
-    discount_id bigint not null comment '折扣项ID' primary key,
+    discount_id bigint not null comment '折扣项ID',
     product_id  bigint not null comment '折扣项可用商品ID',
     gmt_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 ) comment '折扣可用商品表' collate = utf8mb4_unicode_ci;
+ALTER TABLE Discount_Available_Product
+    ADD CONSTRAINT fk_discount_discount_id
+        FOREIGN KEY (discount_id) REFERENCES Discount (id) on delete cascade;
 ALTER TABLE Discount_Available_Product
     ADD CONSTRAINT fk_discount_available_product_id
         FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;

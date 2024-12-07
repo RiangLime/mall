@@ -26,7 +26,7 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
         request.setMchid(mallParams.getWxPayMerchantId());
         request.setAppid(mallParams.getWxPayAppId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(getOrderOutTradeNo(orderId));
         request.setDescription(getOrderDescription(orderId));
         // 预下单
         PrepayResponse response = nativeService.prepay(request);
@@ -37,9 +37,9 @@ public class NativePayServiceImpl extends BaseWxPayServiceImpl {
     }
 
     @Override
-    public Transaction queryOrderById(Long orderId) {
+    public Transaction queryOrderByOutTradeNo(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(outTradeNo);
         request.setMchid(String.valueOf(mallParams.getWxPayMerchantId()));
         return nativeService.queryOrderByOutTradeNo(request);
     }

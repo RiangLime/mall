@@ -18,7 +18,7 @@ public class DiscountAvailableProduct implements Serializable {
     /**
      * 折扣项ID
      */
-    @TableId(value = "id")
+    @TableId(value = "discount_id")
     private Long discountId;
 
     /**

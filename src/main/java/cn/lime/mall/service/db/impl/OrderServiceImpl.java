@@ -8,6 +8,7 @@ import cn.lime.core.constant.*;
 import cn.lime.core.module.entity.User;
 import cn.lime.core.module.entity.Userthirdauthorization;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
+import cn.lime.core.utils.RandomVerificationCodeUtils;
 import cn.lime.mall.config.MallParams;
 import cn.lime.mall.constant.OrderStatus;
 import cn.lime.mall.constant.PayCallBackUrl;
@@ -48,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,6 +96,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     private CartService cartService;
     @Resource
     private DiscountService discountService;
+    @Resource
+    private MallParams mallParams;
 
     @Override
     public Order getById(Serializable orderId) {
@@ -131,7 +135,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 //                order.getOriginOrderPrice(),order.getRealOrderPrice(),order.getRemark1()), ErrorCode.INSERT_ERROR);
         for (OrderItemDto orderItem : orderItems) {
             OrderItem bean = new OrderItem();
-            ProductDetailVo product = productService.getProductDetailWithoutLog(orderItem.getProductId(),null);
+            ProductDetailVo product = productService.getProductDetailWithoutLog(orderItem.getProductId(), null);
             Sku sku = skuService.getById(orderItem.getSkuId());
             ThrowUtils.throwIf(ObjectUtils.isEmpty(sku), ErrorCode.NOT_FOUND_ERROR);
             bean.setOrderId(order.getOrderId());
@@ -142,7 +146,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             bean.setProductName(product.getProductName());
             bean.setProductMainPic(product.getMainUrl());
             for (SkuInfoVo skuInfo : product.getSkuInfos()) {
-                if (skuInfo.getSkuId().equals(orderItem.getSkuId())){
+                if (skuInfo.getSkuId().equals(orderItem.getSkuId())) {
                     bean.setSkuAttribute(JSON.toJSONString(skuattributeService.getSkuAttributeVos(orderItem.getSkuId())));
                 }
             }
@@ -293,10 +297,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     public PageResult<OrderPageVo> getOrderPage(String orderCode, String userName, String productName, String receiverName,
                                                 Integer orderState, Long orderUserId, Long orderStartTime, Long orderEndTime,
+                                                Integer refundStatus,
                                                 Integer current, Integer pageSize, String sortField, String sortOrder) {
         Page<?> page = PageUtils.build(current, pageSize, sortField, sortOrder);
         Page<OrderPageVo> res = baseMapper.pageOrder(orderCode, userName, productName, receiverName, orderState,
-                orderUserId, orderStartTime, orderEndTime, page);
+                orderUserId, orderStartTime, orderEndTime, refundStatus, page);
         for (OrderPageVo record : res.getRecords()) {
             record.setOrderSkuList(baseMapper.getProductSkusByOrderId(record.getOrderId()));
         }
@@ -326,10 +331,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Transactional
     public void orderSend(Long orderId, String deliverCompany, String deliverId) {
         logService.log(orderId, ReqThreadLocal.getInfo().getUserId(), "管理员确认订单发货");
+        Instant now = Instant.now();
         ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getDeliverCompany, deliverCompany)
                 .set(Order::getDeliverId, deliverId)
-                .set(Order::getSendDeliverTime, new Date()).update(), ErrorCode.UPDATE_ERROR);
+                .set(Order::getSendDeliverTime, Date.from(now)).update(), ErrorCode.UPDATE_ERROR);
         Order order = getById(orderId);
         if (order.getOrderStatus().equals(OrderStatus.WAITING_SEND.getVal())) {
             ThrowUtils.throwIf(!updateOrderStatusFromWaitingSendToWaitingReceive(orderId),
@@ -338,7 +344,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public OrderPayVo payOrder(OrderPayDto dto) {
         Order order = getById(dto.getOrderId());
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
@@ -360,6 +366,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             return null;
         }
         //
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, order.getOrderId())
+                .set(Order::getOutTradeNo, order.getOrderId() + "-" + RandomVerificationCodeUtils.nextCode())
+                .update(), ErrorCode.UPDATE_ERROR, "更新订单外部支付订单号异常");
         OrderPayVo vo = null;
         if (dto.getPayMethod().equals(PaymentTypeEnum.STRIPE.getVal())) {
             vo = doStripePay(order, dto.getSuccessUrl(), dto.getCancelUrl());
@@ -395,17 +404,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Boolean updateOrderStatusFromWaitingPayToPaying(Long orderId) {
+        Instant now = Instant.now();
         return lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_PAY.getVal())
                 .set(Order::getOrderStatus, OrderStatus.PAYING.getVal())
-                .set(Order::getOrderPayTime, new Date())
+                .set(Order::getOrderPayTime, Date.from(now))
                 .update();
     }
 
     @Override
     public Boolean updatePayTime(Long orderId) {
+        Instant now = Instant.now();
         return lambdaUpdate().eq(Order::getOrderId, orderId)
-                .set(Order::getOrderPayTime, new Date())
+                .set(Order::getOrderPayTime, Date.from(now))
                 .update();
     }
 
@@ -434,8 +445,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Boolean updateOrderStatusFromPayingToFinish(Long orderId) {
+        Instant now = Instant.now();
         return lambdaUpdate().eq(Order::getOrderId, orderId)
                 .set(Order::getOrderStatus, OrderStatus.FINISH.getVal())
+                .set(Order::getOrderFinishTime, Date.from(now))
                 .update();
     }
 
@@ -465,17 +478,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public Boolean updateOrderStatusFromWaitingReceiveToWaitingComment(Long orderId) {
+        Instant now = Instant.now();
         return lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_RECEIVE.getVal())
                 .set(Order::getOrderStatus, OrderStatus.WAITING_COMMENT.getVal())
+                .set(Order::getOrderReceiveTime, Date.from(now))
                 .update();
     }
 
     @Override
     public Boolean updateOrderStatusFromWaitingCommentToFinish(Long orderId) {
+        Instant now = Instant.now();
         ThrowUtils.throwIf(!lambdaUpdate().eq(Order::getOrderId, orderId)
                 .eq(Order::getOrderStatus, OrderStatus.WAITING_COMMENT.getVal())
                 .set(Order::getOrderStatus, OrderStatus.FINISH.getVal())
+                .set(Order::getOrderFinishTime, Date.from(now))
                 .update(), ErrorCode.UPDATE_ERROR);
         noticeOrderFinishSuccess(orderId);
         return true;
@@ -498,7 +515,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void doOrderCallback(Transaction transaction) {
-        Order order = getById(transaction.getOutTradeNo());
+        Order order = getByOutTradeNo(transaction.getOutTradeNo());
         ThrowUtils.throwIf(ObjectUtils.isEmpty(order), ErrorCode.NOT_FOUND_ERROR);
         log.info("[SCAN order:{}]", JSON.toJSONString(order));
         // 支付成功
@@ -538,11 +555,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     @Override
     public void doRefundCallback(Refund refund) {
-        logService.log(Long.valueOf(refund.getOutTradeNo()), null, "收到微信退款回调信息");
+        Order order = getByOutTradeNo(refund.getOutTradeNo());
+        logService.log(order.getOrderId(), null, "收到微信退款回调信息");
 
         RefundStatus refundStatus = null;
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(Order::getOrderId, Long.valueOf(refund.getOutTradeNo()));
+        wrapper.eq(Order::getOrderId, order.getOrderId());
 
         switch (refund.getStatus()) {
             case ABNORMAL -> {
@@ -575,10 +593,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void doRefundCallback(RefundNotification refundNotification) {
-        logService.log(Long.valueOf(refundNotification.getOutTradeNo()), null, "收到微信退款回调信息");
+        Order order = getByOutTradeNo(refundNotification.getOutTradeNo());
+        logService.log(order.getOrderId(), null, "收到微信退款回调信息");
         RefundStatus refundStatus = null;
         LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(Order::getOrderId, Long.valueOf(refundNotification.getOutTradeNo()));
+        wrapper.eq(Order::getOrderId, order.getOrderId());
 
         switch (refundNotification.getRefundStatus()) {
             case ABNORMAL -> {
@@ -603,16 +622,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     @Override
     @Transactional
     public void doOrderCallback(PaymentIntent paymentIntent) {
-        logService.log(Long.valueOf(paymentIntent.getId()), null, "收到Stripe退款回调信息");
-        Order order = getById(Long.valueOf(paymentIntent.getId()));
+        Order order = getByOutTradeNo(paymentIntent.getId());
+        logService.log(order.getOrderId(), null, "收到Stripe退款回调信息");
         doOrderCallbackStripe(order, paymentIntent);
     }
 
     @Override
     @Transactional
     public void doOrderCallback(Session stripeSession) {
+        Order order = getByOutTradeNo(stripeSession.getClientReferenceId());
         logService.log(Long.valueOf(stripeSession.getClientReferenceId()), null, "收到Stripe退款回调信息");
-        Order order = getById(Long.parseLong(stripeSession.getClientReferenceId()));
         doOrderCallbackStripe(order, stripeSession);
 
     }
@@ -707,15 +726,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
 
     /**
      * 七天后将收货的订单更新为订单结束
+     * 14天自动收货
      */
     @Scheduled(cron = "${payment.wx.schedule-scan: 30 * * * * ?}")
     @Transactional
     public void scheduleUpdateWaitingComment2Finish() {
-        List<Long> orderIds = baseMapper.getWaitingComment2FinishOrderIds();
+        List<Long> orderIds = baseMapper.getWaitingComment2FinishOrderIds(mallParams.getOrderAutoFinishDays());
         if (!CollectionUtils.isEmpty(orderIds)) {
             for (Long orderId : orderIds) {
                 updateOrderStatusFromWaitingCommentToFinish(orderId);
-                log.info("[7 DAYS ORDER] {} -> FINISH STATE", orderId);
+                log.info("[{}} DAYS ORDER] {} -> FINISH STATE", mallParams.getOrderAutoFinishDays(), orderId);
+            }
+        }
+        orderIds = baseMapper.getWaitingReceive2ReceivedTimeoutOrderIds(mallParams.getOrderAutoReceiveDays());
+        if (!CollectionUtils.isEmpty(orderIds)) {
+            for (Long orderId : orderIds) {
+                updateOrderStatusFromWaitingReceiveToWaitingComment(orderId);
+                log.info("[{}} DAYS ORDER] {} -> FINISH STATE",mallParams.getOrderAutoReceiveDays(), orderId);
             }
         }
     }
@@ -731,6 +758,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
             Order order = getById(orderId);
             ThrowUtils.throwIf(!order.getUserId().equals(userId), ErrorCode.AUTH_FAIL, "您无权操作该订单");
         }
+    }
+
+    public Order getByOutTradeNo(String outTradeNo) {
+        List<Order> orders = lambdaQuery().eq(Order::getOutTradeNo, outTradeNo).list();
+        ThrowUtils.throwIf(orders.size() > 1, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(CollectionUtils.isEmpty(orders), ErrorCode.PARAMS_ERROR);
+        return orders.get(0);
     }
 }
 

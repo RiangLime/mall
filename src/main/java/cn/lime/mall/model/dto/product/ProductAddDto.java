@@ -39,7 +39,7 @@ public class ProductAddDto implements Serializable {
     @Schema(description = "产品状态 0下架1上架 默认1上架")
     @Nullable
     private Integer productState = 1;
-    @Schema(description = "产品类型1 待定")
+    @Schema(description = "产品类型1 待定 ")
     private String productType1;
     @Schema(description = "产品类型2 待定")
     private String productType2;

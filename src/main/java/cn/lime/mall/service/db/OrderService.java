@@ -22,6 +22,8 @@ import java.util.List;
 * @createDate 2024-03-15 14:29:53
 */
 public interface OrderService extends IService<Order> {
+    Order getByOutTradeNo(String outTradeNo);
+
     Order createOrder(Long userId, Integer addressId, List<OrderItemDto> orderItems, String remark, Long discountId);
     Order createOrder(Long userId,Integer addressId,String remark,List<Long> cartIds,Long discountId);
     Boolean cancelOrder(Long orderId);
@@ -29,6 +31,7 @@ public interface OrderService extends IService<Order> {
     OrderDetailVo getOrderDetail(Long orderId);
     PageResult<OrderPageVo> getOrderPage(String orderCode, String userName, String productName,String receiverName,
                                          Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime,
+                                         Integer refundStatus,
                                          Integer current, Integer pageSize, String sortField, String sortOrder);
     Boolean applyRefund(Long orderId);
     void reviewRefund(Long orderId,Integer isApprove);

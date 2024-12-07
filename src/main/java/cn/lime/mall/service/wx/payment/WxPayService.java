@@ -28,10 +28,10 @@ public interface WxPayService {
     <T> void dealNotice(HttpServletRequest request, Class<T> clazz);
     /**
      * 查询订单详情
-     * @param orderId 外部第三方（本系统 订单ID
+     * @param outTradeNo 外部第三方（本系统 订单ID
      * @return 微信交易信息
      */
-    Transaction queryOrderById(Long orderId);
+    Transaction queryOrderByOutTradeNo(String outTradeNo);
 
     /**
      *

@@ -27,7 +27,7 @@ public class H5PayServiceImpl extends BaseWxPayServiceImpl {
         request.setMchid(mallParams.getWxPayMerchantId());
         request.setAppid(mallParams.getWxPayAppId());
         request.setNotifyUrl(mallParams.getWxPayNotifyUrlPrefix() + notifyUrl);
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(getOrderOutTradeNo(orderId));
         request.setDescription(getOrderDescription(orderId));
         request.setSceneInfo(sceneInfo);
         // 预下单
@@ -39,9 +39,9 @@ public class H5PayServiceImpl extends BaseWxPayServiceImpl {
     }
 
     @Override
-    public Transaction queryOrderById(Long orderId) {
+    public Transaction queryOrderByOutTradeNo(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
-        request.setOutTradeNo(String.valueOf(orderId));
+        request.setOutTradeNo(outTradeNo);
         request.setMchid(String.valueOf(mallParams.getWxPayMerchantId()));
         return h5Service.queryOrderByOutTradeNo(request);
     }
