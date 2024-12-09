@@ -29,6 +29,7 @@ public interface OrderService extends IService<Order> {
     Boolean cancelOrder(Long orderId);
     OrderPayVo payOrder(OrderPayDto dto);
     OrderDetailVo getOrderDetail(Long orderId);
+    OrderDetailVo getOrderDetailWithoutAuthCheck(Long orderId);
     PageResult<OrderPageVo> getOrderPage(String orderCode, String userName, String productName,String receiverName,
                                          Integer orderState,Long orderUserId, Long orderStartTime,Long orderEndTime,
                                          Integer refundStatus,

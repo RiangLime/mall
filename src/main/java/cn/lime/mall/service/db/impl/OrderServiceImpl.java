@@ -236,6 +236,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order>
     }
 
     @Override
+    public OrderDetailVo getOrderDetailWithoutAuthCheck(Long orderId) {
+        OrderDetailVo vo = new OrderDetailVo();
+        // 订单信息
+        Order order = getById(orderId);
+        vo.fillOrderInfo(order);
+        // 用户信息
+        User user = userService.getById(order.getUserId());
+        vo.fillUserInfo(user);
+        // 地址信息
+        Address address = addressService.getById(order.getAddressId());
+        vo.fillAddressInfo(address);
+        // 商品SKU信息
+        List<OrderProductSkuVo> productSkuVos = orderItemService.getItemsByOrderId(orderId);
+        vo.setOrderSkuList(productSkuVos);
+        // 日志信息
+        List<OrderOperateLogVo> logs = logService.lambdaQuery().eq(OrderOperateLog::getOrderId, orderId).list().stream().map(OrderOperateLogVo::fromBean).toList();
+        vo.setLogs(logs);
+
+        return vo;
+    }
+
+    @Override
     public Boolean applyRefund(Long orderId) {
         Order order = getById(orderId);
         orderOwnerCheck(order, ReqThreadLocal.getInfo().getUserId());
