@@ -15,6 +15,7 @@ import cn.lime.mall.model.vo.discount.DiscountVo;
 import cn.lime.mall.model.vo.discount.ProductTitleVo;
 import cn.lime.mall.service.db.DiscountAvailableProductService;
 import cn.lime.mall.service.db.OrderService;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.mall.model.entity.Discount;
@@ -94,13 +95,16 @@ public class DiscountServiceImpl extends ServiceImpl<DiscountMapper, Discount>
                                                List<Long> productId, Integer isAvailable, Integer current, Integer pageSize) {
         Page<?> page = PageUtils.build(current, pageSize, null, null);
         Page<Long> discountIds = baseMapper.getPage(type, ownerId, discountPriceRangeStart, discountPriceEnd, productId, isAvailable, page);
-        log.info("total:{} size:{} current:{}", discountIds.getTotal(), discountIds.getSize(), discountIds.getCurrent());
-        if (CollectionUtils.isEmpty(discountIds.getRecords())) {
+
+        List<Long> res = discountIds.getRecords();
+
+        if (CollectionUtils.isEmpty(res)) {
             return new PageResult<>(discountIds, Collections.emptyList());
         }
         List<DiscountVo> list = new LinkedList<>();
-        for (Long discountId : discountIds.getRecords()) {
-            list.add(getVoById(discountId));
+        for (Long discountId : res) {
+            DiscountVo vo = getVoById(discountId);
+            list.add(vo);
         }
         return new PageResult<>(discountIds, list);
     }
