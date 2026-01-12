@@ -38,6 +38,7 @@ public class ProductDetailVo {
     @Schema(description = "商品分类2")
     private String productType2;
     @Schema(description = "商品品牌")
+    @Deprecated
     private String productBrand;
     @Schema(description = "商品是否可见")
     private Integer productVisible;
@@ -47,6 +48,11 @@ public class ProductDetailVo {
     @Schema(description = "商品最新修改时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long modifiedTime;
+
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
 
     /*
     * url

@@ -28,6 +28,8 @@ public class ProductPageUserDto extends PageRequest implements Serializable {
     @Schema(description = "商品标签ID 序列化为String")
     @JsonSerialize(using = LongListToStringSerializer.class)
     private List<Long> tagIds;
-    @Schema(description = "商品类型")
-    private String productType;
+    @Schema(description = "商品类型1")
+    private String productType1;
+    @Schema(description = "商品类型2")
+    private String productType2;
 }

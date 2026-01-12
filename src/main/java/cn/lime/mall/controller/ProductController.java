@@ -48,8 +48,8 @@ public class ProductController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<ProductPageVo>> getProductPage(@RequestBody @Valid ProductPageUserDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductPage(
-                dto.getProductName(),dto.getTagIds(),dto.getProductType(), YesNoEnum.YES.getVal(),YesNoEnum.YES.getVal(),
-                dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
+                dto.getProductName(),dto.getTagIds(),dto.getProductType1(),dto.getProductType2(), YesNoEnum.YES.getVal(),
+                YesNoEnum.YES.getVal(), dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 
     @PostMapping("/detail")

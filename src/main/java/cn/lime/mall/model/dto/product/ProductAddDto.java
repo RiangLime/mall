@@ -43,6 +43,11 @@ public class ProductAddDto implements Serializable {
     private String productType1;
     @Schema(description = "产品类型2 待定")
     private String productType2;
+    private String reserveStrA;
+    private String reserveStrB;
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+
     @Schema(description = "用户是否可见 1可见 0不可见")
     @NotNull
     @Range(min = 0,max = 1)

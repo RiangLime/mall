@@ -28,4 +28,8 @@ public class SkuUpdateDto implements Serializable {
     @Schema(description = "备注")
     private String remark;
 
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
 }

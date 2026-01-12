@@ -16,14 +16,14 @@ import java.util.List;
  * @createDate 2024-07-31 15:03:53
  */
 public interface ProductService extends IService<Product> {
-    boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                       String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls, String brand,
-                       List<SkuInfo> skuInfos, List<Long> productTagIds, Integer productState,String productSubTitle);
+    boolean addProduct(String productCode, String productName, String productDescription, String type1, String type2,
+                       Integer reInt1,Integer reInt2, String reStr1, String reStr2, Integer isVisible,
+                       String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos, List<Long> productTagIds, Integer productState);
 
     boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
-                          String realVirtualType, String detectNormalType, Integer isVisible, String mainPicUrl,
-                          List<String> roundUrls, String brand, List<SkuInfo> skuInfos, List<Long> productTagIds,
-                          Integer productState,String productSubTitle);
+                          String type1, String type2, Integer reInt1,Integer reInt2, String reStr1, String reStr2,
+                          Integer isVisible, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
+                          List<Long> productTagIds, Integer productState);
 
     boolean deleteSkus(Long productId);
 
@@ -39,7 +39,7 @@ public interface ProductService extends IService<Product> {
 
     boolean stateDownProducts(List<Long> productIds);
 
-    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,Integer visible,
+    PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, String productType2, Integer productState,Integer visible,
                                              Integer current, Integer pageSize, String sortField, String sortOrder);
 
     ProductDetailVo getProductDetail(Long productId, Integer state);

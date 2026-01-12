@@ -29,7 +29,9 @@ public class ProductPageAdminDto extends PageRequest implements Serializable {
     @JsonSerialize(using = LongListToStringSerializer.class)
     private List<Long> tagIds;
     @Schema(description = "商品类型1")
-    private String productType;
+    private String productType1;
+    @Schema(description = "商品类型2")
+    private String productType2;
     @Schema(description = "商品状态 0下架 1上架")
     private Integer productState;
     @Schema(description = "商品是否可见")

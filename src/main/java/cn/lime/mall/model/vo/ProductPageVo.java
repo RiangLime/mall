@@ -19,10 +19,6 @@ public class ProductPageVo {
     private String productCode;
     @Schema(description = "商品名称")
     private String productName;
-    @Schema(description = "商品副标题")
-    private String productSubTitle;
-    @Schema(description = "商品品牌")
-    private String productBrand;
     @Schema(description = "商品主图")
     private String productMainUrl;
     @Schema(description = "商品价格范围 开始")
@@ -40,7 +36,15 @@ public class ProductPageVo {
     @Schema(description = "商品是否可见")
     private Integer productVisible;
     @Schema(description = "商品类型1")
-    private String productType;
+    private String productType1;
+    @Schema(description = "商品类型2")
+    private String productType2;
+
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
+
     @Schema(description = "商品排序字段")
     private Integer productSort;
     @Schema(description = "商品创建时间 秒级时间戳 序列化为String")

@@ -61,6 +61,10 @@ create table Sku
     price           INT           NOT NULL comment 'SKU价格',
     stock           INT           NOT NULL comment '库存',
     remark          NVARCHAR(512) NULL comment '备注',
+    reserve_str_a       nvarchar(512) null comment '保留字段 字符串A',
+    reserve_str_b       nvarchar(512) null comment '保留字段 字符串B',
+    reserve_int_a       int           null comment '保留字段 intA',
+    reserve_int_b       int           null comment '保留字段 intB',
     gmt_created     TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 ) comment 'SKU表' collate = utf8mb4_unicode_ci;;

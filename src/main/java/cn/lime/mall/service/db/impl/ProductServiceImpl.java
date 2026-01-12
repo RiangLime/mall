@@ -56,21 +56,23 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
 
     @Override
     @Transactional
-    public boolean addProduct(String productCode, String productName, String productDescription, String realVirtualType,
-                              String detectNormalType, Integer isVisible, String mainPicUrl, List<String> roundUrls, String productBrand,
-                              List<SkuInfo> skuInfos, List<Long> productTagIds,Integer productState,String productSubTitle) {
+    public boolean addProduct(String productCode, String productName, String productDescription, String type1, String type2,
+                              Integer reInt1,Integer reInt2, String reStr1, String reStr2, Integer isVisible, String mainPicUrl,
+                              List<String> roundUrls, List<SkuInfo> skuInfos, List<Long> productTagIds, Integer productState) {
         // 新增商品
         Product product = new Product();
         product.setProductId(ids.nextId());
         product.setProductCode(productCode);
         product.setProductName(productName);
         product.setVisible(isVisible);
-        product.setReserveStrA(productBrand);
+        product.setReserveStrA(reStr1);
         product.setProductDescription(productDescription);
-        product.setProductType1(realVirtualType);
-        product.setProductType2(detectNormalType);
+        product.setProductType1(type1);
+        product.setProductType2(type2);
         product.setProductState(productState);
-        product.setReserveStrB(productSubTitle);
+        product.setReserveStrB(reStr2);
+        product.setReserveIntA(reInt1);
+        product.setReserveIntB(reInt2);
         ThrowUtils.throwIf(!save(product), ErrorCode.INSERT_ERROR, "新增商品信息失败");
         // 新增商品图片
         boolean res = productUrlService.addMainPicUrl(product.getProductId(), mainPicUrl);
@@ -92,25 +94,27 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     @Override
     @Transactional
     public boolean updateProduct(Long productId, String productCode, String productName, String productDescription,
-                                 String realVirtualType, String detectNormalType, Integer isVisible,
-                                 String mainPicUrl, List<String> roundUrls, String brand, List<SkuInfo> skuInfos,
-                                 List<Long> productTagIds,Integer productState,String productSubTitle) {
+                                 String type1, String type2, Integer reInt1,Integer reInt2, String reStr1, String reStr2,
+                                 Integer isVisible, String mainPicUrl, List<String> roundUrls, List<SkuInfo> skuInfos,
+                                 List<Long> productTagIds, Integer productState) {
         boolean res = true;
         LambdaUpdateWrapper<Product> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(Product::getProductId, productId);
         if (StringUtils.isNotEmpty(productCode) || StringUtils.isNotEmpty(productName) ||
-                StringUtils.isNotEmpty(productDescription) || StringUtils.isNotEmpty(realVirtualType) ||
-                StringUtils.isNotEmpty(detectNormalType) || ObjectUtils.isNotEmpty(isVisible) || StringUtils.isNotEmpty(brand)) {
+                StringUtils.isNotEmpty(productDescription) || StringUtils.isNotEmpty(type1) ||
+                StringUtils.isNotEmpty(type2) || ObjectUtils.isNotEmpty(isVisible) || StringUtils.isNotEmpty(reStr1)) {
             if (StringUtils.isNotEmpty(productCode)) wrapper.set(Product::getProductCode, productCode);
             if (StringUtils.isNotEmpty(productName)) wrapper.set(Product::getProductName, productName);
             if (StringUtils.isNotEmpty(productDescription))
                 wrapper.set(Product::getProductDescription, productDescription);
-            if (StringUtils.isNotEmpty(realVirtualType)) wrapper.set(Product::getProductType1, realVirtualType);
-            if (StringUtils.isNotEmpty(detectNormalType)) wrapper.set(Product::getProductType2, detectNormalType);
+            if (StringUtils.isNotEmpty(type1)) wrapper.set(Product::getProductType1, type1);
+            if (StringUtils.isNotEmpty(type2)) wrapper.set(Product::getProductType2, type2);
             if (ObjectUtils.isNotEmpty(isVisible)) wrapper.set(Product::getVisible, isVisible);
-            if (StringUtils.isNotEmpty(brand)) wrapper.set(Product::getReserveStrA, brand);
+            if (StringUtils.isNotEmpty(reStr1)) wrapper.set(Product::getReserveStrA, reStr1);
             if (ObjectUtils.isNotEmpty(productState)) wrapper.set(Product::getProductState,productState);
-            if (StringUtils.isNotEmpty(productSubTitle)) wrapper.set(Product::getReserveStrB,productSubTitle);
+            if (StringUtils.isNotEmpty(reStr2)) wrapper.set(Product::getReserveStrB,reStr2);
+            if (ObjectUtils.isNotEmpty(reInt1)) wrapper.set(Product::getReserveIntA,reInt1);
+            if (ObjectUtils.isNotEmpty(reInt2)) wrapper.set(Product::getReserveIntB,reInt2);
             res = update(wrapper);
         }
         ThrowUtils.throwIf(!res, ErrorCode.UPDATE_ERROR, "更新产品信息异常");
@@ -169,10 +173,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
     }
 
     @Override
-    public PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, Integer productState,Integer visible,
+    public PageResult<ProductPageVo> getProductPage(String productName, List<Long> tagIds, String productType, String productType2, Integer productState,Integer visible,
                                                     Integer current, Integer pageSize, String sortField, String sortOrder) {
         Page<?> page = PageUtils.build(current, pageSize, sortField, sortOrder);
-        Page<ProductPageVo> vos = baseMapper.pageProduct(productName, tagIds, productType, productState, visible, page);
+        Page<ProductPageVo> vos = baseMapper.pageProduct(productName, tagIds, productType, productType2, productState, visible, page);
         return new PageResult<>(vos);
     }
 
@@ -244,7 +248,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
 
     @Override
     public ProductMallHomePageVo getMallHomePage() {
-        PageResult<ProductPageVo> page = getProductPage(null,null,null,YesNoEnum.YES.getVal()
+        PageResult<ProductPageVo> page = getProductPage(null,null,null,null, YesNoEnum.YES.getVal()
                 ,YesNoEnum.YES.getVal(), 1,10000,null,null);
         // 所有商品
         ProductMallHomePageVo vo = new ProductMallHomePageVo();
@@ -261,7 +265,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
             for (ProductLevelTagVo subTag : subTags) {
                 ProductSubGroupVo subGroupVo = new ProductSubGroupVo();
                 subGroupVo.setTagVo(subTag);
-                subGroupVo.setProductVos(getProductPage(null,List.of(subTag.getTagId()), null,
+                subGroupVo.setProductVos(getProductPage(null,List.of(subTag.getTagId()), null,null,
                         YesNoEnum.YES.getVal(),YesNoEnum.YES.getVal(),1,10000,null,null).getList());
                 subGroupVos.add(subGroupVo);
             }

@@ -28,6 +28,10 @@ public class SkuInfoVo {
     private Integer stock;
     @Schema(description = "备注")
     private String remark;
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
     @Schema(description = "创建时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long createTime;

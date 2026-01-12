@@ -13,6 +13,10 @@
         <result property="productSort" column="product_sort" jdbcType="INTEGER"/>
         <result property="productType1" column="product_type_1" jdbcType="VARCHAR"/>
         <result property="productType2" column="product_type_2" jdbcType="VARCHAR"/>
+        <result property="reserveIntA" column="reserve_int_a" jdbcType="INTEGER"/>
+        <result property="reserveIntB" column="reserve_int_b" jdbcType="INTEGER"/>
+        <result property="reserveStrA" column="reserve_str_a" jdbcType="VARCHAR"/>
+        <result property="reserveStrB" column="reserve_str_a" jdbcType="VARCHAR"/>
         <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
         <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -24,11 +28,14 @@
         <result property="productDescription" column="productDescription" jdbcType="VARCHAR"/>
         <result property="productSort" column="productSort" jdbcType="INTEGER"/>
         <result property="productState" column="productState" jdbcType="INTEGER"/>
-        <result property="productBrand" column="productBrand" jdbcType="VARCHAR"/>
         <result property="createTime" column="createTime" jdbcType="BIGINT"/>
         <result property="modifiedTime" column="modifiedTime" jdbcType="BIGINT"/>
         <result property="productType1" column="productTypeVirtual" jdbcType="VARCHAR"/>
         <result property="productType2" column="productTypeDetect" jdbcType="VARCHAR"/>
+        <result property="reserveIntA" column="reserve_int_a" jdbcType="INTEGER"/>
+        <result property="reserveIntB" column="reserve_int_b" jdbcType="INTEGER"/>
+        <result property="reserveStrA" column="reserve_str_a" jdbcType="VARCHAR"/>
+        <result property="reserveStrB" column="reserve_str_a" jdbcType="VARCHAR"/>
         <result property="productVisible" column="productVisible" javaType="INTEGER"/>
         <!-- Collection for tags -->
         <collection property="productTags" ofType="cn.lime.mall.model.vo.SimpleTagVo">
@@ -47,7 +54,7 @@
         product_id
         ,product_code,product_name,
         product_description,product_state,product_sort,
-        product_type_1,product_type_2,gmt_created,
+        product_type_1,product_type_2,gmt_created,reserve_int_a,reserve_int_b,reserve_str_a,reserve_str_b,
         gmt_modified
     </sql>
     <select id="pageProduct" resultType="cn.lime.mall.model.vo.ProductPageVo">
@@ -75,8 +82,12 @@
         p.product_name as productName,
         p.reserve_str_b as productSubTitle,
         p.product_state as productState,
-        p.product_type_1 as productType,
-        p.reserve_str_a as productBrand,
+        p.product_type_1 as productType1,
+        p.product_type_2 as productType2,
+        p.reserve_str_a as reserveStrA,
+        p.reserve_str_b as reserveStrB,
+        p.reserve_int_a as reserveIntA,
+        p.reserve_int_b as reserveIntB,
         UNIX_TIMESTAMP(p.gmt_created) as createTime,
         p.product_sort as productSort,
         MIN(s.price) as priceRangeStart,
@@ -123,8 +134,11 @@
         <if test="productName != null">
             and t.productName like CONCAT('%', #{productName}, '%')
         </if>
-        <if test="productType != null">
-            and t.productType = #{productType}
+        <if test="productType1 != null">
+            and t.productType1 = #{productType1}
+        </if>
+        <if test="productType2 != null">
+            and t.productType2 = #{productType2}
         </if>
         <if test="state != null">
             and t.productState = #{state}
@@ -147,7 +161,11 @@
                p.product_state                as productState,
                p.product_type_1               as productTypeVirtual,
                p.product_type_2               as productTypeDetect,
-               p.reserve_str_a                as productBrand,
+                p.reserve_str_a                ,
+                p.reserve_str_b                ,
+                p.reserve_int_a                ,
+                p.reserve_int_b                ,
+
                p.visible as productVisible,
                UNIX_TIMESTAMP(p.gmt_created)  as createTime,
                UNIX_TIMESTAMP(p.gmt_modified) as modifiedTime,
@@ -198,8 +216,12 @@
         p.product_name as productName,
         p.reserve_str_b as productSubTitle,
         p.product_state as productState,
-        p.product_type_1 as productType,
-        p.reserve_str_a as productBrand,
+        p.product_type_1 as productType1,
+        p.product_type_2 as productType2,
+        p.reserve_str_a as reserveStrA,
+        p.reserve_str_b as reserveStrB,
+        p.reserve_int_a as reserveIntA,
+        p.reserve_int_b as reserveIntB,
         UNIX_TIMESTAMP(p.gmt_created) as createTime,
         p.product_sort as productSort,
         MIN(s.price) as priceRangeStart,

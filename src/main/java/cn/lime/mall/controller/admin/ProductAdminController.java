@@ -42,8 +42,8 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<ProductPageVo>> getProductPage(@RequestBody @Valid ProductPageAdminDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductPage(
-                dto.getProductName(),dto.getTagIds(),dto.getProductType(), dto.getProductState(),dto.getIsVisible(),
-                dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
+                dto.getProductName(),dto.getTagIds(),dto.getProductType1(), dto.getProductType2(), dto.getProductState(),
+                dto.getIsVisible(), dto.getCurrent(), dto.getPageSize(),dto.getSortField(),dto.getSortOrder()));
     }
 
     @PostMapping("/detail")
@@ -60,9 +60,9 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> addNewProduct(@RequestBody @Valid ProductAddDto dto,BindingResult result){
         ThrowUtils.throwIf(!productService.addProduct(dto.getProductCode(),dto.getProductName(),dto.getProductDescription(),
-                dto.getProductType1(), dto.getProductType2(),dto.getVisible(),dto.getMainPicUrl(),
-                dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),dto.getProductTagIds(),dto.getProductState(),
-                dto.getProductSubTitle()), ErrorCode.INSERT_ERROR);
+                dto.getProductType1(), dto.getProductType2(),dto.getReserveIntA(),dto.getReserveIntB(),
+                dto.getReserveStrA(),dto.getReserveStrB(),dto.getVisible(),dto.getMainPicUrl(), dto.getRoundUrls(),
+                dto.getSkuInfos(),dto.getProductTagIds(),dto.getProductState()), ErrorCode.INSERT_ERROR);
         return ResultUtils.success(null);
     }
 
@@ -137,7 +137,8 @@ public class ProductAdminController {
     @Deprecated
     public BaseResponse<Void> updateSku(@RequestBody@Valid SkuUpdateDto dto,BindingResult result){
         ThrowUtils.throwIf(!skuService.updateSkuPriceStock(dto.getSkuId(),dto.getSkuCode(),dto.getSkuPrice(),
-                dto.getSkuStock(),dto.getSkuDescription(),dto.getRemark()),ErrorCode.UPDATE_ERROR);
+                dto.getSkuStock(),dto.getSkuDescription(),dto.getRemark(),dto.getReserveIntA(),dto.getReserveIntB(),
+                dto.getReserveStrA(),dto.getReserveStrB()),ErrorCode.UPDATE_ERROR);
         return ResultUtils.success(null);
     }
 
@@ -147,9 +148,9 @@ public class ProductAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> updateProduct(@RequestBody@Valid ProductUpdateDto dto,BindingResult result){
         productService.updateProduct(dto.getProductId(),dto.getProductCode(),dto.getProductName(),
-                dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),dto.getVisible(),
-                dto.getMainPicUrl(), dto.getRoundUrls(),dto.getProductBrand(),dto.getSkuInfos(),
-                dto.getProductTagIds(),dto.getProductState(),dto.getProductSubTitle());
+                dto.getProductDescription(), dto.getProductType1(),dto.getProductType2(),
+                dto.getReserveIntA(),dto.getReserveIntB(),dto.getReserveStrA(),dto.getReserveStrB(),dto.getVisible(),
+                dto.getMainPicUrl(), dto.getRoundUrls(),dto.getSkuInfos(), dto.getProductTagIds(),dto.getProductState());
         return ResultUtils.success(null);
     }
 

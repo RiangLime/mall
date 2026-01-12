@@ -36,6 +36,13 @@ public class ProductUpdateDto implements Serializable {
     private String productType1;
     @Schema(description = "产品类型2 待定")
     private String productType2;
+
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
+
+
     @Schema(description = "产品状态 0下架1上架")
     private Integer productState;
     @Schema(description = "用户是否可见 1可见 0不可见")

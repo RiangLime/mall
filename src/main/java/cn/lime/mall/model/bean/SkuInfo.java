@@ -30,5 +30,9 @@ public class SkuInfo implements Serializable {
     private String skuDescription;
     @Schema(description = "SKU备注信息")
     private String skuRemark;
+    private Integer reserveIntA;
+    private Integer reserveIntB;
+    private String reserveStrA;
+    private String reserveStrB;
 
 }

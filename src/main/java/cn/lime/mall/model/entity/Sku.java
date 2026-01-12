@@ -57,6 +57,15 @@ public class Sku implements Serializable {
     @TableField(value = "remark")
     private String remark;
 
+    @TableField(value = "reserve_str_a")
+    private String reserveStrA;
+    @TableField(value = "reserve_str_b")
+    private String reserveStrB;
+    @TableField(value = "reserve_int_a")
+    private Integer reserveIntA;
+    @TableField(value = "reserve_int_b")
+    private Integer reserveIntB;
+
     /**
      * 创建时间
      */
