@@ -40,6 +40,7 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
         sku.setPrice(skuInfo.getSkuPrice());
         sku.setStock(skuInfo.getSkuStock());
         sku.setSkuDescription(skuInfo.getSkuDescription());
+        sku.setRemark(sku.getRemark());
         ThrowUtils.throwIf(!save(sku), ErrorCode.INSERT_ERROR);
         return sku;
     }

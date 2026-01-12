@@ -21,6 +21,8 @@ import java.util.List;
 public interface ProductMapper extends BaseMapper<Product> {
     Page<ProductPageVo> pageProduct(String productName, List<Long> tagIds, String productType, Integer state, Integer visible, Page<?> page);
 
+    List<ProductPageVo> getProductsFromIds(List<Long> ids);
+
     ProductDetailVo getProductBasicDetail(Long productId,Integer state);
 
     List<ProductSpecificationInfo> getProductSpecification(Long productId);

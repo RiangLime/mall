@@ -9,8 +9,10 @@ import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.module.dto.EmptyDto;
+import cn.lime.mall.model.dto.product.GetProductPageVoFromIdsDto;
 import cn.lime.mall.model.dto.product.ProductIdDto;
 import cn.lime.mall.model.dto.product.ProductPageUserDto;
+import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.model.vo.ProductDetailVo;
 import cn.lime.mall.model.vo.ProductMallHomePageVo;
 import cn.lime.mall.model.vo.ProductPageVo;
@@ -21,6 +23,8 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassName: ProductController
@@ -54,6 +58,14 @@ public class ProductController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<ProductDetailVo> getProductDetail(@RequestBody @Valid ProductIdDto dto, BindingResult result) {
         return ResultUtils.success(productService.getProductDetail(dto.getProductId(),YesNoEnum.YES.getVal()));
+    }
+
+    @PostMapping("/getpagevofromids")
+    @Operation(summary = "用户查询商品详情页")
+    @AuthCheck(authLevel = AuthLevel.TOURIST)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<List<ProductPageVo>> getProductPageVoFromIds(@RequestBody @Valid GetProductPageVoFromIdsDto dto, BindingResult result) {
+        return ResultUtils.success(productService.getProductsFromIds(dto.getIds()));
     }
 
 
