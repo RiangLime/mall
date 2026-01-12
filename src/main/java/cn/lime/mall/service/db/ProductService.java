@@ -50,4 +50,6 @@ public interface ProductService extends IService<Product> {
 
     boolean removeProductTag(Long productId, Long tagId);
     ProductMallHomePageVo getMallHomePage();
+
+    List<ProductPageVo> getProductsFromIds(List<Long> ids);
 }

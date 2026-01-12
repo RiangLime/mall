@@ -271,6 +271,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product>
         vo.setGroupProductVos(groupVos);
         return vo;
     }
+
+    @Override
+    public List<ProductPageVo> getProductsFromIds(List<Long> ids) {
+        return baseMapper.getProductsFromIds(ids);
+    }
 }
 
 

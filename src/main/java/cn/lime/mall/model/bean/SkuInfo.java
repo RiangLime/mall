@@ -28,5 +28,7 @@ public class SkuInfo implements Serializable {
     private Map<String,String> attributes;
     @Schema(description = "SKU描述")
     private String skuDescription;
+    @Schema(description = "SKU备注信息")
+    private String skuRemark;
 
 }
