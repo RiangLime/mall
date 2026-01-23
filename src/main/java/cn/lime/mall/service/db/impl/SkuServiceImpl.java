@@ -40,7 +40,7 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
         sku.setPrice(skuInfo.getSkuPrice());
         sku.setStock(skuInfo.getSkuStock());
         sku.setSkuDescription(skuInfo.getSkuDescription());
-        sku.setRemark(sku.getRemark());
+        sku.setRemark(skuInfo.getSkuRemark());
         ThrowUtils.throwIf(!save(sku), ErrorCode.INSERT_ERROR);
         return sku;
     }
@@ -50,10 +50,10 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
     public List<SkuInfoVo> getProductSkuInfos(Long productId) {
         List<SkuInfoVo> skuInfos = baseMapper.getBaseSkuInfo(productId);
         for (SkuInfoVo skuInfo : skuInfos) {
-            List<Map<String,String>> listMap = baseMapper.getAttributesBySkuId(skuInfo.getSkuId());
-            Map<String,String> attrMap = new HashMap<>();
+            List<Map<String, String>> listMap = baseMapper.getAttributesBySkuId(skuInfo.getSkuId());
+            Map<String, String> attrMap = new HashMap<>();
             for (Map<String, String> stringStringMap : listMap) {
-                attrMap.put(stringStringMap.get("attribute_name"),stringStringMap.get("attribute_value"));
+                attrMap.put(stringStringMap.get("attribute_name"), stringStringMap.get("attribute_value"));
             }
             skuInfo.setAttributes(attrMap);
 
@@ -62,25 +62,25 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku>
     }
 
     @Override
-    public boolean updateSkuPriceStock(Long skuId,String skuCode, Integer price, Integer stock,String skuDescription,String remark) {
+    public boolean updateSkuPriceStock(Long skuId, String skuCode, Integer price, Integer stock, String skuDescription, String remark) {
         ThrowUtils.throwIf(ObjectUtils.isEmpty(price) && ObjectUtils.isNotEmpty(stock)
                 && StringUtils.isEmpty(skuCode) && StringUtils.isEmpty(skuDescription)
                 && StringUtils.isEmpty(remark), ErrorCode.PARAMS_ERROR);
         LambdaUpdateWrapper<Sku> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(Sku::getSkuId,skuId);
-        if (ObjectUtils.isNotEmpty(price)) wrapper.set(Sku::getPrice,price);
-        if (ObjectUtils.isNotEmpty(stock)) wrapper.set(Sku::getStock,stock);
-        if (StringUtils.isNotEmpty(skuCode)) wrapper.set(Sku::getSkuCode,skuCode);
-        if (StringUtils.isNotEmpty(skuDescription)) wrapper.set(Sku::getSkuDescription,skuDescription);
-        if (StringUtils.isNotEmpty(remark)) wrapper.set(Sku::getRemark,remark);
+        wrapper.eq(Sku::getSkuId, skuId);
+        if (ObjectUtils.isNotEmpty(price)) wrapper.set(Sku::getPrice, price);
+        if (ObjectUtils.isNotEmpty(stock)) wrapper.set(Sku::getStock, stock);
+        if (StringUtils.isNotEmpty(skuCode)) wrapper.set(Sku::getSkuCode, skuCode);
+        if (StringUtils.isNotEmpty(skuDescription)) wrapper.set(Sku::getSkuDescription, skuDescription);
+        if (StringUtils.isNotEmpty(remark)) wrapper.set(Sku::getRemark, remark);
         return update(wrapper);
     }
 
     @Override
     public boolean deleteProductSkus(Long productId) {
-        if (lambdaQuery().eq(Sku::getProductId,productId).exists()) {
+        if (lambdaQuery().eq(Sku::getProductId, productId).exists()) {
             return lambdaUpdate().eq(Sku::getProductId, productId).remove();
-        }else {
+        } else {
             return true;
         }
     }
